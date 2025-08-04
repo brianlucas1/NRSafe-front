@@ -1,0 +1,135 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<p-toolbar styleClass="mb-6">
+  <ng-template #start>
+    <div class="flex items-center gap-2">
+            <div>              
+               <p-button label="Cadastrar nova filial"  (onClick)="abreModalCadastro()" />
+            </div>
+            <div>              
+                <p-button label="Vincular site"  />
+            </div>
+        </div>
+    
+  </ng-template>  
+</p-toolbar>
+
+<app-dialog-cadastro-filial 
+  [visible]="dialogCadastro"
+  [filialSelecionada]="filialSelecionada"
+  (fechar)="fechaModalCadastro()">
+</app-dialog-cadastro-filial>
+
+<p-table 
+  #dt
+  [value]="listaFiliais"
+  [rows]="10"
+  [columns]="cols" 
+  [paginator]="true"
+  dataKey="id"
+  [tableStyle]="{ 'min-width': '75rem' }"
+  [rowsPerPageOptions]="[10, 20, 30]"
+  currentPageReportTemplate="Mostrando {first} de {last} total {totalRecords} filiais"
+  [showCurrentPageReport]="true">
+
+  <ng-template #caption>
+    <div class="flex items-center justify-between">
+      <h5 class="m-0">Lista de Filiais</h5>
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search" />
+        <input pInputText type="text" (input)="filtro(dt, $event)" placeholder="Buscar..." />
+      </p-iconfield>
+    </div>
+  </ng-template>
+
+  <ng-template #header>
+    <tr>
+
+      <th pSortableColumn="cnpj" style="min-width:16rem">
+        CNPJ
+      </th>
+      <th pSortableColumn="razaoSocial" style="min-width:10rem">
+        RAZÃO SOCIAL
+        <p-sortIcon field="razaoSocial" />
+      </th>
+      <th pSortableColumn="email" style="min-width:10rem">
+        E-MAIL
+        <p-sortIcon field="email" />
+      </th>
+        <th pSortableColumn="nomeFantasia" style="min-width:10rem">
+        NOME FANTASIA
+        <p-sortIcon field="nomeFantasia" />
+      </th>
+       <th pSortableColumn="ativo" style="min-width:10rem">
+        ATIVO
+      </th>
+      <th pSortableColumn="filial" style="min-width:10rem">
+        SITES
+        <p-sortIcon field="filial" />
+      </th>
+      <th style="min-width: 12rem">
+        AÇÃO
+      </th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-filial>
+    <tr>
+      <td style="min-width: 16rem">{{ filial.cnpj }}</td>
+      <td>{{ filial.razaoSocial}}</td>
+      <td>{{ filial.email}}</td>
+      <td>{{ filial.nomeFantasia }}</td>
+      <td>
+        <i class="pi"  (click)="inativalFilial(filial)" [ngClass]="{
+                        'text-green-500 pi-check-circle': filial.stAtivo =='A',
+                        'text-red-500 pi-times-circle': filial.stAtivo =='I'
+                    }"></i>
+      </td>
+        <td (click)="filial.listaSites?.length ? toggleRow(filial) : null" style="cursor: pointer;">
+      <i
+         *ngIf="filial.listaSites?.length "
+        class="pi"
+        [ngClass]="expandedRows[filial.id] ? 'pi-chevron-up' : 'pi-chevron-down'"
+        style="margin-right: 0.5rem;"
+      ></i>
+      {{ filial.listaSites?.length || 0 }}
+    </td>
+      <td>
+        <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editarFilial(filial)" />
+      </td>
+    </tr>
+
+    <tr *ngIf="expandedRows[filial.id]">
+  <td colspan="7" class="bg-gray-100">
+    <div class="p-3">
+      <p><strong>Sites de {{ filial.razaoSocial }}:</strong></p>
+
+      <p-table
+        [value]="filial.listaSites"
+        [responsiveLayout]="'scroll'"
+        class="p-datatable-sm"
+        styleClass="p-datatable-striped w-full"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Razão Social</th>
+            <th>CNPJ</th>
+            <th>Nome Fantasia</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-site>
+          <tr>
+            <td>{{ site.razaoSocial }}</td>
+            <td>{{ site.cnpj }}</td>
+            <td>{{ site.nomeFantasia }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </td>
+</tr>
+
+  </ng-template>
+
+</p-table>

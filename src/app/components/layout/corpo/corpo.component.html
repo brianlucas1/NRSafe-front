@@ -1,0 +1,16 @@
+<div *ngIf="isLogado(); else loginLayout" class="layout-wrapper" [ngClass]="containerClass">
+  <app-menu></app-menu>
+  <app-barra-superior></app-barra-superior>
+
+  <div class="layout-main-container">
+    <div class="layout-main">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+  <div class="layout-mask animate-fadein"></div>
+</div>
+
+<ng-template #loginLayout>
+  <router-outlet></router-outlet>
+</ng-template>

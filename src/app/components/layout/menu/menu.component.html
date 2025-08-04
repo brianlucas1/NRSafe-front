@@ -1,0 +1,15 @@
+<div class="layout-sidebar">
+    <ul class="layout-menu">
+        <ng-container *ngFor="let item of model; let i = index">
+            <app-menuitem *ngIf="!item.separator" [item]="item" [index]="i" [root]="true"></app-menuitem>
+            <li *ngIf="item.separator" class="menu-separator"></li>
+        </ng-container>
+    </ul>
+
+    <div class="pt-4 border-t border-gray-200">
+        <button class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-md transition" (click)="fazerLogout()">
+            <i class="pi pi-sign-out mr-2"></i>Sair
+        </button>
+    </div>
+
+</div>

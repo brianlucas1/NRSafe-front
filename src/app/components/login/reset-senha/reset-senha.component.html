@@ -1,0 +1,55 @@
+<p-toast></p-toast>
+<form [formGroup]="resetSenhaForm">
+    <div
+        class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
+        <div class="flex flex-col items-center justify-center">
+            <div
+                style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
+                <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
+                    
+                    <div class="text-center mb-8">
+                        <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">NRSafe</div>
+                    </div>
+
+                    <!-- Campos em coluna -->
+                    <div class="flex flex-col space-y-4">
+
+                        <div class="flex flex-col">
+                            <label for="email" class="text-xl font-medium mb-2">Confirme o e-mail</label>
+                            <input id="email" pInputText type="text" formControlName="email" placeholder="email" />
+                            <div *ngIf="resetSenhaForm.get('email')?.invalid && resetSenhaForm.get('email')?.touched">
+                                <small  class="text-red-500" *ngIf="resetSenhaForm.get('email')?.errors?.['required']">O campo e-mail é obrigatório.</small>
+                                <br>
+                                <small  class="text-red-500" *ngIf="resetSenhaForm.get('email')?.errors?.['email']">E-mail não está valido.</small>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col">
+                            <label for="pass" class="text-xl font-medium mb-2">Nova senha</label>
+                            <p-password id="pass" formControlName="novaSenha" placeholder="senha"
+                                [toggleMask]="true" [fluid]="true" [feedback]="false">
+                            </p-password>
+                        </div>
+
+                        <div class="flex flex-col">
+                            <label for="password1" class="text-xl font-medium mb-2">Confirmar senha</label>
+                            <p-password id="password1" formControlName="confirmarSenha" placeholder="senha"
+                                [toggleMask]="true" [fluid]="true" [feedback]="false">
+                            </p-password>
+                        </div>
+
+                        <div *ngIf="resetSenhaForm.errors?.['senhasDiferentes'] && resetSenhaForm.touched"
+                             class="text-red-500 text-sm">
+                            As senhas não coincidem.
+                        </div>
+
+                        <p-button label="Redefinir Senha" styleClass="w-full" (click)="cadastraNovaSenha()"></p-button>
+                        <p-button label="Voltar" styleClass="w-full" routerLink="/login"></p-button>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,185 @@
+<p-dialog [visible]="visible" [style]="{ width: '600px' }" [closable]="false" [modal]="true" (onHide)="onHideDialog()">
+    <p-toast></p-toast>
+    <ng-template pTemplate="header">
+        <div class="flex items-center gap-2">
+            <i class="pi pi-building text-blue-500"></i>
+            <span class="font-semibold text-lg">Cadastro de funcionário</span>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+        <form *ngIf="funcionarioForm" [formGroup]="funcionarioForm" class="space-y-4">
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-4">
+                    <label class="block font-bold mb-1">Cpf</label>
+                    <p-inputmask formControlName="cpf" placeholder="999.999.999-99" mask="999.999.999-99"
+                        class="w-full" />
+                    <div *ngIf="funcionarioForm.get('cpf')?.invalid && funcionarioForm.get('cpf')?.touched">
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('cpf')?.errors?.['required']">O campo cpf  é obrigatório.</small>
+                        <br>
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('cpf')?.errors?.['cpfInvalido']">Cpf não está valido.</small>
+                    </div>
+                </div>
+
+                <div class="flex-4">
+                    <label class="block font-bold mb-1">Rg</label>
+                    <p-inputmask formControlName="rg" placeholder="99-999-999-9" mask="99-999-999-9"
+                        class="w-full" />
+                    <div *ngIf="funcionarioForm.get('rg')?.invalid && funcionarioForm.get('rg')?.touched">
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('rg')?.errors?.['required']">O campo rg  é obrigatório.</small>
+                        <br>
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('rg')?.errors?.['rgInvalido']">Rg não está valido.</small>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-4">
+                    <label class="block font-bold mb-1">Vincular Empresa</label>
+                    <p-multiSelect [options]="listaEmpresas" formControlName="empresasSelecionadas"
+                        optionLabel="razaoSocial" optionValue="id" placeholder="Selecione as empresas" display="chip"
+                        [showToggleAll]="true">
+                    </p-multiSelect>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-4">
+                    <label class="block font-bold mb-1">Vincular Filial</label>
+                    <p-multiSelect [options]="listaFiliais" formControlName="filiaisSelecionadas"
+                        optionLabel="razaoSocial" optionValue="id" placeholder="Selecione as filiais" display="chip"
+                        [showToggleAll]="true">
+                    </p-multiSelect>
+                </div>
+
+                <div class="flex-4">
+                    <label class="block font-bold mb-1">Vincular Site</label>
+                    <p-multiSelect [options]="listaSites" formControlName="sitesSelecionados" optionLabel="razaoSocial"
+                        optionValue="id" placeholder="Selecione os sites" display="chip" [showToggleAll]="true">
+                    </p-multiSelect>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-4">
+                    <label class="block font-bold mb-1">Nome</label>
+                    <input pInputText formControlName="nome" />
+                    <div *ngIf="funcionarioForm.get('nome')?.invalid && funcionarioForm.get('nome')?.touched">
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('nome')?.errors?.['required']">O campo nome é obrigatório.</small>
+                    </div>
+                </div>
+                <div class="flex-4">
+                    <label class="block font-bold mb-1">Data de Nascimento</label>
+                    <p-datepicker formControlName="dataNascimento"  showIcon iconDisplay="input" dateFormat="dd/mm/yy" />
+                    <div *ngIf="funcionarioForm.get('dataNascimento')?.invalid && funcionarioForm.get('dataNascimento')?.touched">
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('dataNascimento')?.errors?.['required']">O Data de nascimento obrigatória.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="w-1/4">
+                    <label class="block font-bold mb-1">Email</label>
+                    <input type="email" pInputText formControlName="email" class="w-full" />
+                    <div *ngIf="funcionarioForm.get('email')?.invalid && funcionarioForm.get('email')?.touched">
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('email')?.errors?.['required']">O campo e-mail é obrigatório.</small>
+                        <br>
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('email')?.errors?.['email']">e-mail não está valido.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row md:gap-4">
+                <div class="flex-4">
+                    <label class="block font-bold mb-1">Telefone</label>
+                    <p-inputmask formControlName="telefone" mask="(99) 9999-9999" class="w-full" />
+                    <div *ngIf="funcionarioForm.get('telefone')?.invalid && funcionarioForm.get('telefone')?.touched">
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('telefone')?.errors?.['required']">
+                            O campo telefone é obrigatório.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="flex-4">
+                    <label class="block font-bold mb-1">Celular</label>
+                    <p-inputmask formControlName="celular" mask="(99) 99999-9999" class="w-full" />
+                    <div *ngIf="funcionarioForm.get('celular')?.invalid && funcionarioForm.get('celular')?.touched">
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('celular')?.errors?.['required']">
+                            O campo celular é obrigatório.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <label class="block font-bold mb-1">CEP</label>
+                    <p-inputmask formControlName="cep" mask="99999-999" class="w-[150px]" (onBlur)="buscaCep()" />
+                    <div *ngIf="funcionarioForm.get('cep')?.invalid && funcionarioForm.get('cep')?.touched">
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('cep')?.errors?.['required']">O campo cep é obrigatório.</small>
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('cep')?.errors?.['cepInvalido']">Cep inválido.</small>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="w-1/4">
+                    <label class="block font-bold mb-1">Logradouro</label>
+                    <input pInputText formControlName="logradouro" class="w-full" />
+                    <div
+                        *ngIf="funcionarioForm.get('logradouro')?.invalid && funcionarioForm.get('logradouro')?.touched">
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('logradouro')?.errors?.['required']">O campo logradouro é obrigatório.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="w-1/4">
+                    <label class="block font-bold mb-1">Complemento</label>
+                    <input pInputText formControlName="complemento" class="w-full" />
+                </div>
+                <div class="w-1/4">
+                    <label class="block font-bold mb-1">Numero</label>
+                    <input pInputText formControlName="numero" class="w-full" />
+                    <div *ngIf="funcionarioForm.get('numero')?.invalid && funcionarioForm.get('numero')?.touched">
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('numero')?.errors?.['required']">O campo número é obrigatório.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="w-1/4">
+                    <label class="block font-bold mb-1">Localidade</label>
+                    <input pInputText formControlName="localidade" class="w-full" />
+                    <div
+                        *ngIf="funcionarioForm.get('localidade')?.invalid && funcionarioForm.get('localidade')?.touched">
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('localidade')?.errors?.['required']">O campo localidade é obrigatório.</small>
+                    </div>
+                </div>
+                <div class="w-1/4">
+                    <label class="block font-bold mb-1">UF</label>
+                    <input pInputText formControlName="uf" class="w-full" />
+                    <div *ngIf="funcionarioForm.get('uf')?.invalid && funcionarioForm.get('uf')?.touched">
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('uf')?.errors?.['required']">O campo uf é obrigatório.</small>
+                    </div>
+                </div>
+                <div class="w-1/4">
+                    <label class="block font-bold mb-1">Bairro</label>
+                    <input pInputText formControlName="bairro" class="w-full" />
+                    <div *ngIf="funcionarioForm.get('uf')?.invalid && funcionarioForm.get('uf')?.touched">
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('uf')?.errors?.['required']">O campo uf é obrigatório.</small>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <p-button label="Cancelar" icon="pi pi-times" (onClick)="visible = false" text />
+        <p-button label="Salvar" icon="pi pi-check" (onClick)="salvar()" />
+    </ng-template>
+
+</p-dialog>

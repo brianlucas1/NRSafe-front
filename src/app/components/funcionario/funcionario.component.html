@@ -1,0 +1,179 @@
+<p-toast></p-toast>
+
+<p-confirmDialog></p-confirmDialog>
+
+<p-toolbar styleClass="mb-6">
+  <ng-template #start>
+    <div class="flex items-center gap-2">
+      <div>
+        <p-button label="Cadastrar novo funcionário" (onClick)="abreModalCadastro()" />
+      </div>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<app-dialog-cadastro-funcionario 
+  [visible]="dialogCadastro"
+  [funcionarioSelecionado] = "funcionarioSelecionado"
+  (fechar)="fechaModalCadastro()"
+  ></app-dialog-cadastro-funcionario>
+
+<p-table #dt
+  [value]="listaFuncionarios"
+  [paginator]="true" 
+  [rows]="10"
+  dataKey="funcId"
+  [expandedRowKeys]="expandedRows"
+  (onRowExpand)="onRowExpand($event)"
+  (onRowCollapse)="onRowCollapse($event)"
+  [tableStyle]="{ 'min-width': '75rem' }"
+  [rowsPerPageOptions]="[10, 20, 30]"
+  currentPageReportTemplate="Mostrando {first} de {last} total {totalRecords} funcionários"
+  [showCurrentPageReport]="true">
+  <ng-template #caption>
+    <div class="flex items-center justify-between">
+      <h5 class="m-0">Lista de funcionários</h5>
+    </div>
+  </ng-template>
+
+  <ng-template #header>
+    <tr>
+      <th pSortableColumn="nome" style="min-width:16rem">NOME</th>
+      <th pSortableColumn="cpf" style="min-width:5rem">
+        CPF
+        <p-sortIcon field="cpf" />
+      </th>
+      <th pSortableColumn="email" style="min-width:10rem">
+        E-MAIL
+        <p-sortIcon field="email" />
+      </th>
+      <th pSortableColumn="perfil" style="min-width:5rem">
+        PERFIL
+        <p-sortIcon field="perfil" />
+      </th>
+      <th pSortableColumn="ativo" style="min-width:5rem">ATIVO</th>
+      <th pSortableColumn="empresa" style="min-width:10rem">
+        EMPRESAS
+        <p-sortIcon field="empresa" />
+      </th>
+      <th style="min-width: 12rem">AÇÃO</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-funcionario>
+    <tr>
+      <td>{{ funcionario.nome }}</td>
+      <td>{{ funcionario.cpf }}</td>
+      <td>{{ funcionario.email }}</td>
+      <td>{{ funcionario.perfil }}</td>
+      <td>
+        <i class="pi" (click)="inativaFuncionario(funcionario)" [ngClass]="{
+            'text-green-500 pi-check-circle': funcionario.ativo === 'A',
+            'text-red-500 pi-times-circle': funcionario.ativo === 'I'
+          }"></i>
+      </td>
+      <td (click)="temVinculos(funcionario) ? toggleRow(funcionario) : null" style="cursor: pointer;">
+        <i *ngIf="temVinculos(funcionario)" class="pi"
+          [ngClass]="expandedRows[funcionario.id] ? 'pi-chevron-up' : 'pi-chevron-down'"
+          style="margin-right: 0.5rem;"></i>
+        {{
+        (funcionario.listaEmpresas?.length || 0) +
+        (funcionario.listaFilial?.length || 0) +
+        (funcionario.listaSites?.length || 0)
+        }}
+      </td>
+      <td>
+        <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true"
+          (click)="editarFuncionario(funcionario)" />
+      </td>
+    </tr>
+
+    <tr *ngIf="expandedRows[funcionario.id]">
+      <td colspan="7" class="bg-gray-100">
+        <div class="p-3">
+          <!-- Empresas -->
+          <p *ngIf="funcionario.listaEmpresas?.length">
+            <strong>Empresas:</strong>
+          </p>
+          <p-table *ngIf="funcionario.listaEmpresas?.length" [value]="funcionario.listaEmpresas" class="mb-3"
+            [style]="{ 'min-width': '100%' }">
+            <ng-template pTemplate="header">
+    <tr>
+      <th>CNPJ</th>
+      <th>Razão Social</th>
+      <th>Ação</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-emp>
+    <tr>
+      <td>{{ emp.cnpj }}</td>
+      <td>{{ emp.razaoSocial }}</td>
+      <td>
+         <p-button icon="pi pi-trash" class="mr-2" [rounded]="true" [outlined]="true"
+          (click)="retirarVinculo(emp,funcionario,'EMPRESA')" />
+     </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Filiais -->
+<p *ngIf="funcionario.listaFilial?.length">
+  <strong>Filiais:</strong>
+</p>
+<p-table *ngIf="funcionario.listaFilial?.length" [value]="funcionario.listaFilial" class="mb-3"
+  [style]="{ 'min-width': '100%' }">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>CNPJ</th>
+      <th>Razão Social</th>
+      <th>Ação</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-filial>
+    <tr>
+      <td>{{ filial.cnpj }}</td>
+      <td>{{ filial.razaoSocial }}</td>
+       <td>
+         <p-button icon="pi pi-trash" class="mr-2" [rounded]="true" [outlined]="true"
+          (click)="retirarVinculo(filial,funcionario,'FILIAL')" />
+     </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Sites -->
+<p *ngIf="funcionario.listaSites?.length">
+  <strong>Sites:</strong>
+</p>
+<p-table *ngIf="funcionario.listaSites?.length" [value]="funcionario.listaSites" [style]="{ 'min-width': '100%' }">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>CNPJ</th>
+      <th>Razão Social</th>
+      <th>Ação</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-site>
+    <tr>
+      <td>{{ site.cnpj }}</td>
+      <td>{{ site.razaoSocial }}</td>
+       <td>
+         <p-button icon="pi pi-trash" class="mr-2" [rounded]="true" [outlined]="true"
+          (click)="retirarVinculo(site,funcionario, 'SITE')" />
+     </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+  <!-- Nada vinculado -->
+  <p *ngIf="!funcionario.listaEmpresas?.length && !funcionario.listaFilial?.length && !funcionario.listaSites?.length"
+    class="text-gray-500">
+    Nenhuma empresa, filial ou site vinculado.
+  </p>
+  </div>
+  </td>
+  </tr>
+</ng-template>
+
+</p-table>
+
