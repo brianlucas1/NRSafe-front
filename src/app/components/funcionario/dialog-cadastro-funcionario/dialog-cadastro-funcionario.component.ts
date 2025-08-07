@@ -71,7 +71,7 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
       dataNascimento: [this.funcionarioSelecionado?.dtNascimento],
       logradouro: [{ value : this.funcionarioSelecionado?.endereco?.logradouro,  disabled: true }],
       bairro: [ { value : this.funcionarioSelecionado?.endereco?.bairro, disabled: true }],
-      numero: [{ value : this.funcionarioSelecionado?.endereco?.numero, disabled: true }],
+      numero: [ this.funcionarioSelecionado?.endereco?.numero],
       complemento: [this.funcionarioSelecionado?.endereco?.complemento],
       localidade: [{ value : this.funcionarioSelecionado?.endereco?.localidade, disabled: true }],
       uf: [{ value : this.funcionarioSelecionado?.endereco?.uf,  disabled: true }],

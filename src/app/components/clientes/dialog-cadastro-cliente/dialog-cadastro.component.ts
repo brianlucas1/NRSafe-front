@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { StandaloneImports } from '../../../util/standalone-imports';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { cnpjValido } from '../../../util/cnpj-validator';
@@ -18,7 +18,7 @@ import { ClienteService } from '../../../../services/cliente-service';
   styleUrl: './dialog-cadastro.component.scss'
 })
 
-export class DialogCadastroClienteComponent {
+export class DialogCadastroClienteComponent implements OnInit {
 
   @Input() visible: boolean = false;
   @Output() fechar = new EventEmitter<void>();
@@ -37,7 +37,7 @@ export class DialogCadastroClienteComponent {
         cnpj: ['', [Validators.required, Validators.minLength(14), cnpjValido]],
       razaoSocial: ['', Validators.required],
       nomeFantasia: [''],
-      email: [null, Validators.email,Validators.required],
+      email: ['', [Validators.email,Validators.required]],
       telefone: [''],
       logradouro: [{ value: '', disabled: true }],
       bairro: [{ value: '', disabled: true }],

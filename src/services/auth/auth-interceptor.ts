@@ -15,7 +15,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     // Ignorar requisições para login e refresh
-    if (req.url.includes('/auth') || req.url.includes('/auth/refresh') || req.url.includes('/login/recupera-senha') || req.url.includes('/login/reset-senha') ) {
+    if (req.url.includes('/auth') || req.url.includes('/auth/refresh') || req.url.includes('/login/recupera-senha') || req.url.includes('/login/redefinir-senha') ) {
       return next.handle(req);
     }
 

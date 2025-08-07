@@ -1,5 +1,5 @@
 export const environment = {
 
     production: true,
-    url_back: "http://localhost:8080/",
+    url_back: "https://nrsafe-back.onrender.com/api/",
 }

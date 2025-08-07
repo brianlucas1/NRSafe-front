@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Role } from '../../app/models/enums/role-enum';
 
 @Injectable({ providedIn: 'root' })
 export class AuthStorageService {
@@ -32,6 +33,11 @@ export class AuthStorageService {
   isTokenExpired(): boolean {
     const expiresAt = localStorage.getItem(this.EXPIRES_AT_KEY);
     return !expiresAt || Date.now() > parseInt(expiresAt, 10);
+  }
+
+  hasRole(role: Role): boolean {
+    const roles = this.getRoles() || [];
+    return roles.includes(role);
   }
 
   clear(): void {
