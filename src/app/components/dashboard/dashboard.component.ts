@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { StandaloneImports } from '../../util/standalone-imports';
 import { debounceTime, Subscription } from 'rxjs';
@@ -9,10 +9,11 @@ import { LayoutService } from '../layout/layout.service';
    imports: [StandaloneImports],
     standalone: true,
     providers: [MessageService],
+    changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
@@ -109,5 +110,11 @@ iniciaDash(){
         };
 
 }
+    
+    ngOnDestroy(): void {
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+        }
+    }
     
 }

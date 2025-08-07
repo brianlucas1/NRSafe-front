@@ -33,23 +33,37 @@
                             "src/styles.scss",
                             "node_modules/primeflex/primeflex.css"
                         ],
-                        "scripts": []
+                        "scripts": [],
+                        "optimization": true,
+                        "sourceMap": false,
+                        "namedChunks": false,
+                        "aot": true,
+                        "extractLicenses": true,
+                        "vendorChunk": false,
+                        "buildOptimizer": true
                     },
                     "configurations": {
                         "production": {
                             "budgets": [
                                 {
                                     "type": "initial",
-                                    "maximumWarning": "1mb",
-                                    "maximumError": "5mb"
+                                    "maximumWarning": "500kb",
+                                    "maximumError": "1mb"
                                 },
                                 {
                                     "type": "anyComponentStyle",
-                                    "maximumWarning": "2kb",
-                                    "maximumError": "4kb"
+                                    "maximumWarning": "1kb",
+                                    "maximumError": "2kb"
                                 }
                             ],
-                            "outputHashing": "all"
+                            "outputHashing": "all",
+                            "optimization": true,
+                            "sourceMap": false,
+                            "namedChunks": false,
+                            "extractLicenses": true,
+                            "vendorChunk": false,
+                            "buildOptimizer": true,
+                            "deleteOutputPath": true
                         },
                         "development": {
                             "optimization": false,

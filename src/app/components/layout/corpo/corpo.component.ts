@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, Renderer2, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { StandaloneImports } from '../../../util/standalone-imports';
 import { AuthStorageService } from '../../../../services/auth/auth-storage-service';
 import { LayoutService } from '../layout.service';
@@ -11,12 +11,14 @@ import { NavigationEnd, Router } from '@angular/router';
     selector: 'app-corpo',
     imports: [StandaloneImports, MenuComponent, BarraSuperiorComponent],
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './corpo.component.html',
     styleUrl: './corpo.component.scss'
 })
-export class CorpoComponent {
+export class CorpoComponent implements OnDestroy {
 
     overlayMenuOpenSubscription: Subscription;
+    routerSubscription: Subscription;
 
     menuOutsideClickListener: any;
 
@@ -42,7 +44,7 @@ export class CorpoComponent {
             }
         });
 
-        this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+        this.routerSubscription = this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
             this.hideMenu();
         });
     }
@@ -100,6 +102,10 @@ export class CorpoComponent {
     ngOnDestroy() {
         if (this.overlayMenuOpenSubscription) {
             this.overlayMenuOpenSubscription.unsubscribe();
+        }
+
+        if (this.routerSubscription) {
+            this.routerSubscription.unsubscribe();
         }
 
         if (this.menuOutsideClickListener) {

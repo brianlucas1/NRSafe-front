@@ -1,11 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { ReactiveFormsModule } from "@angular/forms";
+import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { RippleModule } from "primeng/ripple";
 import { StyleClassModule } from "primeng/styleclass";
 import { AppConfigurator } from "../components/layout/app.configurator";
-import { Table, TableModule } from 'primeng/table';
-import { FormsModule } from '@angular/forms';
+import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -28,28 +27,21 @@ import { FluidModule } from 'primeng/fluid';
 import { DropdownModule } from "primeng/dropdown";
 import { MultiSelectModule } from 'primeng/multiselect';
 
-
-
-
-export const StandaloneImports =[
+export const StandaloneImports = [
     CommonModule,
-    RippleModule,
     ReactiveFormsModule,
+    FormsModule,
     RouterModule,
-    DatePickerModule,
+    RippleModule,
     StyleClassModule,
     FluidModule,
     ToastModule,
     AppConfigurator,
     InputTextModule,
     DropdownModule,
-    CommonModule,
     TableModule,
-    RippleModule,
-    ToastModule,
     ToolbarModule,
     RatingModule,
-    InputTextModule,
     TextareaModule,
     SelectModule,
     RadioButtonModule,
@@ -62,7 +54,7 @@ export const StandaloneImports =[
     ConfirmDialogModule,
     ButtonModule,
     InputMaskModule,
-    FormsModule,
     PasswordModule,
-    MultiSelectModule
-]
+    MultiSelectModule,
+    DatePickerModule
+];

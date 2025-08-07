@@ -24,6 +24,13 @@ export const appConfig: ApplicationConfig = {
       useClass: AuthInterceptor,
       multi: true
     },
-    providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } } })
+    providePrimeNG({ 
+      theme: { 
+        preset: Aura, 
+        options: { darkModeSelector: '.app-dark' } 
+      },
+      ripple: true,
+      inputStyle: 'outlined'
+    })
   ]
 };
