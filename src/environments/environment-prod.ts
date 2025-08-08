@@ -1,5 +1,5 @@
 export const environment = {
 
     production: true,
-    url_back: "https://nrsafe-back.onrender.com/api/",
+    url_back: "54.162.50.188:8080/",
 }
