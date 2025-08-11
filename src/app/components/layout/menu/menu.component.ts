@@ -22,6 +22,7 @@ import { Role } from '../../../models/enums/role-enum';
 export class MenuComponent implements OnInit {
 
     clienteLogado?: ClienteResponseDTO;
+    isAdmin: boolean = false;
 
     constructor(
         private authService: AuthService,
@@ -35,53 +36,84 @@ export class MenuComponent implements OnInit {
     async buscaClienteLogado(): Promise<void> {
         try {
             this.clienteLogado = await firstValueFrom(this.clienteService.buscaClienteLogado());
-
         } catch (err) {
-            console.error('Erro ao buscar cliente logado', err);
+            // Erro ao buscar cliente logado
         }
     }
 
-   async ngOnInit() {
-    await this.buscaClienteLogado();
+    verificarSeAdmin(): void {
+        const roles = this.storage.getRoles();
+        this.isAdmin = roles.includes(Role.ADMIN);
+    }
 
-    const model: (MenuItem | null)[] = [
-    {
-      label: 'Início',
-      icon: 'pi pi-fw pi-home',
-      items: [
-        { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },
-        { label: 'GESTÃO DE PLANO DE AÇÃO', icon: 'pi pi-clipboard', routerLink: ['/empresas'] },
-      ]
-    },
-    {
-      label: this.clienteLogado?.razaoSocial ?? 'admin',
-      icon: 'pi pi-briefcase',
-      items: [
-        { label: 'Colaboradores', icon: 'pi pi-user', routerLink: ['/funcionarios'] },
-      ]
-    },
-    this.storage.hasRole(Role.ADMIN) ? {
-      label: 'GERENCIAL',
-      icon: 'pi pi-cog',
-      items: [
-        { label: 'LISTA DE CLIENTES', icon: 'pi pi-users', routerLink: ['/clientes'] },
-      ]
-    } : null,
-    {
-      label: 'Clientes',
-      icon: 'pi pi-building',
-      items: [
-        { label: 'Empresas', icon: 'pi pi-building', routerLink: ['/empresas'] },
-        { label: 'Filiais', icon: 'pi pi-building-columns', routerLink: ['/filiais'] },
-        { label: 'Sites', icon: 'pi pi-hammer', routerLink: ['/sites'] },
-      ]
-    },
-  ];
+    async ngOnInit() {
+        // Verifica se é ADMIN
+        this.verificarSeAdmin();
 
-  // Filtra os nulls com predicate
-  return this.model = model.filter((item): item is MenuItem => item !== null);
-}
+        // Só busca cliente se não for ADMIN
+        if (!this.isAdmin) {
+            await this.buscaClienteLogado();
+        }
 
+        // Cria o menu baseado no tipo de usuário
+        if (this.isAdmin) {
+            // Menu para ADMIN: Início, Gerencial, Clientes
+            this.model = [
+                {
+                    label: 'Início',
+                    icon: 'pi pi-fw pi-home',
+                    items: [
+                        { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },
+                        { label: 'GESTÃO DE PLANO DE AÇÃO', icon: 'pi pi-clipboard', routerLink: ['/empresas'] },
+                    ]
+                },
+                {
+                    label: 'GERENCIAL',
+                    icon: 'pi pi-cog',
+                    items: [
+                        { label: 'LISTA DE CLIENTES', icon: 'pi pi-users', routerLink: ['/clientes'] },
+                    ]
+                },
+                {
+                    label: 'Clientes',
+                    icon: 'pi pi-building',
+                    items: [
+                        { label: 'Empresas', icon: 'pi pi-building', routerLink: ['/empresas'] },
+                        { label: 'Filiais', icon: 'pi pi-building-columns', routerLink: ['/filiais'] },
+                        { label: 'Sites', icon: 'pi pi-hammer', routerLink: ['/sites'] },
+                    ]
+                }
+            ];
+        } else {
+            // Menu para outros usuários: Início, Cliente, Clientes (sem Gerencial)
+            this.model = [
+                {
+                    label: 'Início',
+                    icon: 'pi pi-fw pi-home',
+                    items: [
+                        { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },
+                        { label: 'GESTÃO DE PLANO DE AÇÃO', icon: 'pi pi-clipboard', routerLink: ['/empresas'] },
+                    ]
+                },
+                {
+                    label: this.clienteLogado?.razaoSocial ?? 'Cliente',
+                    icon: 'pi pi-briefcase',
+                    items: [
+                        { label: 'Colaboradores', icon: 'pi pi-user', routerLink: ['/funcionarios'] },
+                    ]
+                },
+                {
+                    label: 'Clientes',
+                    icon: 'pi pi-building',
+                    items: [
+                        { label: 'Empresas', icon: 'pi pi-building', routerLink: ['/empresas'] },
+                        { label: 'Filiais', icon: 'pi pi-building-columns', routerLink: ['/filiais'] },
+                        { label: 'Sites', icon: 'pi pi-hammer', routerLink: ['/sites'] },
+                    ]
+                }
+            ];
+        }
+    }
 
     fazerLogout() {
         this.authService.logout();

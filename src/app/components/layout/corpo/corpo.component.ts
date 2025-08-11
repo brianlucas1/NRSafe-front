@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Renderer2, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnInit, Renderer2, ViewChild, OnDestroy } from '@angular/core';
 import { StandaloneImports } from '../../../util/standalone-imports';
 import { AuthStorageService } from '../../../../services/auth/auth-storage-service';
 import { LayoutService } from '../layout.service';
@@ -11,7 +11,6 @@ import { NavigationEnd, Router } from '@angular/router';
     selector: 'app-corpo',
     imports: [StandaloneImports, MenuComponent, BarraSuperiorComponent],
     standalone: true,
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './corpo.component.html',
     styleUrl: './corpo.component.scss'
 })

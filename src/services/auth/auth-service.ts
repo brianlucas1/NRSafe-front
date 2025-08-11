@@ -17,14 +17,8 @@ export class AuthService {
   constructor(private http: HttpClient, private storage: AuthStorageService) { }
 
 
-  autenticaUsuario(loginRequest: LoginRequest): Observable<JwtResponse> {
-    console.log(`${environment.url_back}auth`, loginRequest)
-    return this.http.post<JwtResponse>(`${environment.url_back}auth`, loginRequest)
-      .pipe(
-        tap(res =>
-          this.armazenarTokens(res)
-        )
-      );
+  login(loginRequest: LoginRequest): Observable<JwtResponse> {
+    return this.http.post<JwtResponse>(`${environment.url_back}auth`, loginRequest);
   }
 
 

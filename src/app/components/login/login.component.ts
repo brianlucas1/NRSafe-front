@@ -47,13 +47,26 @@ export class LoginComponent  implements OnInit {
 
       const loginRequest: LoginRequest = this.loginForm.value as LoginRequest;
 
-      this.authService.autenticaUsuario(loginRequest)
-      .subscribe((res) =>{
-        this.router.navigate(['/dashboard']);
-      },error=>{
-        console.log(error)
-      this.service.add({ severity: 'error', summary: 'Error Message', detail: 'Usuario  ou senha inválidos.' });
-      })
+      this.authService.login(loginRequest).subscribe({
+            next: (response) => {
+                this.authStorageService.storeTokens(
+                    response.accessToken || '',
+                    response.refreshToken || '',
+                    response.roles || [],
+                    response.expiresIn || 0,
+                    response.idCliente,
+                    response.nomeCliente
+                );
+                this.router.navigate(['/dashboard']);
+            },
+            error: (error) => {
+                this.service.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: 'Usuário ou senha inválidos'
+                });
+            }
+        });
     }    
   }
 

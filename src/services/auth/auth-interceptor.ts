@@ -1,6 +1,6 @@
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable, switchMap, catchError, throwError, of } from "rxjs";
+import { Observable, switchMap, catchError, throwError } from "rxjs";
 import { AuthService } from "./auth-service";
 import { AuthStorageService } from "./auth-storage-service";
 import { Router } from "@angular/router";
@@ -14,8 +14,8 @@ export class AuthInterceptor implements HttpInterceptor {
   ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Ignorar requisições para login e refresh
-    if (req.url.includes('/auth') || req.url.includes('/auth/refresh') || req.url.includes('/login/recupera-senha') || req.url.includes('/login/redefinir-senha') ) {
+    // Ignorar requisições para login e recuperação de senha
+    if (req.url.includes('/auth') || req.url.includes('/login/recupera-senha') || req.url.includes('/login/redefinir-senha')) {
       return next.handle(req);
     }
 
@@ -48,10 +48,23 @@ export class AuthInterceptor implements HttpInterceptor {
 
     // Token ainda válido
     const accessToken = this.authStorage.getAccessToken();
-    const authReq = accessToken
-      ? req.clone({ setHeaders: { Authorization: `Bearer ${accessToken}` } })
-      : req;
+    if (accessToken) {
+      const authReq = req.clone({
+        setHeaders: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+      return next.handle(authReq).pipe(
+        catchError(err => {
+          if (err.status === 401) {
+            this.authStorage.clear();
+            this.router.navigate(['/login']);
+          }
+          return throwError(() => err);
+        })
+      );
+    }
 
-    return next.handle(authReq);
+    return next.handle(req);
   }
 }
