@@ -1,120 +1,147 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { DashBoardService } from '../../../services/dash-board-service';
+import { EmpresaService } from '../../../services/empresa-service';
 import { MessageService } from 'primeng/api';
+import { VisitaPercentualDashDTO } from '../../models/dtos/visita-percentual-dash-dto';
+import { VisitaStatusLabel } from '../../models/dtos/visita-status-label-dto';
+import { VisitaStatusEnum } from '../../models/enums/visita-status-enum';
+import { ChartData, ChartOptions } from 'chart.js';
+import { EmpresaResponseDTO } from '../../models/response/empresa-reponse-dto';
 import { StandaloneImports } from '../../util/standalone-imports';
-import { debounceTime, Subscription } from 'rxjs';
-import { LayoutService } from '../layout/layout.service';
 
 @Component({
   selector: 'app-dashboard',
-   imports: [StandaloneImports],
-    standalone: true,
-    providers: [MessageService],
-    changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss'
+  standalone: true,
+  imports: StandaloneImports,
+  styleUrls: ['./dashboard.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [MessageService]
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent implements OnInit {
 
+  filterForm!: FormGroup;
+  listaEmpresas?: EmpresaResponseDTO[] = [];
 
-  ngOnInit(): void {
-   this.iniciaDash();
+  chartData: ChartData<'pie'> = { labels: [], datasets: [{ data: [] }] };
+  chartOptions!: ChartOptions<'pie'>;
+  centerTextPlugin: any;
+
+  constructor(
+    private fb: FormBuilder,
+    private dashService: DashBoardService,
+    private empService: EmpresaService,
+    private msgService: MessageService,
+    private cd: ChangeDetectorRef
+  ) {
+    // Plugin para desenhar o total no centro
+    this.centerTextPlugin = {
+      id: 'centerText',
+      beforeDraw: (chart: any) => {
+        if (!chart.data || !chart.data.datasets || !chart.data.datasets[0]) return;
+
+        const ctx = chart.ctx;
+        const width = chart.width;
+        const height = chart.height;
+        ctx.restore();
+
+        const fontSize = (height / 114).toFixed(2);
+        ctx.font = fontSize + "em sans-serif";
+        ctx.textBaseline = "middle";
+
+        const total = chart.data.datasets[0].data.reduce((a: number, b: number) => a + b, 0);
+        const text = total.toString();
+        const textX = Math.round((width - ctx.measureText(text).width) / 2);
+        const textY = height / 2;
+
+        ctx.fillText(text, textX, textY);
+        ctx.save();
+      }
+    };
   }
 
-  barOptions: any;
+  async ngOnInit() {
+    this.criaForm();
+    await this.carregaEmpresas();
+    this.buscaDadosVisitaPercentual();
+  }
 
-  pieData: any;
+  criaForm() {
+    this.filterForm = this.fb.group({
+      empresaSelecionada: [null],
+      dtInicio: [null],
+      dtFim: [null]
+    });
 
-  pieOptions: any;
+    // Atualiza o gráfico ao mudar filtros
+    this.filterForm.valueChanges.subscribe(() => this.buscaDadosVisitaPercentual());
+  }
 
-  barData: any;
+  async carregaEmpresas() {
+    try {
+      this.listaEmpresas = await this.empService.buscaTodasEmpresas().toPromise();
+      this.cd.markForCheck();
+    } catch (error: any) {
+      this.msgService.add({ severity: 'error', summary: 'Erro', detail: error?.message || 'Falha ao carregar empresas' });
+    }
+  }
 
-   subscription: Subscription;
-    constructor(private layoutService: LayoutService) {
-        this.subscription = this.layoutService.configUpdate$.pipe(debounceTime(25)).subscribe(() => {
-            this.iniciaDash();
-        });
+  buscaDadosVisitaPercentual() {
+    const form = this.filterForm.value;
+    const filtros = {
+      idFilial: form.filialSelecionada ?? null,
+      idSite: form.siteSelecionado ?? null,
+      empresaIds: form.empresaSelecionada ?? null,
+      dataInicio: form.dtInicio ? form.dtInicio.toISOString() : null,
+      dataFim: form.dtFim ? form.dtFim.toISOString() : null
+    };
+
+    this.dashService.buscaDadosVisitaPercentual(filtros).subscribe({
+      next: (result: VisitaPercentualDashDTO[]) => this.montaGrafico(result),
+      error: (err) => console.error('Erro ao carregar dados:', err)
+    });
+  }
+
+  montaGrafico(dados: VisitaPercentualDashDTO[]) {
+    if (!dados || dados.length === 0) {
+      this.chartData = { labels: [], datasets: [{ data: [] }] };
+      this.cd.markForCheck();
+      return;
     }
 
+    const labels = dados.map(d => VisitaStatusLabel[d.statusVisita as VisitaStatusEnum] || 'Desconhecido');
+    const valores = dados.map(d => d.quantidade ?? 0);
 
-iniciaDash(){
-
-  const documentStyle = getComputedStyle(document.documentElement);
-  const textColor = documentStyle.getPropertyValue('--text-color');
-  const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
-  const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
-
-
-   this.barData = {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-            datasets: [
-                {
-                    label: 'My First dataset',
-                    backgroundColor: documentStyle.getPropertyValue('--p-primary-500'),
-                    borderColor: documentStyle.getPropertyValue('--p-primary-500'),
-                    data: [65, 59, 80, 81, 56, 55, 40]
-                },
-                {
-                    label: 'My Second dataset',
-                    backgroundColor: documentStyle.getPropertyValue('--p-primary-200'),
-                    borderColor: documentStyle.getPropertyValue('--p-primary-200'),
-                    data: [28, 48, 40, 19, 86, 27, 90]
-                }
-            ]
-        };
-
-
-    this.pieData = {
-            labels: ['A', 'B', 'C'],
-            datasets: [
-                {
-                    data: [540, 325, 702],
-                    backgroundColor: [ documentStyle.getPropertyValue('--p-indigo-500'), documentStyle.getPropertyValue('--p-purple-500'), documentStyle.getPropertyValue('--p-teal-500')],
-                    hoverBackgroundColor: [documentStyle.getPropertyValue('--p-indigo-400'), documentStyle.getPropertyValue('--p-purple-400'), documentStyle.getPropertyValue('--p-teal-400')]
-                }
-            ]
-        };     
-
-  this.barOptions = {
-            maintainAspectRatio: false,
-            aspectRatio: 0.8,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: textColor
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        color: textColorSecondary,
-                        font: {
-                            weight: 500
-                        }
-                    },
-                    grid: {
-                        display: false,
-                        drawBorder: false
-                    }
-                },
-                y: {
-                    ticks: {
-                        color: textColorSecondary
-                    },
-                    grid: {
-                        color: surfaceBorder,
-                        drawBorder: false
-                    }
-                }
-            }
-        };
-
-}
-    
-    ngOnDestroy(): void {
-        if (this.subscription) {
-            this.subscription.unsubscribe();
+    this.chartData = {
+      labels,
+      datasets: [
+        {
+          label: 'Percentual de Visitas',
+          data: valores,
+          backgroundColor: [
+            '#FF6384', // Em Andamento
+            '#36A2EB', // Concluída
+            '#FFCE56', // Agendada
+            '#4BC0C0', // Cancelada
+            '#9966FF'  // Atrasada
+          ]
         }
-    }
-    
+      ]
+    };
+
+    this.chartOptions = {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: {
+          callbacks: {
+            label: (context: any) => `${context.label}: ${context.parsed.toFixed(1)}%`
+          }
+        }
+      }
+    };
+
+    this.cd.markForCheck();
+  }
 }
