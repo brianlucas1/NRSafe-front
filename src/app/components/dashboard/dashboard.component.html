@@ -5,12 +5,8 @@
         <div class="flex items-center gap-2">
           <div>
             <label class="block font-bold mb-1">Por empresa</label>
-            <p-select
-              [options]="listaEmpresas"
-              formControlName="empresaSelecionada"
-              optionLabel="razaoSocial"
-              optionValue="id"
-              placeholder="Selecione a empresa">
+            <p-select [options]="listaEmpresas" formControlName="empresaSelecionada" optionLabel="razaoSocial"
+              optionValue="id" placeholder="Selecione a empresa">
             </p-select>
           </div>
           <div class="flex-4">
@@ -21,25 +17,29 @@
             <label class="block font-bold mb-1">Data Fim</label>
             <p-datepicker formControlName="dtFim" showIcon iconDisplay="input" dateFormat="dd/mm/yy" />
           </div>
+          <div class="flex-4" style="margin-top: 20px;">
+            <p-button label="Cosultar" (onClick)="aplicarFiltros()" />
+          </div>
         </div>
       </ng-template>
     </p-toolbar>
   </form>
 </div>
 
-<div class="w-full">
-  <p-fluid class="grid grid-cols-12 gap-8">
-    <div class="col-span-12 xl:col-span-6">
-      <div class="card h-full">
-        <div class="font-semibold text-xl mb-4">Visitas por Status</div>
-        <p-chart
-          type="doughnut"
-          [data]="chartData"
-          [options]="chartOptions"
-          [plugins]="[centerTextPlugin]"
-          style="height: 300px;">
-        </p-chart>
-      </div>
+<p-fluid class="grid grid-cols-12 gap-8">
+  <!-- Gráfico de Torta -->
+  <div class="col-span-12 xl:col-span-6">
+    <div class="card flex flex-col items-center p-4">
+      <div class="font-semibold text-xl mb-4">Visitas por Status</div>
+      <app-dashboard-torta [filtros]="filtrosSelecionados"></app-dashboard-torta>
     </div>
-  </p-fluid>
-</div>
+  </div>
+
+  <!-- Gráfico de Barras -->
+  <div class="col-span-12 xl:col-span-6">
+    <div style="height: 390px;" class="card flex flex-col items-center p-4 " >
+      <div class="font-semibold text-xl mb-4">Visitas Diárias / Mensais</div>
+      <app-dashboard-grafico [filtros]="filtrosSelecionados"></app-dashboard-grafico>
+    </div>
+  </div>
+</p-fluid>

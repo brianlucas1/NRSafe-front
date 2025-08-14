@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
 import { Observable } from "rxjs";
 import { VisitaPercentualDashDTO } from "../app/models/dtos/visita-percentual-dash-dto";
+import { VisitaGraficoDashDTO } from "../app/models/dtos/visita-grafico-dash-dto";
 
 @Injectable({
     providedIn: 'root',
@@ -14,24 +15,41 @@ export class DashBoardService {
 
     constructor(private http: HttpClient) { }
 
-
  
-  buscaDadosVisitaPercentual(filtros: {
+  buscaDadosVisitaTortaPercentual(filtros: {
     idFilial?: number;
     idSite?: number;
-    empresaIds?: number;
-    dataInicio?: string;
-    dataFim?: string;
+    idEmpresa?: number;
+    dtInicio?: string;
+    dtFim?: string;
   }): Observable<VisitaPercentualDashDTO[]> {
    let params = new HttpParams();
     
-    if (filtros.empresaIds != null) params = params.set('empresaIds', filtros.empresaIds.toString());
+    if (filtros.idEmpresa != null) params = params.set('idEmpresa', filtros.idEmpresa.toString());
     if (filtros.idFilial != null) params = params.set('idFilial', filtros.idFilial.toString());
     if (filtros.idSite != null) params = params.set('idSite', filtros.idSite.toString());
-    if (filtros.dataInicio) params = params.set('dataInicio', filtros.dataInicio);
-    if (filtros.dataFim) params = params.set('dataFim', filtros.dataFim);
+    if (filtros.dtInicio) params = params.set('dtInicio', filtros.dtInicio);
+    if (filtros.dtFim) params = params.set('dtFim', filtros.dtFim);
 
-    return this.http.get<VisitaPercentualDashDTO[]>(`${this.URL_API}/visitas-filtro`, { params });
+    return this.http.get<VisitaPercentualDashDTO[]>(`${this.URL_API}/torta-filtro`, { params });
+  }
+
+    buscaDadosVisitaGraficoPercentual(filtros: {
+    idFilial?: number;
+    idSite?: number;
+    idEmpresa?: number;
+    dtInicio?: string;
+    dtFim?: string;
+  }): Observable<VisitaGraficoDashDTO[]> {
+   let params = new HttpParams();
+    
+    if (filtros.idEmpresa != null) params = params.set('idEmpresa', filtros.idEmpresa.toString());
+    if (filtros.idFilial != null) params = params.set('idFilial', filtros.idFilial.toString());
+    if (filtros.idSite != null) params = params.set('idSite', filtros.idSite.toString());
+    if (filtros.dtInicio) params = params.set('dtInicio', filtros.dtInicio);
+    if (filtros.dtFim) params = params.set('dtFim', filtros.dtFim);
+
+    return this.http.get<VisitaGraficoDashDTO[]>(`${this.URL_API}/grafico-filtro`, { params });
   }
 
 }
