@@ -8,6 +8,7 @@ import { StandaloneImports } from '../../util/standalone-imports';
 import { DashboardTortaComponent } from './dashboard-torta/dashboard-torta.component';
 import { firstValueFrom } from 'rxjs';
 import { DashboardGraficoComponent } from './dashboard-grafico/dashboard-grafico.component';
+import { DadosTabelaVisitaDTO } from '../../models/dtos/visita-grafico-empresa-dto';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,23 +20,26 @@ import { DashboardGraficoComponent } from './dashboard-grafico/dashboard-grafico
 })
 export class DashboardComponent implements OnInit {
 
+  graficoEmpresa: DadosTabelaVisitaDTO[] = [];
   filterForm!: FormGroup;
   listaEmpresas?: EmpresaResponseDTO[] = [];
+
+  datas: string[] = []; 
 
   filtrosSelecionados: any = null;
 
   constructor(
     private fb: FormBuilder,
-    private dashService: DashBoardService,
     private empService: EmpresaService,
     private msgService: MessageService,
-
+    private dashService: DashBoardService,
   ) { }
 
   async ngOnInit() {
     this.criaForm();
     await this.carregaEmpresas();
     this.aplicarFiltros();
+    this.carregaTabela();
   }
 
   criaForm() {
@@ -43,6 +47,22 @@ export class DashboardComponent implements OnInit {
       empresaSelecionada: [null],
       dtInicio: [null],
       dtFim: [null]
+    });
+  }
+
+  carregaTabela(){
+    this.dashService.buscaDadosTabelaVisita(this.filtrosSelecionados).subscribe({
+      next: (result) => {
+         this.graficoEmpresa = result;
+
+      // Gerar lista de datas únicas para colunas
+      const setDatas = new Set<string>();
+      this.graficoEmpresa.forEach(e => Object.keys(e.totais).forEach(d => setDatas.add(d)));
+      this.datas = Array.from(setDatas).sort((a, b) => new Date(a.split('-').reverse().join('-')).getTime() - new Date(b.split('-').reverse().join('-')).getTime());
+      },
+      error: (err) => {
+        console.error('Erro ao carregar dados:', err);
+      }
     });
   }
 
@@ -69,6 +89,7 @@ export class DashboardComponent implements OnInit {
       dtFim: form.dtFim ? form.dtFim.toISOString() : null
     };
     this.filtrosSelecionados = filtros;
+    this.carregaTabela();
   }
 
 }
