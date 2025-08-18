@@ -1,19 +1,21 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 import { DashBoardService } from '../../../../services/dash-board-service';
-import { VisitaStatusEnum, getStatusLabel } from '../../../models/enums/visita-status-enum';
 import { VisitaGraficoDashDTO } from '../../../models/dtos/visita-grafico-dash-dto';
+import { VisitaStatusEnum, getStatusLabel } from '../../../models/enums/visita-status-enum';
 import { StandaloneImports } from '../../../util/standalone-imports';
+import { InspecaoGraficoDashDTO } from '../../../models/dtos/inspecao-grafico-dash-dto';
+import { InspecaoStatusEnum } from '../../../models/enums/inspecao-status-enum';
 
 interface PeriodoData {
   periodo: string;
-  [key: string]: number | string; // chave string para evitar erros de mapped type
+  [key: string]: number | string;
 }
 
 @Component({
   selector: 'app-dashboard-grafico',
   standalone: true,
-    imports: [StandaloneImports],
+  imports: [StandaloneImports],
   templateUrl: './dashboard-grafico.component.html',
   styleUrls: ['./dashboard-grafico.component.scss']
 })
@@ -28,60 +30,81 @@ export class DashboardGraficoComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['filtros'] && this.filtros) {
-      this.carregarGrafico();
+      if (this.filtros.tipoConsulta === 'V' || this.filtros.tipoConsulta === null) {
+        this.carregarGraficoVisita();
+      } else {
+        this.carregaGraficoInspecao()
+      }
     }
   }
 
-  private carregarGrafico() {
-    this.dashboardService.buscaDadosVisitaGraficoPercentual(this.filtros)
-      .subscribe((dados: VisitaGraficoDashDTO[]) => {
-        const transformado = this.transformarDados(dados);
-        this.configurarGrafico(transformado);
+  private carregaGraficoInspecao() {
+    this.dashboardService.buscaDadosInspecaoGraficoPercentual(this.filtros)
+      .subscribe((dados: InspecaoGraficoDashDTO[]) => {
+        const agrupado = this.transformarDados(dados);
+        this.configurarGrafico<InspecaoStatusEnum>({
+          agrupado,
+          todosStatus: this.getTodosStatus('I') as InspecaoStatusEnum[],
+          getLabel: (status: InspecaoStatusEnum) => status,
+          getColor: (status: InspecaoStatusEnum) => this.getCorInspecao(status)
+        });
       });
   }
 
-  private transformarDados(dados: VisitaGraficoDashDTO[]) {
+  private carregarGraficoVisita() {
+    this.dashboardService.buscaDadosVisitaGraficoPercentual(this.filtros)
+      .subscribe((dados: VisitaGraficoDashDTO[]) => {
+        const agrupado = this.transformarDados(dados);
+        this.configurarGrafico<VisitaStatusEnum>({
+          agrupado,
+          todosStatus: this.getTodosStatus('V') as VisitaStatusEnum[],
+          getLabel: (status: VisitaStatusEnum) => getStatusLabel(status),
+          getColor: (status: VisitaStatusEnum) => this.getCorVisita(status)
+        });
+      });
+  }
+
+  // Atualize transformarDados para retornar apenas agrupado:
+  private transformarDados(dados: (VisitaGraficoDashDTO | InspecaoGraficoDashDTO)[]): PeriodoData[] {
     const agrupado: PeriodoData[] = [];
-
     for (const item of dados) {
-      if (!item.statusVisita) continue; // protege contra undefined
-
+      const status = (item as any).statusVisita ?? (item as any).statusInspecao;
+      if (!status) continue;
       const periodoStr = String(item.periodo);
       let linha = agrupado.find(p => p.periodo === periodoStr);
       if (!linha) {
         linha = { periodo: periodoStr };
         agrupado.push(linha);
       }
-
-      const chave = item.statusVisita as string;
-      const quantidade = item.quantidade ?? 0; // se undefined, considera 0
-      const valorAtual = Number(linha[chave] ?? 0); // força number
+      const chave = (item as any).statusVisita ?? (item as any).statusInspecao;
+      const quantidade = item.quantidade ?? 0;
+      const valorAtual = Number(linha[chave] ?? 0);
       linha[chave] = valorAtual + quantidade;
     }
-
-    // Preenche todos os status que não existirem
-    const todosStatus = Object.values(VisitaStatusEnum);
-    for (const linha of agrupado) {
-      for (const status of todosStatus) {
-        const chave = status as string;
-        if (linha[chave] === undefined) {
-          linha[chave] = 0;
-        }
-      }
-    }
-
-    return { agrupado, todosStatus };
+    return agrupado;
   }
 
-  private configurarGrafico({ agrupado, todosStatus }: { agrupado: PeriodoData[], todosStatus: VisitaStatusEnum[] }) {
+  private getTodosStatus(tipoConsulta: 'V' | 'I'): VisitaStatusEnum[] | InspecaoStatusEnum[] {
+    if (tipoConsulta === 'V' || tipoConsulta === null) {
+      return Object.values(VisitaStatusEnum) as VisitaStatusEnum[];
+    }
+    return Object.values(InspecaoStatusEnum) as InspecaoStatusEnum[];
+  }
+
+  private configurarGrafico<TStatus>({ agrupado, todosStatus, getLabel, getColor }: {
+    agrupado: PeriodoData[];
+    todosStatus: TStatus[];
+    getLabel: (status: TStatus) => string;
+    getColor: (status: TStatus) => string;
+  }) {
     const labels = agrupado.map(p => p.periodo);
 
     const datasets = todosStatus.map(status => {
       const chave = status as string;
       return {
-        label: getStatusLabel(status),
+        label: getLabel(status),
         data: agrupado.map(p => (p[chave] ?? 0) as number),
-        backgroundColor: this.getCorStatus(status)
+        backgroundColor: getColor(status)
       };
     });
 
@@ -99,13 +122,23 @@ export class DashboardGraficoComponent implements OnChanges {
     };
   }
 
-  private getCorStatus(status: VisitaStatusEnum) {
+  private getCorVisita(status: VisitaStatusEnum) {
     const cores: Record<VisitaStatusEnum, string> = {
       [VisitaStatusEnum.ATRASADA]: '#4caf50',
       [VisitaStatusEnum.CANCELADA]: '#f44336',
       [VisitaStatusEnum.CONCLUIDA]: '#2196f3',
       [VisitaStatusEnum.EM_ANDAMENTO]: '#ff9800',
       [VisitaStatusEnum.AGENDADA]: '#9c27b0'
+    };
+    return cores[status] || '#999999';
+  }
+
+  private getCorInspecao(status: InspecaoStatusEnum) {
+    const cores: Record<InspecaoStatusEnum, string> = {
+      [InspecaoStatusEnum.NAO_INICIADA]: '#9e9e9e',
+      [InspecaoStatusEnum.EM_ANDAMENTO]: '#ff9800',
+      [InspecaoStatusEnum.CONCLUIDA]: '#4caf50',
+
     };
     return cores[status] || '#999999';
   }

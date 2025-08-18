@@ -30,8 +30,7 @@
                           "src/assets"
                         ],
                         "styles": [
-                            "src/styles.scss",
-                            "node_modules/primeflex/primeflex.css"
+                            "src/styles.scss"
                         ],
                         "scripts": [],
                         "optimization": true,
@@ -103,9 +102,7 @@
                             
                         ],
                         "styles": [
-                            "src/styles.scss",
-                             "node_modules/primeflex/primeflex.css"
-
+                            "src/styles.scss"
                         ],
                         "scripts": []
                     }

@@ -1,0 +1,28 @@
+<div  style="margin-top:30px ;">
+  <p-table
+  [value]="graficoEmpresa" 
+  [responsiveLayout]="'scroll'"
+  [scrollable]="true">    
+
+    <ng-template #caption>
+    <div class="flex items-center justify-between">
+      <h5 class="m-0">Lista de Visitas
+      </h5>  
+    </div>
+  </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Empresa</th>
+        <th *ngFor="let data of datas">{{ data }}</th>
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="body" let-empresa>
+      <tr>
+        <td>{{ empresa.empresaNome }}</td>
+        <td *ngFor="let data of datas">{{ empresa.totais[data] || 0 }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
