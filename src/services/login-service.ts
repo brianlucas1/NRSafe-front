@@ -11,7 +11,7 @@ import { ClienteService } from "./cliente-service";
 @Injectable({
     providedIn: 'root'
 })
-export class LoginSerivce {
+export class LoginService {
 
     constructor(
         private http: HttpClient,

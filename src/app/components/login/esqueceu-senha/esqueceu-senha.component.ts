@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { LoginSerivce } from '../../../../services/login-service';
+import { LoginService } from '../../../../services/login-service';
 import { StandaloneImports } from '../../../util/standalone-imports';
 import { EmailRequestDTO } from '../../../models/request/email-request-dto';
 import { Router } from '@angular/router';
@@ -18,7 +18,7 @@ export class EsqueceuSenhaComponent {
   emailRequest: EmailRequestDTO = { email: '' }; 
 
   constructor(
-    private loginService: LoginSerivce,
+    private loginService: LoginService,
     private router: Router,
      private service: MessageService,
   ) {

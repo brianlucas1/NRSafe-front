@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StandaloneImports } from '../../../util/standalone-imports';
-import { LoginSerivce } from '../../../../services/login-service';
+import { LoginService } from '../../../../services/login-service';
 import { MessageService } from 'primeng/api';
 import { AuthStorageService } from '../../../../services/auth/auth-storage-service';
 
@@ -22,7 +22,7 @@ export class ResetSenhaComponent implements OnInit {
   constructor(private route: ActivatedRoute,
      private router:Router,
      private fb: FormBuilder,
-     private loginService: LoginSerivce,
+     private loginService: LoginService,
     private msgService: MessageService,
     private authStorage: AuthStorageService,
     ) { }
