@@ -10,7 +10,6 @@ import { RippleModule } from 'primeng/ripple';
 import { LoginRequest } from './login-request';
 import { AuthService } from '../../../services/auth/auth-service';
 import { AuthStorageService } from '../../../services/auth/auth-storage-service';
-import { LoginSerivce } from '../../../services/login-service';
 import { StandaloneImports } from '../../util/standalone-imports';
 import { MessageService } from 'primeng/api';
 
