@@ -17,6 +17,7 @@
 
 <p-table
   #dt
+  class="tabela-zebrada"
   [value]="listaEmpresas"
   [expandedRowKeys]="expandedRows"
   (onRowExpand)="onRowExpand($event)"
@@ -104,6 +105,7 @@
       <p><strong>Filiais de {{ empresa.razaoSocial }}:</strong></p>
 
       <p-table
+      class="tabela-zebrada"
         [value]="empresa.listaFiliais"
         [responsiveLayout]="'scroll'"
         class="p-datatable-sm"

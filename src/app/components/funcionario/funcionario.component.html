@@ -19,6 +19,7 @@
   ></app-dialog-cadastro-funcionario>
 
 <p-table #dt
+class="tabela-zebrada"
   [value]="listaFuncionarios"
   [paginator]="true" 
   [rows]="10"
@@ -95,7 +96,7 @@
           <p *ngIf="funcionario.listaEmpresas?.length">
             <strong>Empresas:</strong>
           </p>
-          <p-table *ngIf="funcionario.listaEmpresas?.length" [value]="funcionario.listaEmpresas" class="mb-3"
+          <p-table class="tabela-zebrada" *ngIf="funcionario.listaEmpresas?.length" [value]="funcionario.listaEmpresas" class="mb-3"
             [style]="{ 'min-width': '100%' }">
             <ng-template pTemplate="header">
     <tr>
@@ -120,7 +121,7 @@
 <p *ngIf="funcionario.listaFilial?.length">
   <strong>Filiais:</strong>
 </p>
-<p-table *ngIf="funcionario.listaFilial?.length" [value]="funcionario.listaFilial" class="mb-3"
+<p-table  class="tabela-zebrada" *ngIf="funcionario.listaFilial?.length" [value]="funcionario.listaFilial" class="mb-3"
   [style]="{ 'min-width': '100%' }">
   <ng-template pTemplate="header">
     <tr>
@@ -145,7 +146,7 @@
 <p *ngIf="funcionario.listaSites?.length">
   <strong>Sites:</strong>
 </p>
-<p-table *ngIf="funcionario.listaSites?.length" [value]="funcionario.listaSites" [style]="{ 'min-width': '100%' }">
+<p-table  class="tabela-zebrada" *ngIf="funcionario.listaSites?.length" [value]="funcionario.listaSites" [style]="{ 'min-width': '100%' }">
   <ng-template pTemplate="header">
     <tr>
       <th>CNPJ</th>

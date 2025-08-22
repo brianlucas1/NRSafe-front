@@ -110,16 +110,35 @@ export class DashboardGraficoComponent implements OnChanges {
 
     this.chartData = { labels, datasets };
     this.chartOptions = {
-      responsive: true,
+       responsive: true,
+      maintainAspectRatio: false,   
+        aspectRatio: 1.2,
       plugins: {
-        legend: { position: 'top' },
-        tooltip: { mode: 'index', intersect: false }
+        legend: { position: 'bottom' },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: (ctx: any) => {
+              const v = typeof ctx.parsed === 'object' ? ctx.parsed?.y : ctx.parsed;
+              return ` ${ctx.dataset?.label ?? ''}: ${Number(v) || 0}`;
+            },
+            footer: (items: any) => {
+              const total = items.reduce((sum: any, it: any) => {
+                const v = typeof it.parsed === 'object' ? it.parsed?.y : it.parsed;
+                return sum + (Number(v) || 0);
+              }, 0);
+              return `Total de visitas: ${total}`;
+            },
+          },
+          footerSpacing: 6 // um espacinho antes do total (opcional)
+        },
       },
       scales: {
         x: { stacked: true },
-        y: { stacked: true }
-      }
-    };
+        y: { stacked: true, beginAtZero: true },
+      },
+    } as any; // ou tipar como ChartOptions<'bar'>
   }
 
   private getCorVisita(status: VisitaStatusEnum) {

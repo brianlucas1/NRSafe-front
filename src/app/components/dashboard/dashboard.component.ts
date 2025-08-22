@@ -17,7 +17,7 @@ import { GraficoImports } from '../../util/grafico-imports';
 })
 export class DashboardComponent implements OnInit {
 
-    tituloDash = 'Visitas';
+  tituloDash = 'Visitas';
 
   tipoConsultaOptions = [
     { label: 'Por Visita', value: 'V' },
@@ -42,11 +42,18 @@ export class DashboardComponent implements OnInit {
   }
 
   criaForm() {
+    const hoje = new Date();
+    const fim = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+
+    // início = fim - 31 dias
+    const inicio = new Date(fim);
+    inicio.setDate(inicio.getDate() - 31);
+
     this.filterForm = this.fb.group({
       empresaSelecionada: [null],
-      dtInicio: [null],
-      dtFim: [null],
-      tipoConsulta: [null]
+      dtInicio: [inicio],
+      dtFim: [fim],
+      tipoConsulta: [null],
     });
   }
 
@@ -76,11 +83,11 @@ export class DashboardComponent implements OnInit {
     this.filtrosSelecionados = filtros;
   }
 
-  getTituloDash(){
-    if(this.filterForm.value.tipoConsulta === 'I'){
-        this.tituloDash = 'Inspeções';
-    }else{
-        this.tituloDash = 'Visitas';
+  getTituloDash() {
+    if (this.filterForm.value.tipoConsulta === 'I') {
+      this.tituloDash = 'Inspeções';
+    } else {
+      this.tituloDash = 'Visitas';
     }
     return this.tituloDash;
   }

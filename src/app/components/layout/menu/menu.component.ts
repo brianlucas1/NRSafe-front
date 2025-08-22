@@ -80,7 +80,7 @@ export class MenuComponent implements OnInit {
                     items: [
                         { label: 'Empresas', icon: 'pi pi-building', routerLink: ['/empresas'] },
                         { label: 'Filiais', icon: 'pi pi-building-columns', routerLink: ['/filiais'] },
-                        { label: 'Sites', icon: 'pi pi-hammer', routerLink: ['/sites'] },
+                        { label: 'Sites/Setor', icon: 'pi pi-hammer', routerLink: ['/sites'] },
                     ]
                 }
             ];

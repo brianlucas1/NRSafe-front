@@ -20,6 +20,7 @@
 
 <p-table 
   #dt
+  class="tabela-zebrada"
   [value]="listaFiliais"
   [rows]="10"
   [columns]="cols" 
@@ -103,6 +104,7 @@
       <p><strong>Sites de {{ filial.razaoSocial }}:</strong></p>
 
       <p-table
+      class="tabela-zebrada"
         [value]="filial.listaSites"
         [responsiveLayout]="'scroll'"
         class="p-datatable-sm"

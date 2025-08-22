@@ -5,8 +5,13 @@
         <div class="flex items-center gap-2">
           <div>
             <label class="block font-bold mb-1">Por empresa</label>
-            <p-select [options]="listaEmpresas" formControlName="empresaSelecionada" optionLabel="razaoSocial"
-              optionValue="id" placeholder="Selecione a empresa">
+            <p-select [options]="listaEmpresas" 
+             formControlName="empresaSelecionada"
+             optionLabel="razaoSocial"
+             optionValue="id" 
+             placeholder="{{ (listaEmpresas?.length ? 'Selecione a empresa' : 'Sem empresas disponíveis') }}"
+             [emptyMessage]="''"
+             [emptyFilterMessage]="''">
             </p-select>
           </div>
           <div class="flex-4">

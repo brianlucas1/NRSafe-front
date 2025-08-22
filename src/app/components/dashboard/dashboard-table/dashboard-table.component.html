@@ -1,8 +1,13 @@
-<div  style="margin-top:30px ;">
+<div   class="tabela-zebrada"  style="margin-top:30px ;">
   <p-table
   [value]="graficoEmpresa" 
   [responsiveLayout]="'scroll'"
-  [scrollable]="true">    
+  [scrollable]="true"
+  [paginator]="true"
+  [rows]="10"
+  [rowsPerPageOptions]="[10, 20, 30]"
+  currentPageReportTemplate="Mostrando {first} de {last} total {totalRecords} visitas"
+  [showCurrentPageReport]="true">    
 
     <ng-template #caption>
     <div class="flex items-center justify-between">

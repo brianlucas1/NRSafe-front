@@ -62,25 +62,21 @@ export class DashboardTortaComponent implements OnChanges {
   centralizaTotal() {
     this.centerTextPlugin = {
       id: 'centerText',
-      beforeDraw: (chart: any) => {
-        if (!chart.data || !chart.data.datasets || !chart.data.datasets[0]) return;
-
-        const ctx = chart.ctx;
-        const width = chart.width;
-        const height = chart.height;
+      afterDraw(chart: any) {
+        const { ctx, chartArea: { width, height } } = chart;
         ctx.save();
 
-        const fontSize = Math.round(height / 10);
-        ctx.font = `${fontSize}px sans-serif`;
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
+        // Texto que você quer mostrar
+        ctx.font = 'bold 28px Arial';
+        ctx.fillStyle = 'black';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
 
         const total = chart.data.datasets[0].data.reduce((a: number, b: number) => a + b, 0);
         const text = total.toString();
-        const textX = width / 2;
-        const textY = height / 2.5 + fontSize / 8;
 
-        ctx.fillText(text, textX, textY);
+        // Centraliza no meio do canvas
+        ctx.fillText(text, width / 2, height / 2);
         ctx.restore();
       }
     };
