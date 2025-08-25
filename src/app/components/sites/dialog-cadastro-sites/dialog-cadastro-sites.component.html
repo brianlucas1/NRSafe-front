@@ -1,16 +1,10 @@
-<p-dialog
-  [visible]="visible"
-  [style]="{ width: '600px' }"
-  [closable]="false"
-  [modal]="true"
-  (onHide)="onHideDialog()"
->
-<p-toast></p-toast>
+<p-dialog [visible]="visible" [style]="{ width: '600px' }" [closable]="false" [modal]="true" (onHide)="onHideDialog()">
+  <p-toast></p-toast>
   <ng-template pTemplate="header">
     <div class="flex items-center gap-2">
       <i class="pi pi-building text-blue-500"></i>
       <span class="font-semibold text-lg">Cadastro de Site</span>
-    </div>    
+    </div>
   </ng-template>
 
   <ng-template pTemplate="content">
@@ -19,105 +13,130 @@
       <div class="flex flex-col md:flex-row gap-4">
         <div class="flex-1">
           <label class="block font-bold mb-1">CNPJ</label>
-          <p-inputmask formControlName="cnpj"  placeholder="99.999.999/9999-99" mask="99.999.999/9999-99" class="w-full" />
+          <p-inputmask formControlName="cnpj" placeholder="99.999.999/9999-99" mask="99.999.999/9999-99"
+            class="w-full" />
           <div *ngIf="siteForm.get('cnpj')?.invalid && siteForm.get('cnpj')?.touched">
-            <small  class="text-red-500" *ngIf="siteForm.get('cnpj')?.errors?.['required']">O campo cnpj é obrigatório.</small>
-            <small  class="text-red-500" *ngIf="siteForm.get('cnpj')?.errors?.['invalidCnpj']">Cnpj não está valido.</small>
+            <small class="text-red-500" *ngIf="siteForm.get('cnpj')?.errors?.['required']">O campo cnpj é
+              obrigatório.</small>
+            <small class="text-red-500" *ngIf="siteForm.get('cnpj')?.errors?.['invalidCnpj']">Cnpj não está
+              valido.</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col md:flex-row md:items-end gap-4">
+  <div class="flex-1 min-w-[280px]">
+    <label class="block font-bold mb-1 whitespace-nowrap">Selecione uma Filial</label>
+    <p-dropdown
+      formControlName="filial"
+      [options]="listaFiliaisOptions"
+      optionLabel="razaoSocial"
+      placeholder="Selecione"
+      [showClear]="true"
+      (onChange)="onFilialChange($event.value)"
+      styleClass="w-full">
+    </p-dropdown>
+  </div>
+
+  <div class="flex-1 min-w-[280px]">
+    <label class="block font-bold mb-1 whitespace-nowrap">Selecione uma Empresa</label>
+    <p-dropdown
+      formControlName="empresa"
+      [options]="listaEmpresasOptions"
+      optionLabel="razaoSocial"
+      placeholder="Selecione"
+      [showClear]="true"
+      (onChange)="onEmpresaChange($event.value)"
+      styleClass="w-full">
+    </p-dropdown>
+  </div>
+
+  <div class="w-full" *ngIf="siteForm?.errors?.['exactlyOne'] && siteForm.touched">
+    <span class="text-red-500">Selecione <b>uma</b> Filial <u>ou</u> <b>uma</b> Empresa.</span>
+  </div>
+</div>
+
+
+
+
+      <div class="flex flex-col md:flex-row gap-6">
+        <div class="flex-6">
+          <label class="block font-bold mb-1">Razão Social</label>
+          <input pInputText formControlName="razaoSocial" />
+          <div *ngIf="siteForm.get('razaoSocial')?.invalid && siteForm.get('razaoSocial')?.touched">
+            <small class="text-red-500" *ngIf="siteForm.get('razaoSocial')?.errors?.['required']">O campo razão social é
+              obrigatório.</small>
           </div>
         </div>
       </div>
 
       <div class="flex flex-col md:flex-row gap-4">
-        <div class="flex-4">
-          <label class="block font-bold mb-1">Filial a ser vinculada</label>
-          <p-dropdown formControlName="filial"
-           [options]="listaFiliais" 
-           [dataKey]="'id'"
-           optionLabel="razaoSocial"
-          placeholder="Selecione uma filial">
-          </p-dropdown>
-          <div *ngIf="siteForm.get('filial')?.invalid && siteForm.get('filial')?.touched">
-              <small  class="text-red-500" *ngIf="siteForm.get('filial')?.errors?.['required']">Selecione uma Filial.</small>
-             </div>     
-        </div>
-      </div>
-
-
-      <div class="flex flex-col md:flex-row gap-4">
-        <div class="flex-4">
-        <label class="block font-bold mb-1">Razão Social</label>
-          <input pInputText formControlName="razaoSocial"  />
-             <div *ngIf="siteForm.get('razaoSocial')?.invalid && siteForm.get('razaoSocial')?.touched">
-              <small  class="text-red-500" *ngIf="siteForm.get('razaoSocial')?.errors?.['required']">O campo razão social é obrigatório.</small>
-             </div>             
-        </div>       
-      </div>
-
-       <div class="flex flex-col md:flex-row gap-4">
         <div class="flex-1">
-        <label class="block font-bold mb-1">Nome Fantasia</label>
-          <input pInputText formControlName="nomeFantasia"  />        
+          <label class="block font-bold mb-1">Nome Fantasia</label>
+          <input pInputText formControlName="nomeFantasia" />
         </div>
-      </div>     
+      </div>
 
       <div class="flex flex-col md:flex-row gap-4">
         <div class="w-1/4">
-        <label class="block font-bold mb-1">Email</label>
-            <input type="email" pInputText formControlName="email" class="w-full" />
-             <div *ngIf="siteForm.get('email')?.invalid && siteForm.get('email')?.touched">
-              <small  class="text-red-500" *ngIf="siteForm.get('email')?.errors?.['required']">O campo e-mail é obrigatório.</small>
-              <br>
-              <small  class="text-red-500" *ngIf="siteForm.get('email')?.errors?.['email']">e-mail não está valido.</small>
-             </div>
+          <label class="block font-bold mb-1">Email</label>
+          <input type="email" pInputText formControlName="email" class="w-full" />
+          <div *ngIf="siteForm.get('email')?.invalid && siteForm.get('email')?.touched">
+            <small class="text-red-500" *ngIf="siteForm.get('email')?.errors?.['required']">O campo e-mail é
+              obrigatório.</small>
+            <br>
+            <small class="text-red-500" *ngIf="siteForm.get('email')?.errors?.['email']">e-mail não está valido.</small>
+          </div>
         </div>
         <div class="w-1/4">
           <label class="block font-bold mb-1">Telefone</label>
-            <p-inputmask formControlName="telefone" mask="(99) 9999-9999" class="w-full" />           
+          <p-inputmask formControlName="telefone" mask="(99) 9999-9999" class="w-full" />
         </div>
       </div>
 
       <div class="flex flex-col md:flex-row gap-4">
         <div class="flex-1">
           <label class="block font-bold mb-1">CEP</label>
-          <p-inputmask formControlName="cep" mask="99999-999" class="w-[150px]" (onBlur)="buscaCep()"/>
-           <div *ngIf="siteForm.get('cep')?.invalid && siteForm.get('cep')?.touched">
-              <small  class="text-red-500" *ngIf="siteForm.get('cep')?.errors?.['required']">O campo cep é obrigatório.</small>
-              <small  class="text-red-500" *ngIf="siteForm.get('cep')?.errors?.['cepInvalido']">Cep inválido.</small>
-             </div>
+          <p-inputmask formControlName="cep" mask="99999-999" class="w-[150px]" (onBlur)="buscaCep()" />
+          <div *ngIf="siteForm.get('cep')?.invalid && siteForm.get('cep')?.touched">
+            <small class="text-red-500" *ngIf="siteForm.get('cep')?.errors?.['required']">O campo cep é
+              obrigatório.</small>
+            <small class="text-red-500" *ngIf="siteForm.get('cep')?.errors?.['cepInvalido']">Cep inválido.</small>
+          </div>
 
         </div>
       </div>
 
       <div class="flex flex-col md:flex-row gap-4">
         <div class="w-1/4">
-        <label class="block font-bold mb-1">Logradouro</label>
-          <input pInputText formControlName="logradouro" class="w-full" />          
+          <label class="block font-bold mb-1">Logradouro</label>
+          <input pInputText formControlName="logradouro" class="w-full" />
         </div>
       </div>
 
-       <div class="flex flex-col md:flex-row gap-4">
+      <div class="flex flex-col md:flex-row gap-4">
         <div class="w-1/4">
           <label class="block font-bold mb-1">Complemento</label>
           <input pInputText formControlName="complemento" class="w-full" />
         </div>
-         <div class="w-1/4">
+        <div class="w-1/4">
           <label class="block font-bold mb-1">Numero</label>
-          <input pInputText formControlName="numero" class="w-full" /> 
+          <input pInputText formControlName="numero" class="w-full" />
         </div>
       </div>
 
       <div class="flex flex-col md:flex-row gap-4">
         <div class="w-1/4">
-        <label class="block font-bold mb-1">Localidade</label>
-        <input pInputText formControlName="localidade" class="w-full" />        
+          <label class="block font-bold mb-1">Localidade</label>
+          <input pInputText formControlName="localidade" class="w-full" />
         </div>
         <div class="w-1/4">
           <label class="block font-bold mb-1">UF</label>
-          <input pInputText formControlName="uf" class="w-full" />         
+          <input pInputText formControlName="uf" class="w-full" />
         </div>
         <div class="w-1/4">
           <label class="block font-bold mb-1">Bairro</label>
-          <input pInputText formControlName="bairro" class="w-full" />         
+          <input pInputText formControlName="bairro" class="w-full" />
         </div>
       </div>
     </form>
@@ -125,11 +144,7 @@
 
   <ng-template pTemplate="footer">
     <p-button label="Cancelar" icon="pi pi-times" (onClick)="visible = false" text />
-    <p-button label="Salvar" icon="pi pi-check"  (onClick)="salvar()"/>
+    <p-button label="Salvar" icon="pi pi-check" (onClick)="salvar()" />
   </ng-template>
 
 </p-dialog>
-  
-
-
-

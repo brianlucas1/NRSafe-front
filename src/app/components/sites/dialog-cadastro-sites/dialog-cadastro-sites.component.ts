@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { SiteService } from '../../../../services/site-service';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { CorporativoService } from '../../../../services/corporativo-service';
 import { Endereco } from '../../../models/endereco';
@@ -11,6 +11,8 @@ import { cnpjValido } from '../../../util/cnpj-validator';
 import { SiteRequestDTO } from '../../../models/request/site-request-dto';
 import { SiteResponseDTO } from '../../../models/response/site-reponse-dto';
 import { FilialResponseDTO } from '../../../models/response/filial-reponse-dto';
+import { EmpresaService } from '../../../../services/empresa-service';
+import { EmpresaResponseDTO } from '../../../models/response/empresa-reponse-dto';
 
 @Component({
   selector: 'app-dialog-cadastro-sites',
@@ -27,11 +29,19 @@ export class DialogCadastroSitesComponent implements OnChanges{
   @Output() fechar = new EventEmitter<void>();
 
   listaFiliais: FilialResponseDTO[] = [];
+  listaEmpresas: EmpresaResponseDTO[] = [];
+
+  listaFiliaisOptions: any[] = [];
+  listaEmpresasOptions: any[] = [];
+
+  filialDisabled = false;
+  empresaDisabled = false;  
 
   siteForm!: FormGroup;
   cepConsultado?: Endereco
 
   constructor(private fb: FormBuilder,
+    private empService: EmpresaService,    
     private msgService: MessageService,
     private filialService: FilialService,
     private siteService: SiteService,
@@ -39,6 +49,7 @@ export class DialogCadastroSitesComponent implements OnChanges{
   ) { }
 
   ngOnInit(): void {
+    this.buscaEmpresas();
     this.buscaFiliais();
     this.montaForm();
   }
@@ -60,7 +71,8 @@ export class DialogCadastroSitesComponent implements OnChanges{
       nomeFantasia: [this.siteSelecionado?.nomeFantasia,],
       email: [this.siteSelecionado?.email, [Validators.email]],
       telefone: [this.siteSelecionado?.telefone ],
-      filial : [this.siteSelecionado?.filialVinculada, [Validators.required]],
+      filial : [this.siteSelecionado?.filialVinculada, ],
+      empresa : [this.siteSelecionado?.empresaVinculada, ],
       logradouro: [{ value: this.siteSelecionado?.enderecoDTO?.logradouro, disabled: true }],
       bairro: [{value : this.siteSelecionado?.enderecoDTO?.bairro, disabled: true } ],
       numero: [ this.siteSelecionado?.enderecoDTO?.numero],
@@ -69,8 +81,80 @@ export class DialogCadastroSitesComponent implements OnChanges{
       uf: [{value : this.siteSelecionado?.enderecoDTO?.uf, disabled: true }],
       cep: [this.siteSelecionado?.enderecoDTO?.cep, [Validators.required, validaCep]]
     });
+    { validators: [this.requireExactlyOneOf('filial', 'empresa')] } // <-- AQUI dentro
+
+  this.setupMutualExclusion();
+  this.aplicarEstadosIniciais();
+
   }
 
+  onFilialChange(val: any) {
+  const ctrl = this.siteForm.get('filial')!;
+  if (val && val.id == null) { ctrl.setValue(null); } // transforma “Selecione” em null
+}
+
+onEmpresaChange(val: any) {
+  const ctrl = this.siteForm.get('empresa')!;
+  if (val && val.id == null) { ctrl.setValue(null); } // idem
+}
+
+  private requireExactlyOneOf(...keys: string[]) {
+    return (ctrl: AbstractControl) => {
+      const values = keys.map(k => ctrl.get(k)?.value);
+      const count = values.filter(v => v !== null && v !== undefined && v !== '').length;
+      return count === 1 ? null : { exactlyOne: true };
+    };
+  }
+
+  private setupMutualExclusion() {
+    const filialCtrl = this.siteForm.get('filial')!;
+    const empresaCtrl = this.siteForm.get('empresa')!;
+
+    filialCtrl.valueChanges.subscribe((val) => {
+      const temFilial = !!val;
+      this.filialDisabled = false;
+      if (temFilial) {
+        this.empresaDisabled = true;
+        empresaCtrl.setValue(null, { emitEvent: false });
+        empresaCtrl.disable({ emitEvent: false });
+      } else {
+        this.empresaDisabled = false;
+        empresaCtrl.enable({ emitEvent: false });
+      }
+    });
+
+    empresaCtrl.valueChanges.subscribe((val) => {
+      const temEmpresa = !!val;
+      this.empresaDisabled = false;
+      if (temEmpresa) {
+        this.filialDisabled = true;
+        filialCtrl.setValue(null, { emitEvent: false });
+        filialCtrl.disable({ emitEvent: false });
+      } else {
+        this.filialDisabled = false;
+        filialCtrl.enable({ emitEvent: false });
+      }
+    });
+
+    // aplica o estado inicial (ex.: edição)
+    this.aplicarEstadosIniciais();
+  }
+
+  private aplicarEstadosIniciais() {
+    const filialCtrl = this.siteForm.get('filial')!;
+    const empresaCtrl = this.siteForm.get('empresa')!;
+    if (filialCtrl.value) {
+      empresaCtrl.disable({ emitEvent: false });
+      this.empresaDisabled = true;
+    } else if (empresaCtrl.value) {
+      filialCtrl.disable({ emitEvent: false });
+      this.filialDisabled = true;
+    } else {
+      filialCtrl.enable({ emitEvent: false });
+      empresaCtrl.enable({ emitEvent: false });
+      this.filialDisabled = this.empresaDisabled = false;
+    }
+  }
 
   salvar() {
     if (this.siteForm.invalid) {
@@ -110,23 +194,22 @@ export class DialogCadastroSitesComponent implements OnChanges{
         localidade: formValue.localidade,
         uf: formValue.uf
       },
-      filial: formValue.filial
+      filial: formValue.filial,
+      empresa: formValue.empresa
     }
     return siteDTO;
   }
 
 
-  async buscaFiliais() {
-    await this.filialService.buscaTodasFiliaisPorCliente()
-      .subscribe({
-        next: res => {
-          this.listaFiliais = res;
-        },
-        error: error => {
-          this.msgService.add({ severity: 'error', summary: 'Error Message', detail: error.error.message });
-        }
-      })
-  }
+ buscaFiliais() {
+  this.filialService.buscaTodasFiliaisPorCliente().subscribe({
+    next: res => {
+      this.listaFiliais = res;
+      this.listaFiliaisOptions = [{ id: null, razaoSocial: 'Selecione' }, ...res];
+    },
+    error: error => this.msgService.add({ severity: 'error', summary: 'Erro', detail: error.error.message })
+  });
+}
 
   buscaCep() {
     if (this.siteForm.get('cep')?.valid) {
@@ -151,5 +234,16 @@ export class DialogCadastroSitesComponent implements OnChanges{
   onHideDialog() {
     this.fechar.emit();
   }
+
+ 
+buscaEmpresas() {
+  this.empService.buscaTodasEmpresas().subscribe({
+    next: res => {
+      this.listaEmpresas = res;
+      this.listaEmpresasOptions = [{ id: null, razaoSocial: 'Selecione' }, ...res];
+    },
+    error: error => this.msgService.add({ severity: 'error', summary: 'Erro', detail: error.error.message })
+  });
+}
 
 }

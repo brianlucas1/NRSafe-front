@@ -139,9 +139,9 @@ export class DashboardTortaComponent implements OnChanges {
           backgroundColor: [
             '#0B3D2E', // Em Andamento
             '#059669', // Concluída
-            '#EA580C', // Agendada
+            '#0c65ea', // Agendada
             '#DC2626', // Cancelada
-            '#DC2626'  // Atrasada
+            '#EA580C'  // Atrasada
           ]
         }
       ]

@@ -1,0 +1,114 @@
+<div class="w-full">
+  <form [formGroup]="filterForm">
+    <p-toolbar styleClass="mb-6">
+      <ng-template #start>
+        <div class="flex items-center gap-2">
+          <div>
+            <label class="block font-bold mb-1">Por empresa</label>
+            <p-select [options]="listaEmpresas" 
+             formControlName="empresaSelecionada"
+             optionLabel="razaoSocial"
+             optionValue="id" 
+             placeholder="{{ (listaEmpresas?.length ? 'Selecione a empresa' : 'Sem empresas disponíveis') }}"
+             [emptyMessage]="''"
+             [emptyFilterMessage]="''">
+            </p-select>
+          </div>
+          <div class="flex-4">
+            <label class="block font-bold mb-1">Data Início</label>
+            <p-datepicker  formControlName="dtInicio" showIcon iconDisplay="input" dateFormat="dd/mm/yy" />
+          </div>
+          <div class="flex-4">
+            <label class="block font-bold mb-1">Data Fim</label>
+            <p-datepicker  formControlName="dtFim" showIcon iconDisplay="input" dateFormat="dd/mm/yy" />
+          </div>
+          <div class="flex-4" style="margin-top: 20px;">
+            <p-button label="Cosultar" (onClick)="aplicarFiltros()" />
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </form>
+</div>
+
+<p-table
+    [value]="listaPlanoAcao"
+    [lazy]="true"
+    (onLazyLoad)="onLazyLoad($event)"
+    [paginator]="true"
+    [rows]="rows"
+    [totalRecords]="totalRecords"
+    [loading]="loading"
+    [rowsPerPageOptions]="[10,20,30]"
+    [sortField]="sortField"
+    [sortOrder]="sortOrder"
+    [responsiveLayout]="'scroll'"
+    [scrollable]="true"
+    currentPageReportTemplate="Mostrando {first}–{last} de {totalRecords}"
+    [showCurrentPageReport]="true"
+    styleClass="w-full tabela-zebrada">
+
+    <ng-template pTemplate="caption">
+      <div class="flex items-center justify-between">
+        <h5 class="m-0 font-semibold">Planos de Ação</h5>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>       
+        <th pSortableColumn="visita" class="min-w-[120px]">
+          Visita <p-sortIcon field="visita"></p-sortIcon>
+        </th>
+        <th pSortableColumn="status" class="min-w-[120px]">
+          Status <p-sortIcon field="status"></p-sortIcon>
+        </th>
+        <th pSortableColumn="totalInvestimento" class="min-w-[150px] text-right">
+          Investimento <p-sortIcon field="totalInvestimento"></p-sortIcon>
+        </th>
+        <th pSortableColumn="totalMulta" class="min-w-[120px] text-right">
+          Multa <p-sortIcon field="totalMulta"></p-sortIcon>
+        </th>
+        <th pSortableColumn="dthrCriacao" class="min-w-[180px]">
+          Criado em <p-sortIcon field="dthrCriacao"></p-sortIcon>
+        </th>
+          <th class="min-w-[180px]"> Ação    </th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-row>
+      <tr class="odd:bg-gray-50">
+        <td>{{ row.nomeVisita }}</td>
+        <td>
+          <span
+            class="px-2 py-0.5 rounded-full text-xs font-medium"
+            [ngClass]="{
+              'bg-emerald-100 text-emerald-800': row.status === 'CO',
+              'bg-amber-100 text-amber-800': row.status === 'EA' || row.status === 'AB',
+              'bg-rose-100 text-rose-800': row.status === 'CA'
+            }">
+            {{ row.status }}
+          </span>
+        </td>
+        <td class="text-right"> R$ {{ row.totalInvestimento | number:'1.2-2' }}</td>
+        <td class="text-right"> R$ {{ row.totalMulta | number:'1.2-2' }}</td>
+        <td>{{ row.dthrCriacao | date:'dd/MM/yyyy HH:mm' }}</td>
+         <td>
+          <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" />
+      </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+
+    <tr *ngIf="totaisGerais">
+      <td colspan="2" class="text-right text-sm text-gray-600">TOTAL (geral/filtros):</td>
+      <td class="text-right text-sm text-gray-600">R$ {{ totaisGerais.totalInvestimento | number:'1.2-2' }}</td>
+      <td class="text-right text-sm text-gray-600">R$ {{ totaisGerais.totalMulta | number:'1.2-2' }}</td>
+      <td colspan="2"></td>
+    </tr>
+  </ng-template>
+
+
+
+    
+</p-table>

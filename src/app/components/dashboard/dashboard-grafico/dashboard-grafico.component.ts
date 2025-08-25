@@ -143,20 +143,20 @@ export class DashboardGraficoComponent implements OnChanges {
 
   private getCorVisita(status: VisitaStatusEnum) {
     const cores: Record<VisitaStatusEnum, string> = {
-      [VisitaStatusEnum.ATRASADA]: '#4caf50',
-      [VisitaStatusEnum.CANCELADA]: '#f44336',
-      [VisitaStatusEnum.CONCLUIDA]: '#2196f3',
-      [VisitaStatusEnum.EM_ANDAMENTO]: '#ff9800',
-      [VisitaStatusEnum.AGENDADA]: '#9c27b0'
+      [VisitaStatusEnum.ATRASADA]: '#EA580C',
+      [VisitaStatusEnum.CANCELADA]: '#DC2626',
+      [VisitaStatusEnum.CONCLUIDA]: '#059669',
+      [VisitaStatusEnum.EM_ANDAMENTO]: '#0B3D2E',
+      [VisitaStatusEnum.AGENDADA]: '#0c65ea'
     };
     return cores[status] || '#999999';
   }
 
   private getCorInspecao(status: InspecaoStatusEnum) {
     const cores: Record<InspecaoStatusEnum, string> = {
-      [InspecaoStatusEnum.NAO_INICIADA]: '#9e9e9e',
-      [InspecaoStatusEnum.EM_ANDAMENTO]: '#ff9800',
-      [InspecaoStatusEnum.CONCLUIDA]: '#4caf50',
+      [InspecaoStatusEnum.NAO_INICIADA]: '#EA580C',
+      [InspecaoStatusEnum.EM_ANDAMENTO]: '#0B3D2E',
+      [InspecaoStatusEnum.CONCLUIDA]: '#059669',
 
     };
     return cores[status] || '#999999';
