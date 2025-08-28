@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PlanoAcaoComponent } from './plano-acao.component';
+import { ItemNormaComponent } from './item-norma.component';
 
-describe('PlanoAcaoComponent', () => {
-  let component: PlanoAcaoComponent;
-  let fixture: ComponentFixture<PlanoAcaoComponent>;
+describe('ItemNormaComponent', () => {
+  let component: ItemNormaComponent;
+  let fixture: ComponentFixture<ItemNormaComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PlanoAcaoComponent]
+      imports: [ItemNormaComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PlanoAcaoComponent);
+    fixture = TestBed.createComponent(ItemNormaComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -10,7 +10,6 @@ import { FiliaisComponent } from './app/components/filiais/filiais.component';
 import { SitesComponent } from './app/components/sites/sites.component';
 import { FuncionarioComponent } from './app/components/funcionario/funcionario.component';
 import { DashboardComponent } from './app/components/dashboard/dashboard.component';
-import { PlanoAcaoComponent } from './app/components/plano-acao/plano-acao.component';
 
 export const appRoutes: Routes = [
  { path: 'login', component: LoginComponent },
@@ -25,10 +24,12 @@ export const appRoutes: Routes = [
     canActivate: [AuthGuard] 
   },
   { 
-    path: 'plano-acao', 
-    component: PlanoAcaoComponent, 
-    canActivate: [AuthGuard] 
+       path: 'plano-acao',
+    loadChildren: () =>
+      import('./app/components/plano-acao/plano-acao-routes').then(m => m.PLANO_ACAO_ROUTES)
   },
+  { path: '', pathMatch: 'full', redirectTo: 'plano-acao'   }
+  ,
    { 
     path: 'dashboard', 
     component: DashboardComponent, 
