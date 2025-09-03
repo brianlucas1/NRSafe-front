@@ -1,0 +1,12 @@
+:host ::ng-deep signature-pad canvas {
+  touch-action: none;
+  pointer-events: auto;
+  width: 100% !important;
+  height: 220px !important;
+  background-color: #fff !important; // evita aquele fundo bege do tema
+}
+
+/* evita o conteúdo do dialog cortar o canvas */
+:host ::ng-deep .p-dialog .p-dialog-content {
+  overflow: visible;
+}

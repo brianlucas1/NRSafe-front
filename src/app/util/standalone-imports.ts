@@ -27,10 +27,13 @@ import { FluidModule } from 'primeng/fluid';
 import { DropdownModule } from "primeng/dropdown";
 import { MultiSelectModule } from 'primeng/multiselect';
 
+import { TooltipModule } from "primeng/tooltip";
+
 export const StandaloneImports = [
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
+    TooltipModule,
     RouterModule,
     RippleModule,
     StyleClassModule,

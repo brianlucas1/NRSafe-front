@@ -1,6 +1,6 @@
 export interface PlanoAcaoNormaResponseDTO {
   
-    idPlanoAcaoNorma: number;
+    id: number;
     idNorma: number;
     nrNorma: string;
     descNorma: string;

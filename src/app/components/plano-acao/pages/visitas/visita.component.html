@@ -99,13 +99,13 @@
           </span>
         </td>
         <td class="text-right">  {{ row.nomeFuncionario }}</td>
-        <td class="text-right"> R$ {{ row.multa | number:'1.2-2' }}</td>
         <td class="text-right"> R$ {{ row.investimento | number:'1.2-2' }}</td>
+        <td class="text-right"> R$ {{ row.multa | number:'1.2-2' }}</td>
         <td>{{ row.dtHrCriacao | date:'dd/MM/yyyy HH:mm' }}</td>
          <td>{{ row.dtHrAtualizacao | date:'dd/MM/yyyy HH:mm' }}</td>
          <td>
           <p-button icon="pi pi-print" class="mr-2" [rounded]="true" [outlined]="true" />
-          <p-button (click)="abrirNormas(row.idPlanoAcao)" icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" />
+          <p-button (click)="abrirNormas(row)" icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" />
       </td>      
       </tr>
     </ng-template>
@@ -114,8 +114,8 @@
 
     <tr *ngIf="totaisGerais">
       <td colspan="3" class="text-right text-sm text-gray-600">TOTAL (geral/filtros):</td>
-      <td class="text-right text-sm text-gray-600">R$ {{ totaisGerais.totalMulta | number:'1.2-2' }}</td>
       <td class="text-right text-sm text-gray-600">R$ {{ totaisGerais.totalInvestimento | number:'1.2-2' }}</td>
+      <td class="text-right text-sm text-gray-600">R$ {{ totaisGerais.totalMulta | number:'1.2-2' }}</td>
       <td colspan="3"></td>
     </tr>
   </ng-template>

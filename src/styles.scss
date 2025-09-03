@@ -13,3 +13,10 @@
   background: var(--highlight-bg) !important; 
   color: var(--highlight-text-color) !important; 
 }
+
+
+.tooltip-wide {
+  max-width: 600px !important;  /* ajusta conforme preferir */
+  white-space: normal !important; /* quebra linhas */
+  text-align: justify;           /* opcional: deixa o texto mais legível */
+}

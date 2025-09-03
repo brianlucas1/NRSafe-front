@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ItemNormaComponent } from './item-norma.component';
+import { ItemNormaComponent } from './sub-item-norma.component';
 
 describe('ItemNormaComponent', () => {
   let component: ItemNormaComponent;

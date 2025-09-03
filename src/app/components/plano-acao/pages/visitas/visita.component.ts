@@ -86,7 +86,7 @@ export class VisitasComponent implements OnInit {
 }
 
   abrirNormas(row: { idPlanoAcao: number }) {
-    this.router.navigate(['/plano-acao', 'visitas', row, 'normas']);
+    this.router.navigate(['/plano-acao', 'visitas', row.idPlanoAcao, 'normas']);
   }
   
 

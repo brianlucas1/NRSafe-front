@@ -13,6 +13,7 @@
     },
     "private": true,
     "dependencies": {
+        "@almothafar/angular-signature-pad": "^6.0.0",
         "@angular/animations": "^19.0.0",
         "@angular/common": "^19.0.0",
         "@angular/compiler": "^19.0.0",
@@ -29,6 +30,7 @@
         "primeng": "^19.0.8",
         "rxjs": "~7.8.0",
         "serve": "^14.2.1",
+        "signature_pad": "^5.0.10",
         "tailwindcss-primeui": "^0.5.1",
         "tslib": "^2.3.0",
         "zone.js": "~0.15.0"
