@@ -11,8 +11,10 @@
   </ng-template>
 </p-toolbar>
 
-<app-dialog-cadastro-empresa [visible]="dialogCadastro" [empresaSelecionada]="empresaParaEditar"
-  (fechar)="fechaModalCadastro()">
+<app-dialog-cadastro-empresa
+ [visible]="dialogCadastro" 
+ [empresaSelecionada]="empresaParaEditar"
+ (fechar)="fechaModalCadastro()">
 </app-dialog-cadastro-empresa>
 
 <p-table

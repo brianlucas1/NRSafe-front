@@ -6,6 +6,7 @@ import { MenuComponent } from '../menu/menu.component';
 import { BarraSuperiorComponent } from '../barra-superior/barra-superior.component';
 import { filter, Subscription } from 'rxjs';
 import { NavigationEnd, Router } from '@angular/router';
+import { LoadingService } from '../../../util/loading-service';
 
 @Component({
     selector: 'app-corpo',
@@ -16,6 +17,9 @@ import { NavigationEnd, Router } from '@angular/router';
 })
 export class CorpoComponent implements OnDestroy {
 
+     isLoading$: any;
+
+
     overlayMenuOpenSubscription: Subscription;
     routerSubscription: Subscription;
 
@@ -25,10 +29,13 @@ export class CorpoComponent implements OnDestroy {
 
     constructor(
         private authService: AuthStorageService,
+        private loadingService: LoadingService,
         public renderer: Renderer2,
         private layoutService: LayoutService,
         public router: Router
     ) {
+        this.isLoading$ = this.loadingService.loading$;
+
         this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
             if (!this.menuOutsideClickListener) {
                 this.menuOutsideClickListener = this.renderer.listen('document', 'click', (event) => {

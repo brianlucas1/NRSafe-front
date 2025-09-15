@@ -64,7 +64,7 @@ export class MenuComponent implements OnInit {
                     icon: 'pi pi-fw pi-home',
                     items: [
                         { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },
-                        { label: 'GESTÃO DE PLANO DE AÇÃO', icon: 'pi pi-clipboard', routerLink: ['/plano-acao'] },
+                        { label: 'Gestão de plano ação', icon: 'pi pi-chart-bar', routerLink: ['/plano-acao'] },
                     ]
                 },
                 {
@@ -92,7 +92,7 @@ export class MenuComponent implements OnInit {
                     icon: 'pi pi-fw pi-home',
                     items: [
                         { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },
-                        { label: 'GESTÃO DE PLANO DE AÇÃO', icon: 'pi pi-clipboard', routerLink: ['/plano-acao'] },
+                        { label: 'Gestão de plano ação', icon: 'pi pi-chart-bar', routerLink: ['/plano-acao'] },
                     ]
                 },
                 {
@@ -100,8 +100,10 @@ export class MenuComponent implements OnInit {
                     icon: 'pi pi-briefcase',
                     items: [
                         { label: 'Colaboradores', icon: 'pi pi-user', routerLink: ['/funcionarios'] },
+                        { label: 'Check-list', icon: 'pi pi-clipboard', routerLink: ['/check-list'] },
                     ]
                 },
+                
                 {
                     label: 'Clientes',
                     icon: 'pi pi-building',

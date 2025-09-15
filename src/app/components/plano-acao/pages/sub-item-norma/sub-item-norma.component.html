@@ -23,7 +23,7 @@
             <p-datepicker formControlName="dtFim" showIcon iconDisplay="input" dateFormat="dd/mm/yy" />
           </div>
           <div class="flex-4" style="margin-top: 20px;">
-            <p-button label="Cosultar" (onClick)="aplicarFiltros()" />
+            <p-button label="Consultar" (onClick)="aplicarFiltros()" />
           </div>
           <div class="flex-4" style="margin-top: 20px;">
             <p-button label="Limpar filtros" (onClick)="limparFiltro()" />
@@ -31,6 +31,11 @@
           <div class="flex-4" style="margin-top: 20px;">
             <p-button icon="pi pi-save" [loading]="saving" label="Salvar alterações" (onClick)="salvarAlteracoes()" />
           </div>
+
+          <div class="flex-4" style="margin-top: 20px;">
+            <p-button label="Exportar CSV" (onClick)="exportarCsvItensCompleto()" />
+          </div>
+
         </div>
       </ng-template>
     </p-toolbar>
@@ -57,10 +62,7 @@
       </th>
       <th pSortableColumn="descricao" class="min-w-[50px]">
         Descricao <p-sortIcon field="descricao"></p-sortIcon>
-      </th>
-      <th pSortableColumn="status" class="min-w-[120px]">
-        Status <p-sortIcon field="status"></p-sortIcon>
-      </th>
+      </th>     
       <th pSortableColumn="planoAcao" class="min-w-[120px]">
         Proposta de melhoria <p-sortIcon field="planoAcao"></p-sortIcon>
       </th>
@@ -72,14 +74,12 @@
       </th>
       <th pSortableColumn="responsavel" class="min-w-[120px]">
         Responsável <p-sortIcon field="responsavel"></p-sortIcon>
-      </th>
- 
-      <th pSortableColumn="dthrCriacao" class="min-w-[180px]">
-        Criado em <p-sortIcon field="dthrCriacao"></p-sortIcon>
-      </th>
-      
+      </th>      
       <th pSortableColumn="previsao" class="min-w-[180px]">
         Previsão<p-sortIcon field="previsao"></p-sortIcon>
+      </th>
+       <th pSortableColumn="status" class="min-w-[120px]">
+        Status <p-sortIcon field="status"></p-sortIcon>
       </th>
     </tr>
   </ng-template>
@@ -95,13 +95,6 @@
           {{ row.descSubItem }}
         </span>
       </td>
-
-      <!-- Status (badge colorido) -->
-      <td>
-        <p-dropdown [options]="statusOptions" optionLabel="descricao" [appendTo]="'body'" optionValue="codigo"
-          [(ngModel)]="row.status" placeholder="Selecione" class="w-full"></p-dropdown>
-      </td>
-
       <td>
         <input type="text" pInputText [(ngModel)]="row.planoAcao" placeholder="Plano de ação" class="w-full" />
       </td>
@@ -122,9 +115,8 @@
 
       <td>
         <input type="text" pInputText [(ngModel)]="row.responsavel" placeholder="Digite um responsavel" class="w-full" />
-      </td>
+      </td>  
 
-      <td>{{ row.criadoEm | date: 'dd/MM/yyyy' }}</td>
       <td class="text-right">
         <p-datepicker
           [(ngModel)]="row.previsao"
@@ -135,6 +127,12 @@
           placeholder="dd/mm/aaaa">
         </p-datepicker>
       </td>
+
+       <td>
+        <p-dropdown [options]="statusOptions" optionLabel="descricao" [appendTo]="'body'" optionValue="codigo"
+          [(ngModel)]="row.status" placeholder="Selecione" class="w-full"></p-dropdown>
+      </td>
+
     </tr>
   </ng-template>
 
@@ -147,5 +145,8 @@
     </tr>
   </ng-template>
 
-
 </p-table>
+
+  <div class="flex justify-end mt-4">
+    <button pButton type="button" icon="pi pi-arrow-left" label="Voltar" (click)="voltar()"></button>
+  </div>

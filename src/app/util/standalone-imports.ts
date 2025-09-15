@@ -25,13 +25,17 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { PasswordModule } from "primeng/password";
 import { FluidModule } from 'primeng/fluid';
 import { DropdownModule } from "primeng/dropdown";
+import { BlockUIModule } from "primeng/blockui";
 import { MultiSelectModule } from 'primeng/multiselect';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 import { TooltipModule } from "primeng/tooltip";
 
 export const StandaloneImports = [
     CommonModule,
     ReactiveFormsModule,
+    BlockUIModule,
+    ProgressSpinnerModule,
     FormsModule,
     TooltipModule,
     RouterModule,

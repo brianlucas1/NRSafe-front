@@ -1,8 +1,10 @@
 import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import {  Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
+
+import { Location } from '@angular/common';
 
 import { PlanoAcaoService } from '../../services/plano-acao-service';
 import { NormaResponseDTO } from '../../dtos/norma-response-dto';
@@ -12,6 +14,7 @@ import { normalizeStatus, PLANO_ACAO_STATUS_OPTIONS } from '../../dtos/status-pl
 import { AngularSignaturePadModule, SignaturePadComponent } from '@almothafar/angular-signature-pad';
 import { AssinaturaPlanoAcaoRequestDTO } from '../../dtos/request/assinatura-plnao-acao-request-dto';
 import { MessageService } from 'primeng/api';
+import { PlanoAcaoContextService } from '../../services/plano-acao-context';
 
 
 @Component({
@@ -62,19 +65,32 @@ export class NormasComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute,
     private msgService: MessageService,
     private fb: FormBuilder,
+    private location: Location,
+    private ctx: PlanoAcaoContextService,
     private planoAcaoService: PlanoAcaoService,
   ) { }
 
-  async ngOnInit(): Promise<void> {
-    const id = this.route.snapshot.paramMap.get('idPlanoAcao');
-    this.idPlanoAcao = id ? Number(id) : NaN;
-    this.criaForm();
-    this.buscaNormasPorIdPlanoAcao();
-    await this.aplicarFiltros();
+async ngOnInit(): Promise<void> {
+  const fromNav = this.router.getCurrentNavigation()?.extras?.state as any;
+  const idFromNav = fromNav?.idPlanoAcao;
+  const idFromHist = (history.state as any)?.idPlanoAcao;
+
+  const id = idFromNav ?? idFromHist ?? this.ctx.getPlano();
+  if (!id) {
+    this.router.navigate(['/plano-acao', 'visitas']);
+    return;
   }
+
+  this.idPlanoAcao = Number(id);
+  this.ctx.setPlano(this.idPlanoAcao); // garante persistência pós-reload
+
+  this.criaForm();
+  this.buscaNormasPorIdPlanoAcao();
+  await this.aplicarFiltros();
+
+}
 
   async aplicarFiltros() {
     this.lastLazyEvent = { first: 0, rows: this.rows, sortField: this.sortField, sortOrder: this.sortOrder };
@@ -85,7 +101,6 @@ export class NormasComponent implements OnInit {
   private recomputaTodosConcluidos(): void {
     const items = this.listaPlanoAcaoNormas ?? [];
     this.normasConcluidas =   items.length > 0 && items.every(it => normalizeStatus(it.status) === 'CO');
-    console.log('Normas todas concluídas:', this.normasConcluidas);
   }
 
   buscaNormasPorIdPlanoAcao() {
@@ -102,6 +117,50 @@ export class NormasComponent implements OnInit {
 
   assinarNormas() {
     this.dialogAssinatura = true;
+  }
+
+  exportarCsvNormasCompleto(){
+
+    var listaIdPlanoAcaoNorma = new Array<number>();
+
+    this.listaPlanoAcaoNormas.forEach(plano => {
+      listaIdPlanoAcaoNorma.push(plano.id);
+    });
+
+      this.planoAcaoService.exportarCsvNormasCompleto(listaIdPlanoAcaoNorma)
+      .subscribe(blob => {
+        // Cria URL para download
+        const url = window.URL.createObjectURL(blob);
+        // Cria link temporário
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plano_acao_normas.xlsx'; // ou .csv se backend retornar CSV
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, err => {
+        this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao exportar arquivo!' })        
+      });
+  }
+
+
+  exportarNormasComItens(idPlanoAcaoNorma: number){
+       this.planoAcaoService.exportarCsvNormasComInspecao(idPlanoAcaoNorma)
+      .subscribe(blob => {
+        // Cria URL para download
+        const url = window.URL.createObjectURL(blob);
+        // Cria link temporário
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plano_acao_normas.xlsx'; // ou .csv se backend retornar CSV
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, err => {
+        this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao exportar arquivo!' })        
+      });
   }
 
   salvaAssinatura() {
@@ -174,10 +233,11 @@ onDialogShow() {
     }
   }
 
-  abrirInspecao(row: { idPlanoAcaoNorma: number }) {
-    this.router.navigate([row, 'itens'], { relativeTo: this.route }
-    );
-  }
+abrirInspecao( idPlanoAcaoNorma: number ) {
+  this.ctx.setPanr(idPlanoAcaoNorma); // fallback
+  this.router.navigate(    ['/plano-acao', 'itens'],    { state: { idPlanoAcao: this.idPlanoAcao} }
+  );
+}
 
   criaForm() {
     const hoje = new Date();
@@ -252,10 +312,13 @@ onDialogShow() {
   }
 
   limparFiltro() {
-
     this.criaForm();
     this.aplicarFiltros();
+  }
 
-
+    voltar() {
+    // se houver histórico, volta; senão, cai no fallback “seguro”
+    if (window.history.length > 1) this.location.back();
+    else this.router.navigate(['/plano-acao', 'visitas']);
   }
 }

@@ -1,0 +1,47 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+
+<form class="drawer" [formGroup]="form" (ngSubmit)="salvar()">
+  <ng-template pTemplate="header">
+    <div class="flex items-center gap-2">
+      <i class="pi pi-building text-blue-500"></i>
+      <span class="font-semibold text-lg">{{ editingId == null ? 'Novo Checklist' : 'Editar Checklist' }}</span>
+    </div>
+  </ng-template>
+
+
+
+  <div class="flex flex-col md:flex-row gap-4">
+    <div class="flex-8" class="w-full">
+      <label  class="w-full" class="block font-bold mb-4">Descrição do Checklist</label>
+      <input class="w-full" pInputText [formControl]="form.controls.descricao" placeholder="Ex: Lista para verificar estoque" />
+    </div>
+  </div>
+
+  <h4>Perguntas</h4>
+
+  <label class="block font-bold mb-4 w-full">Digite a pergunta do check list</label>
+
+<div *ngFor="let fg of perguntasFA.controls; index as i; trackBy: trackByIndex">
+  <div class="flex items-center gap-2 mb-3">
+    <input
+      pInputText
+      class="flex-1 w-full"
+      [formControl]="fg.controls.pergunta"
+      placeholder="Digite a pergunta"
+    />
+     <i class="pi" (click)="inativarPergunta(fg)" [ngClass]="{
+                        'text-green-500 pi-check-circle': fg.controls.status.value =='ATIVO',
+                        'text-red-500 pi-times-circle': fg.controls.status.value =='INATIVO'
+                    }"></i>
+  </div>
+</div>
+
+  <button type="button" pButton label="Adicionar pergunta" icon="pi pi-plus" class="p-button-text"
+    (click)="adicionarPergunta()"></button>
+
+  <div class="footer">
+    <button type="button" pButton label="Cancelar" class="p-button-text" (click)="cancelar()"></button>
+    <button type="submit" pButton label="Salvar" icon="pi pi-save" [disabled]="salvando"></button>
+  </div>
+</form>

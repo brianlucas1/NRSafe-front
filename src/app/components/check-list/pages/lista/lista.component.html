@@ -1,0 +1,101 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<p-toolbar styleClass="mb-6">
+  <ng-template #start>
+    <div class="flex items-center gap-2">
+      <div>
+        <button pButton type="button" label="Novo" icon="pi pi-plus" (click)="openCreate()"></button>
+      </div>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+  <p-table 
+    #dt
+   class="tabela-zebrada"
+   [value]="items()"
+   [paginator]="true"
+   [rows]="pageSize" 
+   [totalRecords]="total()"
+   [lazy]="true"
+   [tableStyle]="{ 'min-width': '75rem' }"
+   [loading]="loading()" 
+   (onLazyLoad)="onLazyLoad($event)"
+   [rowsPerPageOptions]="[5,10,20,50]"
+   [sortField]="sortField"
+   [sortOrder]="sortOrder" 
+   [responsiveLayout]="'scroll'">
+
+    <ng-template #caption>
+      <div class="flex items-center justify-between">
+        <h5 class="m-0">Lista de Check List</h5>
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input pInputText type="text" (input)="onSearchInput($event)" placeholder="Buscar por pergunta..." />
+        </p-iconfield>
+      </div>
+    </ng-template>
+
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="descricao">Descrição <p-sortIcon field="descricao"></p-sortIcon></th>
+        <th pSortableColumn="totalPerguntas" style="width: 140px;">Qtde Perguntas <p-sortIcon
+            field="totalPerguntas"></p-sortIcon></th>
+        <th pSortableColumn="atualizadoEm" style="width: 180px;">Atualizado em <p-sortIcon
+            field="atualizadoEm"></p-sortIcon></th>
+        <th style="width: 140px;">Status</th>
+        <th style="width: 140px;">Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-row>
+      <tr [attr.data-id]="row.id">
+        <td>{{ row.descricao }}</td>
+        <td class="text-right">{{ row.totalPerguntas }}</td>
+        <td>{{ row.atualizadoEm | date: 'dd/MM/yyyy HH:mm' }}</td>
+        <td>
+        <i class="pi" (click)="deletar(row)" [ngClass]="{
+                        'text-green-500 pi-check-circle': row.status =='ATIVO',
+                        'text-red-500 pi-times-circle': row.status =='INATIVO'
+                    }"></i>
+      </td>
+        <td class="actions">
+          <button pButton type="button" icon="pi pi-pencil" class="p-button-text" (click)="editarcheckList(row)"></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="4">
+          Nenhum checklist encontrado.
+          <button pButton type="button" label="Criar agora" class="p-button-text" (click)="openCreate()"></button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+
+
+<p-dialog
+  [visible]="dialogCadastro()"
+  (visibleChange)="dialogCadastro.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '600px' }"
+  [breakpoints]="{ '960px':'90vw', '640px':'95vw' }"
+  [closable]="true"
+  [header]="idCheckList ? 'Editar Checklist' : 'Novo Checklist'"
+  (onHide)="fechaDialog()"
+>
+  <!-- destrói o form ao fechar o diálogo -->
+  <app-cadastro
+    *ngIf="dialogCadastro()"
+    [editingId]="idCheckList"
+    (submitted)="onFormSubmit($event)"
+    (cancelled)="fechaDialog()"
+  ></app-cadastro>
+</p-dialog>

@@ -11,6 +11,7 @@ import { EmpresaResponseDTO } from '../../../../models/response/empresa-reponse-
 import { StandaloneImports } from '../../../../util/standalone-imports';
 import { PlanoAcaoService } from '../../services/plano-acao-service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { PlanoAcaoContextService } from '../../services/plano-acao-context';
 
 @Component({
   selector: 'app-visita',
@@ -43,6 +44,7 @@ export class VisitasComponent implements OnInit {
   constructor(
     private router: Router,
     private fb: FormBuilder,
+    private ctx: PlanoAcaoContextService,
     private empService: EmpresaService,
     private planoAcaoService: PlanoAcaoService,
     private msgService: MessageService,
@@ -57,17 +59,42 @@ export class VisitasComponent implements OnInit {
 
   async aplicarFiltros() {
     this.lastLazyEvent = { first: 0, rows: this.rows, sortField: this.sortField, sortOrder: this.sortOrder };
-      await this.carregaPlanoAcao(this.lastLazyEvent);  
-      this.carregarTotaisGerais();
+    await this.carregaPlanoAcao(this.lastLazyEvent);
+    this.carregarTotaisGerais();
   }
 
-  limparFiltro(){
+  limparFiltro() {
     const hoje = new Date();
     const fim = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
     const inicio = new Date(fim); inicio.setDate(inicio.getDate() - 31);
 
     this.filterForm.reset({ empresaSelecionada: null, dtInicio: inicio, dtFim: fim });
     this.aplicarFiltros();
+  }
+
+  exportarCsvCompleto(){
+
+    var listaIdPlanoAcao = new Array<number>();
+
+    this.listaPlanoAcao.forEach(plano => {
+      listaIdPlanoAcao.push(plano.idPlanoAcao);
+    });
+
+       this.planoAcaoService.exportarCsvCompleto(listaIdPlanoAcao)
+      .subscribe(blob => {
+        // Cria URL para download
+        const url = window.URL.createObjectURL(blob);
+        // Cria link temporário
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plano_acao.xlsx'; // ou .csv se backend retornar CSV
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, err => {
+        this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao exportar arquivo!' })        
+      });
   }
 
   private carregarTotaisGerais() {
@@ -83,12 +110,34 @@ export class VisitasComponent implements OnInit {
         this.totaisGerais!.totalMulta += plano.multa ?? 0;
       });
     }
-}
+  }
 
   abrirNormas(row: { idPlanoAcao: number }) {
-    this.router.navigate(['/plano-acao', 'visitas', row.idPlanoAcao, 'normas']);
+    this.ctx.setPlano(row.idPlanoAcao); // fallback
+    this.router.navigate(
+      ['/plano-acao', 'normas'],
+      { state: { idPlanoAcao: row.idPlanoAcao } }
+    );
   }
-  
+
+  exportarCSV(row: any) {
+    this.planoAcaoService.exportarCsvVisita(row.idPlanoAcao)
+      .subscribe(blob => {
+        // Cria URL para download
+        const url = window.URL.createObjectURL(blob);
+        // Cria link temporário
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plano_acao_normas.xlsx'; // ou .csv se backend retornar CSV
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, err => {
+        this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao exportar arquivo!' })        
+      });
+  }
+
 
   limparFiltros() {
     this.filterForm.reset({ empresaSelecionada: null, dtInicio: null, dtFim: null });
@@ -98,7 +147,7 @@ export class VisitasComponent implements OnInit {
   async onLazyLoad(event: TableLazyLoadEvent) {
     this.lastLazyEvent = event;
     this.carregaPlanoAcao(event);
-     this.carregarTotaisGerais();
+    this.carregarTotaisGerais();
   }
 
   criaForm() {
@@ -114,27 +163,27 @@ export class VisitasComponent implements OnInit {
   }
 
   private async carregaPlanoAcao(event: TableLazyLoadEvent): Promise<void> {
-  this.loading = true;
-  const params = this.buildQueryParams(event);
+    this.loading = true;
+    const params = this.buildQueryParams(event);
 
-  try {
-    const resp = await firstValueFrom(this.planoAcaoService.buscaPlanoAcaoPorfiltro(params));
-    this.listaPlanoAcao = resp.content ?? [];
-    this.totalRecords = resp.totalElements ?? 0;
+    try {
+      const resp = await firstValueFrom(this.planoAcaoService.buscaPlanoAcaoPorfiltro(params));
+      this.listaPlanoAcao = resp.content ?? [];
+      this.totalRecords = resp.totalElements ?? 0;
 
-    this.totalInvestimentoPagina = this.listaPlanoAcao
-      .reduce((acc, r) => acc + (r.investimento ?? 0), 0);
+      this.totalInvestimentoPagina = this.listaPlanoAcao
+        .reduce((acc, r) => acc + (r.investimento ?? 0), 0);
 
-    this.totalMultaPagina = this.listaPlanoAcao
-      .reduce((acc, r) => acc + (r.multa ?? 0), 0);
-  } catch (err) {
-    console.error('Erro ao carregar dados:', err);
-    this.listaPlanoAcao = [];
-    this.totalRecords = 0;
-  } finally {
-    this.loading = false;
+      this.totalMultaPagina = this.listaPlanoAcao
+        .reduce((acc, r) => acc + (r.multa ?? 0), 0);
+    } catch (err) {
+      console.error('Erro ao carregar dados:', err);
+      this.listaPlanoAcao = [];
+      this.totalRecords = 0;
+    } finally {
+      this.loading = false;
+    }
   }
-}
 
 
   private buildQueryParams(event: TableLazyLoadEvent) {

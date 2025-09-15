@@ -1,29 +1,32 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { PlanoAcaoService } from '../../services/plano-acao-service';
-import { ActivatedRoute } from '@angular/router';
-import {  SubItensNormaDTO } from '../../dtos/itens-norma-dto';
+
+import { Location } from '@angular/common';
+import { SubItensNormaDTO } from '../../dtos/itens-norma-dto';
 import { StandaloneImports } from '../../../../util/standalone-imports';
 import { PlanoAcaoSubItemResponseDTO } from '../../dtos/plano-acao-sub-item-norma-dto';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
-import {  PlanoAcaoStatusCodigo,  PLANO_ACAO_STATUS_OPTIONS,  normalizeStatus,  PlanoAcaoStatusOption } from '../../dtos/status-plano-acao-enum-dto';
+import {  PLANO_ACAO_STATUS_OPTIONS } from '../../dtos/status-plano-acao-enum-dto';
 import { AtualizaSubitemRequestDTO } from '../../dtos/request/atualiza-sub-item-request-dto';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { PlanoAcaoContextService } from '../../services/plano-acao-context';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-item-norma',
   imports: [StandaloneImports],
-   standalone: true,
+  standalone: true,
   templateUrl: './sub-item-norma.component.html',
   styleUrl: './sub-item-norma.component.scss',
-  providers: [MessageService,ConfirmationService],  
+  providers: [MessageService, ConfirmationService],
 })
 
 export class SubItemNormaComponent implements OnInit {
 
 
-  private originalSnapshot = new Map<number, { status: string|null; responsavel: string|null; planoAcao: string|null; previsao: Date|null; investimento: number |null  }>();
+  private originalSnapshot = new Map<number, { status: string | null; responsavel: string | null; planoAcao: string | null; previsao: Date | null; investimento: number | null }>();
   saving = false;
 
   filterForm!: FormGroup;
@@ -33,7 +36,7 @@ export class SubItemNormaComponent implements OnInit {
 
   listaSubItensNorma: SubItensNormaDTO[] = [];
   listaPlanoAcaoSubItems: PlanoAcaoSubItemResponseDTO[] = [];
-  
+
   statusOptions = [...PLANO_ACAO_STATUS_OPTIONS];
 
   loading = false;
@@ -48,21 +51,35 @@ export class SubItemNormaComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private route: ActivatedRoute,
+    private router: Router,
+    private location: Location,
+    private ctx: PlanoAcaoContextService,
     private confirmationService: ConfirmationService,
-     private msgService: MessageService,
+    private msgService: MessageService,
     private planoAcaoService: PlanoAcaoService) {
   }
 
-  async ngOnInit(): Promise<void>  {
-    this.idPlanoAcao = Number(this.route.snapshot.paramMap.get('idPlanoAcao'));
-    this.idPlanoAcaoNorma = Number(this.route.snapshot.paramMap.get('idPlanoAcaoNorma'));
+  async ngOnInit(): Promise<void> {
+    const fromNav = this.router.getCurrentNavigation()?.extras?.state as any;
+    const idPlano = fromNav?.idPlanoAcao ?? (history.state as any)?.idPlanoAcao ?? this.ctx.getPlano();
+    const idPanr = fromNav?.idPlanoAcaoNorma ?? (history.state as any)?.idPlanoAcaoNorma ?? this.ctx.getPanr();
+
+    if (!idPlano || !idPanr) {
+      this.router.navigate(['/plano-acao', 'visitas']);
+      return;
+    }
+
+    this.idPlanoAcao = Number(idPlano);
+    this.idPlanoAcaoNorma = Number(idPanr);
+    this.ctx.setPlano(this.idPlanoAcao);
+
+
     this.criaForm();
     this.buscaSubItensNorma();
     await this.aplicarFiltros();
   }
 
-   async salvarAlteracoes() {
+  async salvarAlteracoes() {
     if (this.saving) return;
     const changes = this.getChanges();
     if (!changes.length) return; // nada mudou → nada a fazer
@@ -70,52 +87,77 @@ export class SubItemNormaComponent implements OnInit {
     this.saving = true;
     try {
 
-       this.confirmationService.confirm({
-      message: `Tem certeza de que deseja salvar realizar essas alterações ? `,
-      header: 'Confirmação',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sim',
-      rejectLabel: 'Não',
-      acceptButtonStyleClass: 'p-button-success',
-      rejectButtonStyleClass: 'p-button-danger',
-      accept: async () => {
-        await firstValueFrom(this.planoAcaoService.atualizaPlanoAcaoSubItem(this.idPlanoAcaoNorma, changes));
-        this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Alterações salvas com sucesso' });
-        await this.carregaPlanoAcaoSubItensNormas(this.lastLazyEvent);
-        this.carregarTotaisGerais();
-      },
-      reject: () => {
-      }
-    });      
+      this.confirmationService.confirm({
+        message: `Tem certeza de que deseja salvar realizar essas alterações ? `,
+        header: 'Confirmação',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Sim',
+        rejectLabel: 'Não',
+        acceptButtonStyleClass: 'p-button-success',
+        rejectButtonStyleClass: 'p-button-danger',
+        accept: async () => {
+          await firstValueFrom(this.planoAcaoService.atualizaPlanoAcaoSubItem(this.idPlanoAcaoNorma, changes));
+          this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Alterações salvas com sucesso' });
+          await this.carregaPlanoAcaoSubItensNormas(this.lastLazyEvent);
+          this.carregarTotaisGerais();
+        },
+        reject: () => {
+        }
+      });
     } finally {
       this.saving = false;
     }
   }
 
-   async onLazyLoad(event: TableLazyLoadEvent) {
+  exportarCsvItensCompleto(){
+
+    var listaIdPlanoAcaoInspecao = new Array<number>();
+
+    this.listaPlanoAcaoSubItems.forEach(plano => {
+      listaIdPlanoAcaoInspecao.push(plano.id);
+    });
+
+      this.planoAcaoService.exportarCsvCompletoItens(listaIdPlanoAcaoInspecao)
+      .subscribe(blob => {
+        // Cria URL para download
+        const url = window.URL.createObjectURL(blob);
+        // Cria link temporário
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plano_acao_normas.xlsx'; // ou .csv se backend retornar CSV
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, err => {
+        this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao exportar arquivo!' })        
+      });
+  }
+
+  async onLazyLoad(event: TableLazyLoadEvent) {
     this.lastLazyEvent = event;
     await this.carregaPlanoAcaoSubItensNormas(event);
     this.carregarTotaisGerais();
   }
 
-  async aplicarFiltros(){
-     this.lastLazyEvent = { first: 0, rows: this.rows, sortField: this.sortField, sortOrder: this.sortOrder };
+  async aplicarFiltros() {
+    this.lastLazyEvent = { first: 0, rows: this.rows, sortField: this.sortField, sortOrder: this.sortOrder };
     await this.carregaPlanoAcaoSubItensNormas(this.lastLazyEvent);
     this.carregarTotaisGerais();
   }
 
   private async carregaPlanoAcaoSubItensNormas(event: TableLazyLoadEvent): Promise<void> {
-  this.loading = true;
-  const params = this.buildQueryParams(event);
+    this.loading = true;
+    const params = this.buildQueryParams(event);
 
-  try {
-    const resp = await firstValueFrom(
-      this.planoAcaoService.buscaPlanoAcaoInspecao(this.idPlanoAcaoNorma, params)
-    );
+    try {
+      const resp = await firstValueFrom(
+        this.planoAcaoService.buscaPlanoAcaoInspecao(this.idPlanoAcaoNorma, params)
+      );
 
-    const content = resp?.content ?? [];
+      const content = resp?.content ?? [];
 
-   this.listaPlanoAcaoSubItems = content.map((r: any) => ({
+      this.listaPlanoAcaoSubItems = content.map((r: any) => ({
         ...r,
         // garanta que os campos editáveis existam (null-safe)
         status: r.status ?? null,
@@ -124,7 +166,7 @@ export class SubItemNormaComponent implements OnInit {
         planoAcao: r.planoAcao ?? null
       }));
 
-    this.totalRecords = resp?.totalElements ?? 0;
+      this.totalRecords = resp?.totalElements ?? 0;
 
       // snapshot só dos campos editáveis
       this.originalSnapshot.clear();
@@ -138,15 +180,15 @@ export class SubItemNormaComponent implements OnInit {
             planoAcao: row.planoAcao ?? null
           });
         }
+      }
+    } catch (error) {
+      console.error(error);
+      this.listaPlanoAcaoSubItems = [];
+      this.totalRecords = 0;
+    } finally {
+      this.loading = false;
     }
-  } catch (error) {
-    console.error(error);
-    this.listaPlanoAcaoSubItems = [];
-    this.totalRecords = 0;
-  } finally {
-    this.loading = false;
   }
-}
 
   criaForm() {
     const hoje = new Date();
@@ -160,7 +202,7 @@ export class SubItemNormaComponent implements OnInit {
     });
   }
 
-  buscaSubItensNorma(){
+  buscaSubItensNorma() {
     this.planoAcaoService.buscaSubItensNorma(this.idPlanoAcaoNorma).subscribe({
       next: (res) => {
         this.listaSubItensNorma = res;
@@ -171,7 +213,7 @@ export class SubItemNormaComponent implements OnInit {
     });
   }
 
-    private buildQueryParams(event: TableLazyLoadEvent) {
+  private buildQueryParams(event: TableLazyLoadEvent) {
     const form = this.filterForm.value;
     const page = Math.floor((event.first ?? 0) / (event.rows ?? this.rows));
     const size = event.rows ?? this.rows;
@@ -184,7 +226,7 @@ export class SubItemNormaComponent implements OnInit {
       sort: `${this.sortField},${this.sortOrder === 1 ? 'asc' : 'desc'}`,
       normaId: form.normaSelecionada ?? null,
       dtInicio: form.dtInicio ? this.toStartOfDayIso(form.dtInicio) : null,
-      dtFim:    form.dtFim ? this.toEndOfDayIso(form.dtFim) : null
+      dtFim: form.dtFim ? this.toEndOfDayIso(form.dtFim) : null
     };
   }
 
@@ -195,7 +237,7 @@ export class SubItemNormaComponent implements OnInit {
   private toEndOfDayIso(d: Date) {
     const nd = new Date(d); nd.setHours(23, 59, 59, 999); return nd.toISOString();
   }
-  
+
   private carregarTotaisGerais() {
     if (this.listaPlanoAcaoSubItems != null) {
       if (!this.totaisGerais) {
@@ -211,7 +253,7 @@ export class SubItemNormaComponent implements OnInit {
     }
   }
 
-  limparFiltro(){
+  limparFiltro() {
 
     const hoje = new Date();
     const fim = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
@@ -232,7 +274,7 @@ export class SubItemNormaComponent implements OnInit {
       if (row?.id == null) continue;
 
       const orig = this.originalSnapshot.get(row.id) ?? { status: null, responsavel: null, planoAcao: null, previsao: null, investimento: null };
-      const cur  = {
+      const cur = {
         investimento: row.investimento ?? null,
         status: row.status ?? null,
         previsao: row.previsao ?? null,
@@ -243,18 +285,20 @@ export class SubItemNormaComponent implements OnInit {
       const diff: AtualizaSubitemRequestDTO = { id: row.id };
       let changed = false;
 
-      if (orig.status !== cur.status)         { diff.status = cur.status; changed = true; }
-      if ((orig.responsavel||null)!==(cur.responsavel||null)) { diff.responsavel = cur.responsavel; changed = true; }
-      if ((orig.planoAcao||null)!==(cur.planoAcao||null))   { diff.planoAcao = cur.planoAcao; changed = true; }
-      if ((orig.previsao||null)!==(cur.previsao||null))   { diff.previsao = cur.previsao; changed = true; }
+      if (orig.status !== cur.status) { diff.status = cur.status; changed = true; }
+      if ((orig.responsavel || null) !== (cur.responsavel || null)) { diff.responsavel = cur.responsavel; changed = true; }
+      if ((orig.planoAcao || null) !== (cur.planoAcao || null)) { diff.planoAcao = cur.planoAcao; changed = true; }
+      if ((orig.previsao || null) !== (cur.previsao || null)) { diff.previsao = cur.previsao; changed = true; }
       if (orig.investimento !== cur.investimento) { diff.investimento = cur.investimento; changed = true; }
       if (changed) changes.push(diff);
     }
     return changes;
   }
 
-
-
-
+ voltar() {
+    // se houver histórico, volta; senão, cai no fallback “seguro”
+    if (window.history.length > 1) this.location.back();
+    else this.router.navigate(['/plano-acao', 'normas']);
+  }
 
 }

@@ -14,6 +14,6 @@ import { CorpoComponent } from './app/components/layout/corpo/corpo.component';
 export class AppComponent {
 
     
-  
+   constructor() {}
 
 }

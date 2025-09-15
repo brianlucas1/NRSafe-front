@@ -1,3 +1,4 @@
+<p-toast></p-toast>
 <div class="w-full">
   <form [formGroup]="filterForm">
     <p-toolbar styleClass="mb-6">
@@ -27,6 +28,9 @@
           </div>
             <div class="flex-4" style="margin-top: 20px;">
             <p-button label="Limpar filtros" (onClick)="limparFiltro()" />
+          </div>
+           <div class="flex-4" style="margin-top: 20px;">
+            <p-button label="Exportar CSV" (onClick)="exportarCsvCompleto()" />
           </div>
         </div>
       </ng-template>
@@ -62,9 +66,7 @@
         <th pSortableColumn="visita" class="min-w-[120px]">
           Visita <p-sortIcon field="visita"></p-sortIcon>
         </th>
-        <th pSortableColumn="status" class="min-w-[120px]">
-          Status <p-sortIcon field="status"></p-sortIcon>
-        </th>
+       
         <th pSortableColumn="resp" class="min-w-[120px]">
           Responsável <p-sortIcon field="resp"></p-sortIcon>
         </th>
@@ -80,14 +82,22 @@
          <th pSortableColumn="dthrAtualizacao" class="min-w-[180px]">
          Ultima atualização <p-sortIcon field="dthrAtualizacao"></p-sortIcon>
         </th>
+         <th pSortableColumn="status" class="min-w-[120px]">
+          Status <p-sortIcon field="status"></p-sortIcon>
+        </th>
           <th class="min-w-[180px]"> Ação    </th>
       </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-row>
       <tr class="odd:bg-gray-50">
-        <td>{{ row.nomeVisita }}</td>
-        <td>
+        <td>{{ row.nomeVisita }}</td>        
+        <td class="text-right">  {{ row.nomeFuncionario }}</td>
+        <td class="text-right"> R$ {{ row.investimento | number:'1.2-2' }}</td>
+        <td class="text-right"> R$ {{ row.multa | number:'1.2-2' }}</td>
+        <td>{{ row.dtHrCriacao | date:'dd/MM/yyyy HH:mm' }}</td>
+         <td>{{ row.dtHrAtualizacao | date:'dd/MM/yyyy HH:mm' }}</td>
+         <td>
           <span
             class="px-2 py-0.5 rounded-full text-xs font-medium"
             [ngClass]="{
@@ -98,13 +108,8 @@
             {{ row.status }}
           </span>
         </td>
-        <td class="text-right">  {{ row.nomeFuncionario }}</td>
-        <td class="text-right"> R$ {{ row.investimento | number:'1.2-2' }}</td>
-        <td class="text-right"> R$ {{ row.multa | number:'1.2-2' }}</td>
-        <td>{{ row.dtHrCriacao | date:'dd/MM/yyyy HH:mm' }}</td>
-         <td>{{ row.dtHrAtualizacao | date:'dd/MM/yyyy HH:mm' }}</td>
          <td>
-          <p-button icon="pi pi-print" class="mr-2" [rounded]="true" [outlined]="true" />
+          <p-button icon="pi pi-print" class="mr-2" (click)="exportarCSV(row)" [rounded]="true" [outlined]="true" />
           <p-button (click)="abrirNormas(row)" icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" />
       </td>      
       </tr>
@@ -119,8 +124,5 @@
       <td colspan="3"></td>
     </tr>
   </ng-template>
-
-
-
     
 </p-table>

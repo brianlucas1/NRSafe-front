@@ -10,6 +10,8 @@ import { FiliaisComponent } from './app/components/filiais/filiais.component';
 import { SitesComponent } from './app/components/sites/sites.component';
 import { FuncionarioComponent } from './app/components/funcionario/funcionario.component';
 import { DashboardComponent } from './app/components/dashboard/dashboard.component';
+import { ListaCheckListComponent } from './app/components/check-list/pages/lista/lista.component';
+
 
 export const appRoutes: Routes = [
  { path: 'login', component: LoginComponent },
@@ -21,6 +23,11 @@ export const appRoutes: Routes = [
    { 
     path: 'clientes', 
     component: ClientesComponent, 
+    canActivate: [AuthGuard] 
+  },
+   { 
+    path: 'check-list', 
+    component: ListaCheckListComponent, 
     canActivate: [AuthGuard] 
   },
   { 

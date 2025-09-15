@@ -122,4 +122,25 @@ export class PlanoAcaoService {
 
     return this.http.post<void>(`${this.URL_API}/assinar/${planoId}`, payload);
   }
+
+  exportarCsvVisita(idPlanoAcaoVisita:number){
+     return this.http.get(`${this.URL_API}/expotar/plano-acao/${idPlanoAcaoVisita}`, { responseType: 'blob' });
+  }
+
+  exportarCsvCompleto(listaIdPlanoAcao: number[]){
+       return this.http.post(`${this.URL_API}/expotar/plano-acao`, listaIdPlanoAcao, { responseType: 'blob' });
+  }
+
+  exportarCsvNormasCompleto(listaIdPlanoAcao: number[]){
+       return this.http.post(`${this.URL_API}/expotar/plano-acao-norma`, listaIdPlanoAcao, { responseType: 'blob' });
+  }
+
+    exportarCsvNormasComInspecao(idPlanoAcaoNorma: number){
+       return this.http.get(`${this.URL_API}/expotar/plano-acao-norma/${idPlanoAcaoNorma}`, { responseType: 'blob' });
+  }
+
+  exportarCsvCompletoItens( listaIdPlanoAcao: number[]){
+        return this.http.post(`${this.URL_API}/expotar/plano-acao-itens`, listaIdPlanoAcao, { responseType: 'blob' });
+  }
+
 }

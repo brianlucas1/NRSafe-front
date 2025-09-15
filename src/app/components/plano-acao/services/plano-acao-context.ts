@@ -1,30 +1,21 @@
-// services/plano-acao-context.ts
 import { Injectable } from '@angular/core';
-
-export type PlanoAcaoContext = {
-  visitaId?: number;
-  planoId?: number;   // id do PLANO_ACAO (PLAC)
-  panrId?: number;    // id do PLANO_ACAO_NORMA (PANR)
-};
-
-const KEY = 'planoAcaoContext';
 
 @Injectable({ providedIn: 'root' })
 export class PlanoAcaoContextService {
-  private read(): PlanoAcaoContext {
-    const raw = sessionStorage.getItem(KEY);
-    return raw ? JSON.parse(raw) as PlanoAcaoContext : {};
-  }
-  private write(ctx: PlanoAcaoContext) {
-    sessionStorage.setItem(KEY, JSON.stringify(ctx));
-  }
+  private readonly K_PLANO  = 'ctx.planoId';
+  private readonly K_PANR   = 'ctx.panrId';
 
-  captureFromNavigationState(state: Partial<PlanoAcaoContext>) {
-    const prev = this.read();
-    const merged = { ...prev, ...state };
-    this.write(merged);
+  setPlano(id: number) { sessionStorage.setItem(this.K_PLANO, String(id)); }
+  getPlano(): number | null {
+    const v = sessionStorage.getItem(this.K_PLANO);
+    return v ? Number(v) : null;
   }
+  clearPlano() { sessionStorage.removeItem(this.K_PLANO); }
 
-  get(): PlanoAcaoContext { return this.read(); }
-  clear() { sessionStorage.removeItem(KEY); }
+  setPanr(id: number) { sessionStorage.setItem(this.K_PANR, String(id)); }
+  getPanr(): number | null {
+    const v = sessionStorage.getItem(this.K_PANR);
+    return v ? Number(v) : null;
+  }
+  clearPanr() { sessionStorage.removeItem(this.K_PANR); }
 }

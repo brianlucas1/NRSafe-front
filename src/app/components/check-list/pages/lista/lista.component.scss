@@ -1,0 +1,27 @@
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem 0 0.5rem;
+  h2 { margin: 0; }
+}
+
+.page__actions {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: .25rem;
+}
+
+.text-right { text-align: right; }
