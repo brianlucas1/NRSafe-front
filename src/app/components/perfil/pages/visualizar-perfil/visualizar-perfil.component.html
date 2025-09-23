@@ -1,0 +1,197 @@
+<p-toast></p-toast>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-8xl mx-auto">
+
+  <!-- Card Dados do Funcionario -->
+  <div *ngIf="isFuncionarioPerfil && dadosFuncionarioForm" class="card w-full">
+    <div class="card-header">
+      <h2>Dados Cadastrais</h2>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="dadosFuncionarioForm">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="flex flex-col">
+            <label class="font-bold mb-1">Nome</label>
+            <input pInputText formControlName="nome" readonly class="w-full bg-gray-100" />
+          </div>
+          <div class="flex flex-col">
+            <label class="font-bold mb-1">Email</label>
+            <input pInputText formControlName="email" readonly class="w-full bg-gray-100" />
+          </div>
+          <div class="flex flex-col">
+            <label class="font-bold mb-1">CPF</label>
+            <input pInputText formControlName="cpf" readonly class="w-full bg-gray-100" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="flex flex-col">
+            <label class="font-bold mb-1">Telefone</label>
+             <p-inputmask formControlName="telefone" class="w-full bg-gray-100"  mask="(99) 9999-9999" class="w-full" />
+          </div>
+          <div class="flex flex-col">
+            <label class="font-bold mb-1">Celular</label>
+            <input pInputText formControlName="celular" class="w-full bg-gray-100" />
+          </div>
+          <div class="flex flex-col">
+            <label class="font-bold mb-1">Rg</label>
+            <input pInputText formControlName="rg" class="w-full bg-gray-100" />
+          </div>
+          <div class="flex flex-col">
+            <label class="font-bold mb-1">Data de Nascimento</label>
+            <input pInputText formControlName="dtNascimento" class="w-full bg-gray-100" />
+          </div>
+        </div>
+
+        <hr class="my-6">
+        <h2 class="mb-4 font-bold text-xl">Endereço</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="flex flex-col">
+            <label class="font-bold mb-1">CEP</label>
+              <p-inputmask formControlName="cep" class="w-full bg-gray-100"  mask="99999-999" class="w-full" (onBlur)="buscaCep()"/>
+          </div>
+          <div class="flex flex-col">
+            <label class="font-bold mb-1">Logradouro</label>
+            <input pInputText formControlName="logradouro" class="w-full bg-gray-100" />
+          </div>
+          <div class="flex flex-col">
+            <label class="font-bold mb-1">Número</label>
+            <input pInputText formControlName="numero" class="w-full bg-gray-100" />
+          </div>
+          <div class="flex flex-col">
+            <label class="font-bold mb-1">Complemento</label>
+            <input pInputText formControlName="complemento" class="w-full bg-gray-100" />
+          </div>
+          <div class="flex flex-col">
+            <label class="font-bold mb-1">Localidade</label>
+            <input pInputText formControlName="localidade" class="w-full bg-gray-100" />
+          </div>
+          <div class="flex flex-col">
+            <label class="font-bold mb-1">UF</label>
+            <input pInputText formControlName="uf" class="w-full bg-gray-100" />
+          </div>
+          <div class="flex flex-col">
+            <label class="font-bold mb-1">Bairro</label>
+            <input pInputText formControlName="bairro" class="w-full bg-gray-100" />
+          </div>
+        </div>
+
+        <div class="flex justify-end mt-6 gap-2">
+          <button pButton label="Salvar" class="p-button-success" (click)="salvarFuncionario()"></button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Card Dados do Cliente -->
+  <div *ngIf="!isFuncionarioPerfil && dadosClienteForm" class="card w-full">
+      <div class="card-header">
+        <h2>Dados Cadastrais</h2>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="dadosClienteForm">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+            <div class="flex flex-col">              
+              <label class="font-bold mb-1">Razão Social</label>
+              <input pInputText formControlName="razaoSocial" readonly class="w-full bg-gray-100" />
+            </div>
+
+            <div class="flex flex-col">
+              <label class="font-bold mb-1">CNPJ</label>
+              <input pInputText formControlName="cnpj" readonly class="w-1/2 bg-gray-100" />
+            </div>                 
+
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+            <div class="flex flex-col">
+              <label class="font-bold mb-1">Email</label>
+              <input pInputText formControlName="email" readonly class="w-full bg-gray-100" />
+            </div>  
+
+            <div class="flex flex-col">
+              <label class="font-bold mb-1">Telefone</label>
+             <p-inputmask formControlName="telefone" class="w-full bg-gray-100"  mask="(99) 9999-9999" class="w-full" />
+            </div>
+
+
+          </div>
+
+          <hr class="my-6">
+          <h2 class="mb-4 font-bold text-xl">Endereço</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="flex flex-col">
+              <label class="font-bold mb-1">CEP</label>
+              <p-inputmask formControlName="cep" mask="99999-999" class="w-full bg-gray-100" class="w-full" (onBlur)="buscaCep()"/>
+            </div>
+            <div class="flex flex-col">
+              <label class="font-bold mb-1">Logradouro</label>
+              <input pInputText formControlName="logradouro" class="w-full bg-gray-100" />
+            </div>
+            <div class="flex flex-col">
+              <label class="font-bold mb-1">Número</label>
+              <input pInputText formControlName="numero" class="w-full bg-gray-100" />
+            </div>
+            <div class="flex flex-col">
+              <label class="font-bold mb-1">Complemento</label>
+              <input pInputText formControlName="complemento" class="w-full bg-gray-100" />
+            </div>
+
+            <div class="flex flex-col">
+              <label class="font-bold mb-1">Localidade</label>
+              <input pInputText formControlName="localidade" class="w-full bg-gray-100" />
+            </div>
+
+            <div class="flex flex-col">
+              <label class="font-bold mb-1">UF</label>
+              <input pInputText formControlName="uf" class="w-full bg-gray-100" />
+            </div>
+            
+            <div class="flex flex-col">
+              <label class="font-bold mb-1">Bairro</label>
+              <input pInputText formControlName="bairro" class="w-full bg-gray-100" />
+            </div>
+          </div>
+
+          <!-- ...endereço igual acima... -->
+          <div class="flex justify-end mt-6 gap-2">
+            <button pButton label="Salvar" class="p-button-success" (click)="salvarCliente()"></button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Card Troca de Senha -->
+    <div *ngIf="senhaForm" class="card w-full h-fit">
+      <div class="card-header">
+        <h2>Trocar Senha</h2>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="senhaForm" (ngSubmit)="trocarSenha()">
+          <div class="flex flex-col mb-4">
+            <label class="font-bold mb-1">Senha Atual</label>
+            <input pInputText type="password" formControlName="senhaAtual" class="w-full bg-gray-100" />
+          </div>
+          <div class="flex flex-col mb-4">
+            <label class="font-bold mb-1">Nova Senha</label>
+            <p-password id="pass" formControlName="novaSenha" placeholder="senha"
+               [toggleMask]="true" [fluid]="true" [feedback]="false">
+            </p-password>          
+            </div>
+          <div class="flex flex-col mb-4">
+            <label class="font-bold mb-1">Confirmar Nova Senha</label>
+            <p-password id="password1" formControlName="confirmarSenha" placeholder="senha"
+              [toggleMask]="true" [fluid]="true" [feedback]="false">
+            </p-password>          
+              <div *ngIf="senhaForm.errors?.['senhasDiferentes'] && senhaForm.get('confirmarSenha')?.touched">
+              <small class="text-red-500">As senhas não conferem.</small>
+            </div>
+          </div>
+          <div class="flex justify-end mt-4">
+            <button pButton label="Atualizar Senha" class="p-button-primary" type="submit"></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>

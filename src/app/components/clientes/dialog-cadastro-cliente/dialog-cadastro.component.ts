@@ -112,7 +112,6 @@ export class DialogCadastroClienteComponent implements OnInit {
     this.clienteForm.get('uf')?.setValue(this.cepConsultado?.uf);
   }
 
-
   onHideDialog() {
     this.fechar.emit();
     this.clienteForm.reset();

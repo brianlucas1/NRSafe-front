@@ -1,28 +1,33 @@
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable, switchMap, catchError, throwError } from "rxjs";
+import { Router } from "@angular/router";
+import { Observable, throwError, switchMap, catchError, finalize } from "rxjs";
+import { LoadingService } from "../../app/util/loading-service";
 import { AuthService } from "./auth-service";
 import { AuthStorageService } from "./auth-storage-service";
-import { Router } from "@angular/router";
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   constructor(
     private authStorage: AuthStorageService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private loadingService: LoadingService // Injeta o loading service
   ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Ignorar requisições para login e recuperação de senha
+    // Ignora requests que não precisam de loading
     if (req.url.includes('/auth') || req.url.includes('/login/recupera-senha') || req.url.includes('/login/redefinir-senha')) {
       return next.handle(req);
     }
+
+    this.loadingService.show(); 
 
     // Se o token está expirado, tenta fazer o refresh
     if (this.authStorage.isTokenExpired()) {
       const refreshToken = this.authStorage.getRefreshToken();
       if (!refreshToken) {
+        this.loadingService.hide(); // Sempre desativa o loading antes de sair
         this.authStorage.clear();
         this.router.navigate(['/login']);
         return throwError(() => new Error('Refresh token ausente'));
@@ -42,7 +47,8 @@ export class AuthInterceptor implements HttpInterceptor {
           this.authStorage.clear();
           this.router.navigate(['/login']);
           return throwError(() => err);
-        })
+        }),
+        finalize(() => this.loadingService.hide()) // Sempre finaliza
       );
     }
 
@@ -61,10 +67,13 @@ export class AuthInterceptor implements HttpInterceptor {
             this.router.navigate(['/login']);
           }
           return throwError(() => err);
-        })
+        }),
+        finalize(() => this.loadingService.hide()) // Finaliza após a request
       );
     }
 
-    return next.handle(req);
+    return next.handle(req).pipe(
+      finalize(() => this.loadingService.hide())
+    );
   }
 }

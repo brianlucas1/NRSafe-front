@@ -11,6 +11,7 @@ import { SitesComponent } from './app/components/sites/sites.component';
 import { FuncionarioComponent } from './app/components/funcionario/funcionario.component';
 import { DashboardComponent } from './app/components/dashboard/dashboard.component';
 import { ListaCheckListComponent } from './app/components/check-list/pages/lista/lista.component';
+import { VisualizarPerfilComponent } from './app/components/perfil/pages/visualizar-perfil/visualizar-perfil.component';
 
 
 export const appRoutes: Routes = [
@@ -23,6 +24,11 @@ export const appRoutes: Routes = [
    { 
     path: 'clientes', 
     component: ClientesComponent, 
+    canActivate: [AuthGuard] 
+  },
+  { 
+    path: 'perfil', 
+    component: VisualizarPerfilComponent, 
     canActivate: [AuthGuard] 
   },
    { 

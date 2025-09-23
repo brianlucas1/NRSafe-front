@@ -20,9 +20,9 @@ export class ResetSenhaComponent implements OnInit {
   resetSenhaForm!: FormGroup;
 
   constructor(private route: ActivatedRoute,
-     private router:Router,
-     private fb: FormBuilder,
-     private loginService: LoginSerivce,
+    private router:Router,
+    private fb: FormBuilder,
+    private loginService: LoginSerivce,
     private msgService: MessageService,
     private authStorage: AuthStorageService,
     ) { }
