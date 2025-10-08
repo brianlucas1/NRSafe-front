@@ -8,12 +8,15 @@ import { Endereco } from '../../../../models/endereco';
 import { ClienteUpdateRequestDTO } from '../../dtos/cliente-request-dto';
 import { MessageService } from 'primeng/api';
 import { TrocaSenhaRequestDTO } from '../../dtos/troca-senha-request-dto';
+import { AuthService } from '../../../../../services/auth/auth-service';
+import { Router } from '@angular/router';
+import { TrocarPlanoComponent } from '../troca-plano/troca-plano.component';
 
 @Component({
   selector: 'app-visualizar-perfil',
   standalone: true,
   providers: [MessageService],
-  imports: [StandaloneImports],
+  imports: [StandaloneImports,TrocarPlanoComponent],
   templateUrl: './visualizar-perfil.component.html',
   styleUrl: './visualizar-perfil.component.scss'
 })
@@ -31,6 +34,8 @@ export class VisualizarPerfilComponent {
 
   constructor(
     private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router,    
     private perfilService: PerfilService,
     private corporativoService: CorporativoService,
     private msgService: MessageService,
@@ -128,6 +133,8 @@ export class VisualizarPerfilComponent {
         next: () => {
           this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Senha alterada com sucesso' }); 
           this.senhaForm.reset();
+          this.authService.logout();
+          this.router.navigate(["/login"])
         },
         error: () => {
           this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao alterar senha' });

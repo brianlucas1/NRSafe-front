@@ -47,10 +47,12 @@ export class PlanoAcaoService {
     idEmpresa: number | null;
     dtInicio: string | null;
     dtFim: string | null;
+    tipoPlano?: string | null;
   }): Observable<PageResponse<PlanoAcaoResponseDTO>> {
     return this.getPage<PlanoAcaoResponseDTO>(`${this.URL_API}/visitas`, {
       page: paramsIn.page,
       size: paramsIn.size,
+      tipoPlano: paramsIn.tipoPlano,
       sort: paramsIn.sort,
       idEmpresa: paramsIn.idEmpresa,
       dtInicio: paramsIn.dtInicio,
@@ -59,11 +61,11 @@ export class PlanoAcaoService {
   }
 
   // 2) Normas do plano (já existente) — mantém assinatura
-  buscaPlanoAcaoNormas(
+  buscaPlanoAcaoItems(
     idPlanoAcao: number,
     paramsIn: { page: number; size: number; sort: string; normaId?: number | null; dtInicio?: string | null; dtFim?: string | null; }
   ) {
-    return this.getPage<any>(`${this.URL_API}/norma/${idPlanoAcao}`, {
+    return this.getPage<any>(`${this.URL_API}/item/${idPlanoAcao}`, {
       page: paramsIn.page,
       size: paramsIn.size,
       sort: paramsIn.sort,
@@ -113,9 +115,9 @@ export class PlanoAcaoService {
   }
 
 
-  atualizaPlanoAcaoSubItem(idPlanoAcaoNorma: number,
+  atualizaPlanoAcaoSubItem(idPlanoAcaoItem: number,
     body: Array<{ id: number; status?: string | null; comentario?: string | null; planoAcao?: string | null; }>) {
-    return this.http.patch(`${this.URL_API}/atualiza-inspecao/${idPlanoAcaoNorma}`, body);
+    return this.http.patch(`${this.URL_API}/atualiza-inspecao/${idPlanoAcaoItem}`, body);
   }
 
   assinarNorma(planoId: number, payload: AssinaturaPlanoAcaoRequestDTO): Observable<void> {

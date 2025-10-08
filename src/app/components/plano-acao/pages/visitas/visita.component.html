@@ -16,6 +16,18 @@
             </p-select>
           </div>
           <div class="flex-4">
+            <label class="block font-bold mb-1">Tipo de Plano de Ação</label>
+            <p-select
+              id="tipoPlano"
+              formControlName="tipoPlano"
+              [options]="tiposPlano"
+              placeholder="Selecione um tipo"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="w-full">
+          </p-select>
+          </div>
+          <div class="flex-4">
             <label class="block font-bold mb-1">Data Início</label>
             <p-datepicker  formControlName="dtInicio" showIcon iconDisplay="input" dateFormat="dd/mm/yy" />
           </div>

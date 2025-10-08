@@ -28,6 +28,12 @@ export class VisitasComponent implements OnInit {
   listaEmpresas?: EmpresaResponseDTO[] = [];
   listaPlanoAcao: PlanoAcaoResponseDTO[] = [];
 
+  tiposPlano = [
+  { label: 'Todos', value: null },
+  { label: 'Norma', value: 'NORMA' },
+  { label: 'CheckList', value: 'CHECKLIST' }
+];
+
   loading = false;
   rows = 10;
   totalRecords = 0;
@@ -68,7 +74,7 @@ export class VisitasComponent implements OnInit {
     const fim = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
     const inicio = new Date(fim); inicio.setDate(inicio.getDate() - 31);
 
-    this.filterForm.reset({ empresaSelecionada: null, dtInicio: inicio, dtFim: fim });
+    this.filterForm.reset({ empresaSelecionada: null, dtInicio: inicio, dtFim: fim, tiposPlano: null });
     this.aplicarFiltros();
   }
 
@@ -115,7 +121,7 @@ export class VisitasComponent implements OnInit {
   abrirNormas(row: { idPlanoAcao: number }) {
     this.ctx.setPlano(row.idPlanoAcao); // fallback
     this.router.navigate(
-      ['/plano-acao', 'normas'],
+      ['/plano-acao', 'items'],
       { state: { idPlanoAcao: row.idPlanoAcao } }
     );
   }
@@ -140,7 +146,7 @@ export class VisitasComponent implements OnInit {
 
 
   limparFiltros() {
-    this.filterForm.reset({ empresaSelecionada: null, dtInicio: null, dtFim: null });
+    this.filterForm.reset({ empresaSelecionada: null, dtInicio: null, dtFim: null, tiposPlano: null });
     this.aplicarFiltros();
   }
 
@@ -158,6 +164,7 @@ export class VisitasComponent implements OnInit {
     this.filterForm = this.fb.group({
       empresaSelecionada: [null],
       dtInicio: [inicio],
+      tipoPlano: [null], 
       dtFim: [fim],
     });
   }
@@ -204,7 +211,8 @@ export class VisitasComponent implements OnInit {
     const filtros = {
       idEmpresa: form.empresaSelecionada ?? null,
       dtInicio: form.dtInicio ? this.toStartOfDayIso(form.dtInicio) : null,
-      dtFim: form.dtFim ? this.toEndOfDayIso(form.dtFim) : null
+      dtFim: form.dtFim ? this.toEndOfDayIso(form.dtFim) : null,
+      tipoPlano: form.tipoPlano ?? null,
     };
 
     return {

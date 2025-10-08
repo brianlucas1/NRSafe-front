@@ -8,4 +8,6 @@ export interface ClienteRequestDTO{
     email:string
     telefone:string
     endereco:Endereco
+    planoId:number
+    billingCycle?: 'MENSAL' | 'ANUAL' 
 }

@@ -103,7 +103,7 @@ export class MenuComponent implements OnInit {
                         { label: 'Check-list', icon: 'pi pi-clipboard', routerLink: ['/check-list'] },
                     ]
                 },
-                
+
                 {
                     label: 'Clientes',
                     icon: 'pi pi-building',

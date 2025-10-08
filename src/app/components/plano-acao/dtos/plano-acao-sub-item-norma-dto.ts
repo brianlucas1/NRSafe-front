@@ -5,6 +5,7 @@ export interface PlanoAcaoSubItemResponseDTO{
     subItem:string
     descSubItem:string
     planoAcao:string
+    descCheckListPergunta:string	
     responsavel:string
     status:string
     multa:number

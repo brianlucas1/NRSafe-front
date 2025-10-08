@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import {  Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
 
@@ -13,18 +13,19 @@ import { PlanoAcaoNormaResponseDTO } from '../../dtos/plano-acao-norma-reponse-d
 import { normalizeStatus, PLANO_ACAO_STATUS_OPTIONS } from '../../dtos/status-plano-acao-enum-dto';
 import { AngularSignaturePadModule, SignaturePadComponent } from '@almothafar/angular-signature-pad';
 import { AssinaturaPlanoAcaoRequestDTO } from '../../dtos/request/assinatura-plnao-acao-request-dto';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { PlanoAcaoContextService } from '../../services/plano-acao-context';
 
 
 @Component({
-  selector: 'app-normas',
+  selector: 'app-item',
   standalone: true,
   imports: [StandaloneImports, AngularSignaturePadModule,],
-  templateUrl: './normas.component.html',
-  styleUrl: './normas.component.scss'
+  templateUrl: './item.component.html',
+  styleUrl: './item.component.scss',
+  providers: [MessageService, ConfirmationService]
 })
-export class NormasComponent implements OnInit {
+export class ItemComponent implements OnInit {
 
   @ViewChild('pad') pad!: SignaturePadComponent;
   @ViewChild('dialogContent') dialogContent!: ElementRef<HTMLDivElement>;
@@ -36,7 +37,7 @@ export class NormasComponent implements OnInit {
   dialogAssinatura = false;
   assinaturaBase64: string | null = null;
 
-    // Use as opções suportadas pelo wrapper (sem mexer no DOM)
+  // Use as opções suportadas pelo wrapper (sem mexer no DOM)
   options: any = {
     minWidth: 0.8,
     maxWidth: 2.5,
@@ -66,44 +67,45 @@ export class NormasComponent implements OnInit {
   constructor(
     private router: Router,
     private msgService: MessageService,
+    private confirmationService: ConfirmationService,
     private fb: FormBuilder,
     private location: Location,
     private ctx: PlanoAcaoContextService,
     private planoAcaoService: PlanoAcaoService,
   ) { }
 
-async ngOnInit(): Promise<void> {
-  const fromNav = this.router.getCurrentNavigation()?.extras?.state as any;
-  const idFromNav = fromNav?.idPlanoAcao;
-  const idFromHist = (history.state as any)?.idPlanoAcao;
+  async ngOnInit(): Promise<void> {
+    const fromNav = this.router.getCurrentNavigation()?.extras?.state as any;
+    const idFromNav = fromNav?.idPlanoAcao;
+    const idFromHist = (history.state as any)?.idPlanoAcao;
 
-  const id = idFromNav ?? idFromHist ?? this.ctx.getPlano();
-  if (!id) {
-    this.router.navigate(['/plano-acao', 'visitas']);
-    return;
+    const id = idFromNav ?? idFromHist ?? this.ctx.getPlano();
+    if (!id) {
+      this.router.navigate(['/plano-acao', 'visitas']);
+      return;
+    }
+
+    this.idPlanoAcao = Number(id);
+    this.ctx.setPlano(this.idPlanoAcao); // garante persistência pós-reload
+
+    this.criaForm();
+    this.buscaItemsPorIdPlanoAcao();
+    await this.aplicarFiltros();
+
   }
-
-  this.idPlanoAcao = Number(id);
-  this.ctx.setPlano(this.idPlanoAcao); // garante persistência pós-reload
-
-  this.criaForm();
-  this.buscaNormasPorIdPlanoAcao();
-  await this.aplicarFiltros();
-
-}
 
   async aplicarFiltros() {
     this.lastLazyEvent = { first: 0, rows: this.rows, sortField: this.sortField, sortOrder: this.sortOrder };
-    await this.carregaPlanoAcaoNormas(this.lastLazyEvent);
+    await this.carregaPlanoAcaoItems(this.lastLazyEvent);
     this.carregarTotaisGerais();
   }
 
   private recomputaTodosConcluidos(): void {
     const items = this.listaPlanoAcaoNormas ?? [];
-    this.normasConcluidas =   items.length > 0 && items.every(it => normalizeStatus(it.status) === 'CO');
+    this.normasConcluidas = items.length > 0 && items.every(it => normalizeStatus(it.status) === 'CO');
   }
 
-  buscaNormasPorIdPlanoAcao() {
+  buscaItemsPorIdPlanoAcao() {
     this.planoAcaoService.buscaNormasPorIdPlanoAcao(this.idPlanoAcao).subscribe({
       next: (resp) => {
         this.listaNormas = resp ?? [];
@@ -115,11 +117,24 @@ async ngOnInit(): Promise<void> {
     });
   }
 
-  assinarNormas() {
-    this.dialogAssinatura = true;
+  assinarItems() {
+    this.confirmationService.confirm(
+        {
+          message: 'Tem certeza de que assinar? Não será possivel alterar os itens do plano de ação após a assinatura.',
+          header: 'Confirmação',
+          icon: 'pi pi-exclamation-triangle',
+          acceptLabel: 'Sim',
+          rejectLabel: 'Não',
+          acceptButtonStyleClass: 'p-button-success',
+          rejectButtonStyleClass: 'p-button-danger',
+          accept: async () => {
+             this.dialogAssinatura = true;
+          },
+          reject: () => { }
+        });
   }
 
-  exportarCsvNormasCompleto(){
+  exportarCsvNormasCompleto() {
 
     var listaIdPlanoAcaoNorma = new Array<number>();
 
@@ -127,7 +142,7 @@ async ngOnInit(): Promise<void> {
       listaIdPlanoAcaoNorma.push(plano.id);
     });
 
-      this.planoAcaoService.exportarCsvNormasCompleto(listaIdPlanoAcaoNorma)
+    this.planoAcaoService.exportarCsvNormasCompleto(listaIdPlanoAcaoNorma)
       .subscribe(blob => {
         // Cria URL para download
         const url = window.URL.createObjectURL(blob);
@@ -140,13 +155,13 @@ async ngOnInit(): Promise<void> {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       }, err => {
-        this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao exportar arquivo!' })        
+        this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao exportar arquivo!' })
       });
   }
 
 
-  exportarNormasComItens(idPlanoAcaoNorma: number){
-       this.planoAcaoService.exportarCsvNormasComInspecao(idPlanoAcaoNorma)
+  exportarNormasComItens(idPlanoAcaoNorma: number) {
+    this.planoAcaoService.exportarCsvNormasComInspecao(idPlanoAcaoNorma)
       .subscribe(blob => {
         // Cria URL para download
         const url = window.URL.createObjectURL(blob);
@@ -159,62 +174,62 @@ async ngOnInit(): Promise<void> {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       }, err => {
-        this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao exportar arquivo!' })        
+        this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao exportar arquivo!' })
       });
   }
 
   salvaAssinatura() {
-  if (this.pad.isEmpty()) return;
+    if (this.pad.isEmpty()) return;
 
-  const base64 = this.pad.toDataURL('image/png');
+    const base64 = this.pad.toDataURL('image/png');
 
-  const payload: AssinaturaPlanoAcaoRequestDTO = { dataUrlBase64: base64 };
+    const payload: AssinaturaPlanoAcaoRequestDTO = { dataUrlBase64: base64 };
 
-  this.planoAcaoService.assinarNorma(this.idPlanoAcao, payload)
-    .subscribe({
-      next: () => {
-        this.dialogAssinatura = false;
-        this.msgService.add({severity:'success', summary:'OK', detail:'Assinatura salva e plano concluído.'});
-        // recarregar lista/totais se necessário
-        this.aplicarFiltros();
-      },
-      error: (err) => {
-        this.msgService.add({severity:'error', summary:'Erro', detail:'Falha ao salvar assinatura.'});
-        console.error(err);
-      }
-    });
-}
+    this.planoAcaoService.assinarNorma(this.idPlanoAcao, payload)
+      .subscribe({
+        next: () => {
+          this.dialogAssinatura = false;
+          this.msgService.add({ severity: 'success', summary: 'OK', detail: 'Assinatura salva e plano concluído.' });
+          // recarregar lista/totais se necessário
+          this.aplicarFiltros();
+        },
+        error: (err) => {
+          this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao salvar assinatura.' });
+          console.error(err);
+        }
+      });
+  }
 
 
   async onLazyLoad(event: TableLazyLoadEvent) {
     this.lastLazyEvent = event;
-    await this.carregaPlanoAcaoNormas(event);
-    this.carregarTotaisGerais(); 
+    await this.carregaPlanoAcaoItems(event);
+    this.carregarTotaisGerais();
   }
 
-  
+
   clear() {
     this.pad.clear();
     this.assinaturaBase64 = null;
   }
 
-onDialogShow() {
-  requestAnimationFrame(() => {
-    const w = this.dialogContent?.nativeElement?.clientWidth ?? 500;
+  onDialogShow() {
+    requestAnimationFrame(() => {
+      const w = this.dialogContent?.nativeElement?.clientWidth ?? 500;
 
-    // atualiza opções com largura real do container
-    this.options = {
-      ...this.options,
-      canvasWidth: w,
-      canvasHeight: 220
-    };
+      // atualiza opções com largura real do container
+      this.options = {
+        ...this.options,
+        canvasWidth: w,
+        canvasHeight: 220
+      };
 
-    // alguns releases do wrapper expõem resizeCanvas()
-    (this.pad as any)?.resizeCanvas?.();
+      // alguns releases do wrapper expõem resizeCanvas()
+      (this.pad as any)?.resizeCanvas?.();
 
-    this.pad.clear();
-  });
-}
+      this.pad.clear();
+    });
+  }
 
 
 
@@ -233,11 +248,11 @@ onDialogShow() {
     }
   }
 
-abrirInspecao( idPlanoAcaoNorma: number ) {
-  this.ctx.setPanr(idPlanoAcaoNorma); // fallback
-  this.router.navigate(    ['/plano-acao', 'itens'],    { state: { idPlanoAcao: this.idPlanoAcao} }
-  );
-}
+  abrirInspecao(idPlanoAcaoNorma: number) {
+    this.ctx.setPanr(idPlanoAcaoNorma); // fallback
+    this.router.navigate(['/plano-acao', 'inspecoes'], { state: { idPlanoAcao: this.idPlanoAcao } }
+    );
+  }
 
   criaForm() {
     const hoje = new Date();
@@ -251,12 +266,12 @@ abrirInspecao( idPlanoAcaoNorma: number ) {
     });
   }
 
-  private async carregaPlanoAcaoNormas(event: TableLazyLoadEvent): Promise<void> {
+  private async carregaPlanoAcaoItems(event: TableLazyLoadEvent): Promise<void> {
     this.loading = true;
     const params = this.buildQueryParams(event);
 
     try {
-      const resp = await firstValueFrom(this.planoAcaoService.buscaPlanoAcaoNormas(this.idPlanoAcao, params));
+      const resp = await firstValueFrom(this.planoAcaoService.buscaPlanoAcaoItems(this.idPlanoAcao, params));
 
       this.listaPlanoAcaoNormas = resp?.content ?? [];
       this.totalRecords = resp?.totalElements ?? 0;
@@ -316,7 +331,7 @@ abrirInspecao( idPlanoAcaoNorma: number ) {
     this.aplicarFiltros();
   }
 
-    voltar() {
+  voltar() {
     // se houver histórico, volta; senão, cai no fallback “seguro”
     if (window.history.length > 1) this.location.back();
     else this.router.navigate(['/plano-acao', 'visitas']);

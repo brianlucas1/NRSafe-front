@@ -51,7 +51,7 @@
 
   <ng-template pTemplate="caption">
     <div class="flex items-center justify-between">
-      <h5 class="m-0 font-semibold">Plano de Ação Itens norma</h5>
+      <h5 class="m-0 font-semibold">Plano de Ação Itens</h5>
     </div>
   </ng-template>
 
@@ -86,35 +86,49 @@
 
   <ng-template pTemplate="body" let-row>
     <tr class="odd:bg-gray-50">
-      <td>{{ row.subItem }}</td>
-
+      <td>{{ row.subItem ? row.subItem : 'CheckList'}}</td>
       <!-- Descrição resumida com tooltip -->
       <td>
         <span class="block max-w-[150px] truncate" tooltipClass="tooltip-wide" pTooltip="{{ row.descSubItem }}"
           tooltipPosition="top">
-          {{ row.descSubItem }}
+          <td>{{ row.descSubItem ? row.descSubItem : row.descCheckListPergunta }}</td>
+
         </span>
       </td>
       <td>
-        <input type="text" pInputText [(ngModel)]="row.planoAcao" placeholder="Plano de ação" class="w-full" />
+        <input type="text" pInputText [(ngModel)]="row.planoAcao"  [ngClass]="{'p-invalid': isFieldInvalid(row,'planoAcao')}" placeholder="Plano de ação" class="w-full" />
       </td>
-      <td class="text-right">R$ {{ row.multa | number: '1.2-2' }}</td>
-     <td class="text-right">
-      <p-inputNumber
-        [(ngModel)]="row.investimento"
-        [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
-        mode="currency"
-        currency="BRL"
-        locale="pt-BR"
-        [minFractionDigits]="2"
-        [maxFractionDigits]="2"
-        [min]="0"
-        placeholder="R$ 0,00">
-      </p-inputNumber>
-    </td>
+      <td *ngIf= "row.descCheckListPergunta == null" class="text-right">R$ {{ row.multa | number: '1.2-2' }}</td>
+      <td *ngIf= "row.descCheckListPergunta != null" class="text-right">
+        <p-inputNumber
+          [(ngModel)]="row.multa"
+          [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="2"
+          [min]="0"
+          placeholder="R$ 0,00">
+        </p-inputNumber>
+
+      </td>
+      <td class="text-right">
+        <p-inputNumber
+          [(ngModel)]="row.investimento"
+          [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="2"
+          [min]="0"
+          placeholder="R$ 0,00">
+        </p-inputNumber>
+      </td>
 
       <td>
-        <input type="text" pInputText [(ngModel)]="row.responsavel" placeholder="Digite um responsavel" class="w-full" />
+        <input type="text"  [ngClass]="{'p-invalid': isFieldInvalid(row,'responsavel')}" pInputText [(ngModel)]="row.responsavel" placeholder="Digite um responsavel" class="w-full" />
       </td>  
 
       <td class="text-right">
@@ -122,6 +136,7 @@
           [(ngModel)]="row.previsao"
           [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
           dateFormat="dd/mm/yy"
+          [ngClass]="{'p-invalid': isFieldInvalid(row,'previsao')}"
           [showButtonBar]="true"
           [appendTo]="'body'"
           placeholder="dd/mm/aaaa">
@@ -130,7 +145,8 @@
 
        <td>
         <p-dropdown [options]="statusOptions" optionLabel="descricao" [appendTo]="'body'" optionValue="codigo"
-          [(ngModel)]="row.status" placeholder="Selecione" class="w-full"></p-dropdown>
+          [(ngModel)]="row.status"    [ngClass]="{'p-invalid': isFieldInvalid(row,'status')}"
+          placeholder="Selecione" class="w-full"></p-dropdown>
       </td>
 
     </tr>
@@ -138,10 +154,10 @@
 
   <ng-template pTemplate="footer">
     <tr *ngIf="totaisGerais">
-      <td colspan="4" class="text-right text-sm text-gray-600">TOTAL (geral/filtros):</td>
+      <td colspan="3" class="text-right text-sm text-gray-600">TOTAL (geral/filtros):</td>
       <td class="text-right text-sm text-gray-600">R$ {{ totaisGerais.totalMulta | number:'1.2-2' }}</td>
       <td class="text-right text-sm text-gray-600">R$ {{ totaisGerais.totalInvestimento | number:'1.2-2' }}</td>
-      <td colspan="5"></td>
+      <td colspan="6"></td>
     </tr>
   </ng-template>
 

@@ -25,7 +25,7 @@
             <p-button label="Limpar filtros" (onClick)="limparFiltro()" />
           </div>
           <div class="flex-4" style="margin-top:20px;">
-            <p-button label="Assinar Normas" [disabled]="!normasConcluidas" (onClick)="assinarNormas()">
+            <p-button label="Assinar Items" [disabled]="!normasConcluidas" (onClick)="assinarItems()">
             </p-button>
           </div>
           <div class="flex-4" style="margin-top: 20px;">
@@ -54,7 +54,7 @@
     <ng-template pTemplate="header">
       <tr>
         <th pSortableColumn="norma" class="min-w-[120px]">
-          Norma <p-sortIcon field="norma"></p-sortIcon>
+          Item <p-sortIcon field="norma"></p-sortIcon>
         </th>
         <th pSortableColumn="descricao" class="min-w-[120px]">
           Descricao <p-sortIcon field="descricao"></p-sortIcon>
@@ -80,8 +80,8 @@
 
     <ng-template pTemplate="body" let-row>
       <tr class="odd:bg-gray-50">
-        <td>{{ row.nrNorma }}</td>
-        <td>{{ row.descNorma }}</td>
+        <td>{{ row.nrNorma ? row.nrNorma : 'CheckList'}}</td>
+        <td>{{ row.nrNorma ? row.descNorma : row.descCheckList }}</td>
         <td class="text-right"> R$ {{ row.multa | number:'1.2-2' }}</td>
         <td class="text-right"> R$ {{ row.investimento | number:'1.2-2' }}</td>
         <td>{{ row.dtHrCriacao | date:'dd/MM/yyyy HH:mm' }}</td>

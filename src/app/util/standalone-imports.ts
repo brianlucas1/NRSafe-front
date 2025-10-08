@@ -16,6 +16,7 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
+import { CardModule } from 'primeng/card';
 import { InputIconModule } from 'primeng/inputicon';
 import { ChartModule } from 'primeng/chart';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -23,6 +24,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputMaskModule } from 'primeng/inputmask';
 import { DatePickerModule } from 'primeng/datepicker';
 import { PasswordModule } from "primeng/password";
+import { CarouselModule } from "primeng/carousel";
 import { FluidModule } from 'primeng/fluid';
 import { DropdownModule } from "primeng/dropdown";
 import { BlockUIModule } from "primeng/blockui";
@@ -35,7 +37,9 @@ export const StandaloneImports = [
     CommonModule,
     ReactiveFormsModule,
     BlockUIModule,
+    CarouselModule,
     ProgressSpinnerModule,
+    CardModule,
     FormsModule,
     TooltipModule,
     RouterModule,

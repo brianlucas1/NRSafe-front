@@ -8,25 +8,25 @@ import { StandaloneImports } from '../../../../util/standalone-imports';
 import { PlanoAcaoSubItemResponseDTO } from '../../dtos/plano-acao-sub-item-norma-dto';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
-import {  PLANO_ACAO_STATUS_OPTIONS } from '../../dtos/status-plano-acao-enum-dto';
+import { PLANO_ACAO_STATUS_OPTIONS } from '../../dtos/status-plano-acao-enum-dto';
 import { AtualizaSubitemRequestDTO } from '../../dtos/request/atualiza-sub-item-request-dto';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { PlanoAcaoContextService } from '../../services/plano-acao-context';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-item-norma',
+  selector: 'app-inspecoes',
   imports: [StandaloneImports],
   standalone: true,
-  templateUrl: './sub-item-norma.component.html',
-  styleUrl: './sub-item-norma.component.scss',
+  templateUrl: './inspecoes.component.html',
+  styleUrl: './inspecoes.component.scss',
   providers: [MessageService, ConfirmationService],
 })
 
-export class SubItemNormaComponent implements OnInit {
+export class InspecoesComponent implements OnInit {
 
 
-  private originalSnapshot = new Map<number, { status: string | null; responsavel: string | null; planoAcao: string | null; previsao: Date | null; investimento: number | null }>();
+  private originalSnapshot = new Map<number, { status: string | null; responsavel: string | null; planoAcao: string | null; previsao: Date | null; investimento: number | null; multa: number | null }>();
   saving = false;
 
   filterForm!: FormGroup;
@@ -78,38 +78,55 @@ export class SubItemNormaComponent implements OnInit {
     this.buscaSubItensNorma();
     await this.aplicarFiltros();
   }
-
   async salvarAlteracoes() {
     if (this.saving) return;
+
     const changes = this.getChanges();
-    if (!changes.length) return; // nada mudou → nada a fazer
 
+    this.validaCampos(changes);
+  
     this.saving = true;
-    try {
 
-      this.confirmationService.confirm({
-        message: `Tem certeza de que deseja salvar realizar essas alterações ? `,
-        header: 'Confirmação',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Sim',
-        rejectLabel: 'Não',
-        acceptButtonStyleClass: 'p-button-success',
-        rejectButtonStyleClass: 'p-button-danger',
-        accept: async () => {
-          await firstValueFrom(this.planoAcaoService.atualizaPlanoAcaoSubItem(this.idPlanoAcaoNorma, changes));
-          this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Alterações salvas com sucesso' });
-          await this.carregaPlanoAcaoSubItensNormas(this.lastLazyEvent);
-          this.carregarTotaisGerais();
-        },
-        reject: () => {
-        }
-      });
-    } finally {
-      this.saving = false;
+    try {
+      this.confirmationService.confirm(
+        {
+          message: 'Tem certeza de que deseja salvar realizar essas alterações?',
+          header: 'Confirmação',
+          icon: 'pi pi-exclamation-triangle',
+          acceptLabel: 'Sim',
+          rejectLabel: 'Não',
+          acceptButtonStyleClass: 'p-button-success',
+          rejectButtonStyleClass: 'p-button-danger',
+          accept: async () => {
+            await firstValueFrom(this.planoAcaoService.atualizaPlanoAcaoSubItem(this.idPlanoAcaoNorma, changes));
+            this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Alterações salvas com sucesso' });
+            await this.carregaPlanoAcaoSubItensNormas(this.lastLazyEvent); this.carregarTotaisGerais();
+
+          },
+          reject: () => { }
+        });
+    } finally { this.saving = false; }
+  }
+
+  private validaCampos(changes: AtualizaSubitemRequestDTO[]) {
+
+    if(changes.length === 0) {
+      this.msgService.add({ severity: 'info', summary: 'Atenção', detail: 'Nenhuma alteração para salvar' });
+      throw new Error('Nenhuma alteração para salvar');
+    }
+
+    for (const change of changes) {
+      const row = this.listaPlanoAcaoSubItems.map(r => r.id === change.id ? r : null).find(r => r !== null);
+      if (!row) continue;
+      if (!this.isRequiredFilled(row)) {
+        this.msgService.add({ severity: 'error', summary: 'Erro', detail: `Para salvar é nececssário preencher todos os campos` });
+        throw new Error('Campos obrigatórios não preenchidos');
+      }
     }
   }
 
-  exportarCsvItensCompleto(){
+
+  exportarCsvItensCompleto() {
 
     var listaIdPlanoAcaoInspecao = new Array<number>();
 
@@ -117,7 +134,7 @@ export class SubItemNormaComponent implements OnInit {
       listaIdPlanoAcaoInspecao.push(plano.id);
     });
 
-      this.planoAcaoService.exportarCsvCompletoItens(listaIdPlanoAcaoInspecao)
+    this.planoAcaoService.exportarCsvCompletoItens(listaIdPlanoAcaoInspecao)
       .subscribe(blob => {
         // Cria URL para download
         const url = window.URL.createObjectURL(blob);
@@ -130,7 +147,7 @@ export class SubItemNormaComponent implements OnInit {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       }, err => {
-        this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao exportar arquivo!' })        
+        this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao exportar arquivo!' })
       });
   }
 
@@ -176,6 +193,7 @@ export class SubItemNormaComponent implements OnInit {
             status: row.status ?? null,
             investimento: row.investimento ?? null,
             previsao: row.previsao ?? null,
+            multa: row.multa ?? null,
             responsavel: row.responsavel ?? null,
             planoAcao: row.planoAcao ?? null
           });
@@ -268,15 +286,17 @@ export class SubItemNormaComponent implements OnInit {
   }
 
   private getChanges(): AtualizaSubitemRequestDTO[] {
+
     const changes: AtualizaSubitemRequestDTO[] = [];
 
     for (const row of this.listaPlanoAcaoSubItems ?? []) {
       if (row?.id == null) continue;
 
-      const orig = this.originalSnapshot.get(row.id) ?? { status: null, responsavel: null, planoAcao: null, previsao: null, investimento: null };
+      const orig = this.originalSnapshot.get(row.id) ?? { status: null, responsavel: null, planoAcao: null, previsao: null, investimento: null, multa: null };
       const cur = {
         investimento: row.investimento ?? null,
         status: row.status ?? null,
+        multa: row.multa ?? null,
         previsao: row.previsao ?? null,
         responsavel: row.responsavel ?? null,
         planoAcao: row.planoAcao ?? null
@@ -288,6 +308,7 @@ export class SubItemNormaComponent implements OnInit {
       if (orig.status !== cur.status) { diff.status = cur.status; changed = true; }
       if ((orig.responsavel || null) !== (cur.responsavel || null)) { diff.responsavel = cur.responsavel; changed = true; }
       if ((orig.planoAcao || null) !== (cur.planoAcao || null)) { diff.planoAcao = cur.planoAcao; changed = true; }
+      if (orig.multa !== cur.multa) { diff.multa = cur.multa; changed = true; }
       if ((orig.previsao || null) !== (cur.previsao || null)) { diff.previsao = cur.previsao; changed = true; }
       if (orig.investimento !== cur.investimento) { diff.investimento = cur.investimento; changed = true; }
       if (changed) changes.push(diff);
@@ -295,10 +316,51 @@ export class SubItemNormaComponent implements OnInit {
     return changes;
   }
 
- voltar() {
+  voltar() {
     // se houver histórico, volta; senão, cai no fallback “seguro”
     if (window.history.length > 1) this.location.back();
     else this.router.navigate(['/plano-acao', 'normas']);
   }
+
+
+  // Campos obrigatórios por regra de negócio
+  private isRequiredFilled(row: PlanoAcaoSubItemResponseDTO): boolean {
+    const hasPlano = !!row.planoAcao?.trim();
+    const hasResp = !!row.responsavel?.trim();
+    const hasPrev = row.previsao instanceof Date; // aceite também string ISO se vier do backend
+    return hasPlano && hasResp && hasPrev;
+  }
+
+  // A regra pede "alterar o status": status deve ser diferente do snapshot (ou definido se estava null)
+  private isStatusChanged(row: PlanoAcaoSubItemResponseDTO): boolean {
+    const orig = this.originalSnapshot.get(row.id);
+    if (!orig) return !!row.status;
+    return (orig.status ?? null) !== (row.status ?? null);
+  }
+
+  // Para pintar o campo como inválido no template
+  isFieldInvalid(row: PlanoAcaoSubItemResponseDTO, field: 'planoAcao' | 'responsavel' | 'previsao' | 'status'): boolean {
+    const changed = this.rowHasAnyChange(row);
+    if (!changed) return false; // só valida o que será salvo
+    switch (field) {
+      case 'planoAcao': return !row.planoAcao?.trim();
+      case 'responsavel': return !row.responsavel?.trim();
+      case 'previsao': return !(row.previsao instanceof Date);
+      case 'status': return !this.isStatusChanged(row);
+    }
+  }
+
+  private rowHasAnyChange(row: PlanoAcaoSubItemResponseDTO): boolean {
+    const o = this.originalSnapshot.get(row.id);
+    if (!o) return true;
+    return (o.status ?? null) !== (row.status ?? null)
+      || (o.responsavel ?? null) !== (row.responsavel ?? null)
+      || (o.planoAcao ?? null) !== (row.planoAcao ?? null)
+      || (o.previsao ?? null) !== (row.previsao ?? null)
+      || (o.investimento ?? null) !== (row.investimento ?? null)
+      || (o.multa ?? null) !== (row.multa ?? null);
+  }
+
+
 
 }

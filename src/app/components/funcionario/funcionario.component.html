@@ -3,14 +3,26 @@
 <p-confirmDialog></p-confirmDialog>
 
 <p-toolbar styleClass="mb-6">
-  <ng-template #start>
+  <ng-template pTemplate="start">
+    <p-button
+      label="Cadastrar novo funcionário"
+      icon="pi pi-user-plus"
+      (onClick)="abreModalCadastro()"
+    ></p-button>
+  </ng-template>
+
+  <ng-template pTemplate="end">
     <div class="flex items-center gap-2">
-      <div>
-        <p-button label="Cadastrar novo funcionário" (onClick)="abreModalCadastro()" />
-      </div>
+      <i class="pi pi-id-card text-color-secondary"></i>
+      <span class="text-sm text-color-secondary">Licenças disponíveis</span>
+    <p-tag severity="info" icon="pi pi-hashtag" styleClass="px-3 py-2 font-semibold">
+      {{ qtdLicencas | number:'1.0-0' }}
+    </p-tag>
     </div>
   </ng-template>
 </p-toolbar>
+
+
 
 <app-dialog-cadastro-funcionario 
   [visible]="dialogCadastro"
@@ -19,7 +31,7 @@
   ></app-dialog-cadastro-funcionario>
 
 <p-table #dt
-class="tabela-zebrada"
+  class="tabela-zebrada"
   [value]="listaFuncionarios"
   [paginator]="true" 
   [rows]="10"
