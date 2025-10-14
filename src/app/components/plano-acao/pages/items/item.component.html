@@ -1,3 +1,6 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+
 <div class="w-full">
   <form [formGroup]="filterForm">
     <p-toolbar styleClass="mb-6">
@@ -25,7 +28,7 @@
             <p-button label="Limpar filtros" (onClick)="limparFiltro()" />
           </div>
           <div class="flex-4" style="margin-top:20px;">
-            <p-button label="Assinar Items" [disabled]="!normasConcluidas" (onClick)="assinarItems()">
+            <p-button label="Assinar Items" [disabled]="desabilitarBotaoAssinar()" (onClick)="assinarItems()">
             </p-button>
           </div>
           <div class="flex-4" style="margin-top: 20px;">

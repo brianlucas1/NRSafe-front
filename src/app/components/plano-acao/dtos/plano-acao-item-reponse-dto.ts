@@ -1,4 +1,4 @@
-export interface PlanoAcaoNormaResponseDTO {
+export interface PlanoAcaoItemResponseDTO {
   
     id: number;
     idNorma: number;
@@ -10,5 +10,6 @@ export interface PlanoAcaoNormaResponseDTO {
     multa:number
     investimento:number
 
+    statusPlanoAcao?: string;
 
 }

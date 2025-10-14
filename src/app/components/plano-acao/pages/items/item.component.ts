@@ -9,12 +9,13 @@ import { Location } from '@angular/common';
 import { PlanoAcaoService } from '../../services/plano-acao-service';
 import { NormaResponseDTO } from '../../dtos/norma-response-dto';
 import { StandaloneImports } from '../../../../util/standalone-imports';
-import { PlanoAcaoNormaResponseDTO } from '../../dtos/plano-acao-norma-reponse-dto';
+
 import { normalizeStatus, PLANO_ACAO_STATUS_OPTIONS } from '../../dtos/status-plano-acao-enum-dto';
 import { AngularSignaturePadModule, SignaturePadComponent } from '@almothafar/angular-signature-pad';
 import { AssinaturaPlanoAcaoRequestDTO } from '../../dtos/request/assinatura-plnao-acao-request-dto';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { PlanoAcaoContextService } from '../../services/plano-acao-context';
+import { PlanoAcaoItemResponseDTO } from '../../dtos/plano-acao-item-reponse-dto';
 
 
 @Component({
@@ -55,10 +56,12 @@ export class ItemComponent implements OnInit {
 
   normasConcluidas = false;
 
+  isAssinado = false;
+
   statusOptions = [...PLANO_ACAO_STATUS_OPTIONS];
 
   listaNormas: NormaResponseDTO[] = [];
-  listaPlanoAcaoNormas: PlanoAcaoNormaResponseDTO[] = [];
+  listaPlanoAcaoNormas: PlanoAcaoItemResponseDTO[] = [];
 
   totaisGerais: { totalInvestimento: number; totalMulta: number } | null = null;
 
@@ -117,21 +120,25 @@ export class ItemComponent implements OnInit {
     });
   }
 
+  desabilitarBotaoAssinar(): boolean {
+    return this.isAssinado || !this.normasConcluidas;
+  }
+
   assinarItems() {
     this.confirmationService.confirm(
-        {
-          message: 'Tem certeza de que assinar? Não será possivel alterar os itens do plano de ação após a assinatura.',
-          header: 'Confirmação',
-          icon: 'pi pi-exclamation-triangle',
-          acceptLabel: 'Sim',
-          rejectLabel: 'Não',
-          acceptButtonStyleClass: 'p-button-success',
-          rejectButtonStyleClass: 'p-button-danger',
-          accept: async () => {
-             this.dialogAssinatura = true;
-          },
-          reject: () => { }
-        });
+      {
+        message: 'Tem certeza de que assinar? Não será possivel alterar os itens do plano de ação após a assinatura.',
+        header: 'Confirmação',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Sim',
+        rejectLabel: 'Não',
+        acceptButtonStyleClass: 'p-button-success',
+        rejectButtonStyleClass: 'p-button-danger',
+        accept: async () => {
+          this.dialogAssinatura = true;
+        },
+        reject: () => { }
+      });
   }
 
   exportarCsvNormasCompleto() {
@@ -242,6 +249,7 @@ export class ItemComponent implements OnInit {
         this.totaisGerais.totalMulta = 0;
       }
       this.listaPlanoAcaoNormas.forEach(plano => {
+        this.isAssinado = plano.statusPlanoAcao === 'AS';
         this.totaisGerais!.totalInvestimento += plano.investimento ?? 0;
         this.totaisGerais!.totalMulta += plano.multa ?? 0;
       });

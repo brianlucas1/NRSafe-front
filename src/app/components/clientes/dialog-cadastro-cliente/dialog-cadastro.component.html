@@ -1,10 +1,4 @@
-<p-dialog
-  [visible]="visible"
-  [style]="{ width: '600px' }"
-  [closable]="false"
-  [modal]="true"
-  (onHide)="onHideDialog()"
->
+<p-dialog [visible]="visible" [style]="{ width: '600px' }" [closable]="false" [modal]="true" (onHide)="onHideDialog()">
   <p-toast></p-toast>
 
   <ng-template pTemplate="header">
@@ -19,149 +13,167 @@
 
       <!-- CAMPOS DO CLIENTE -->
       <!-- LINHA 1: CNPJ | Razão Social -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block font-bold mb-1">CNPJ</label>
-        <p-inputmask formControlName="cnpj" placeholder="99.999.999/9999-99" mask="99.999.999/9999-99" class="w-full" />
-        <div *ngIf="clienteForm.get('cnpj')?.invalid && clienteForm.get('cnpj')?.touched">
-          <small class="text-red-500" *ngIf="clienteForm.get('cnpj')?.errors?.['required']">O campo cnpj é obrigatório.</small>
-          <small class="text-red-500" *ngIf="clienteForm.get('cnpj')?.errors?.['invalidCnpj']">Cnpj não está válido.</small>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-bold mb-1">CNPJ</label>
+          <p-inputmask formControlName="cnpj" placeholder="99.999.999/9999-99" mask="99.999.999/9999-99"
+            class="w-full" />
+          <div *ngIf="clienteForm.get('cnpj')?.invalid && clienteForm.get('cnpj')?.touched">
+            <small class="text-red-500" *ngIf="clienteForm.get('cnpj')?.errors?.['required']">O campo cnpj é
+              obrigatório.</small>
+            <small class="text-red-500" *ngIf="clienteForm.get('cnpj')?.errors?.['invalidCnpj']">Cnpj não está
+              válido.</small>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold mb-1">Razão Social</label>
+          <input pInputText formControlName="razaoSocial" class="w-full" />
+          <div *ngIf="clienteForm.get('razaoSocial')?.invalid && clienteForm.get('razaoSocial')?.touched">
+            <small class="text-red-500" *ngIf="clienteForm.get('razaoSocial')?.errors?.['required']">O campo razão
+              social é obrigatório.</small>
+          </div>
         </div>
       </div>
 
-      <div>
-        <label class="block font-bold mb-1">Razão Social</label>
-        <input pInputText formControlName="razaoSocial" class="w-full" />
-        <div *ngIf="clienteForm.get('razaoSocial')?.invalid && clienteForm.get('razaoSocial')?.touched">
-          <small class="text-red-500" *ngIf="clienteForm.get('razaoSocial')?.errors?.['required']">O campo razão social é obrigatório.</small>
+      <!-- LINHA 2: Nome Fantasia | Email -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-bold mb-1">Nome Fantasia</label>
+          <input pInputText formControlName="nomeFantasia" class="w-full" />
         </div>
-      </div>
-    </div>
 
-    <!-- LINHA 2: Nome Fantasia | Email -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block font-bold mb-1">Nome Fantasia</label>
-        <input pInputText formControlName="nomeFantasia" class="w-full" />
-      </div>
-
-      <div>
-        <label class="block font-bold mb-1">Email</label>
-        <input type="email" pInputText formControlName="email" class="w-full" />
-        <div *ngIf="clienteForm.get('email')?.invalid && clienteForm.get('email')?.touched">
-          <small class="text-red-500" *ngIf="clienteForm.get('email')?.errors?.['required']">O campo e-mail é obrigatório.</small><br />
-          <small class="text-red-500" *ngIf="clienteForm.get('email')?.errors?.['email']">E-mail não está válido.</small>
-        </div>
-      </div>
-    </div>
-
-    <!-- LINHA 3: Telefone | CEP -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block font-bold mb-1">Telefone</label>
-        <p-inputmask formControlName="telefone" mask="(99) 9999-9999" class="w-full" />
-        <div *ngIf="clienteForm.get('telefone')?.invalid && clienteForm.get('telefone')?.touched">
-          <small class="text-red-500" *ngIf="clienteForm.get('telefone')?.errors?.['required']">O campo telefone é obrigatório.</small>
+        <div>
+          <label class="block font-bold mb-1">Email</label>
+          <input type="email" pInputText formControlName="email" class="w-full" />
+          <div *ngIf="clienteForm.get('email')?.invalid && clienteForm.get('email')?.touched">
+            <small class="text-red-500" *ngIf="clienteForm.get('email')?.errors?.['required']">O campo e-mail é
+              obrigatório.</small><br />
+            <small class="text-red-500" *ngIf="clienteForm.get('email')?.errors?.['email']">E-mail não está
+              válido.</small>
+          </div>
         </div>
       </div>
 
-      <div>
-        <label class="block font-bold mb-1">CEP</label>
-        <p-inputmask formControlName="cep" mask="99999-999" class="w-full" (onBlur)="buscaCep()" />
-        <div *ngIf="clienteForm.get('cep')?.invalid && clienteForm.get('cep')?.touched">
-          <small class="text-red-500" *ngIf="clienteForm.get('cep')?.errors?.['required']">O campo cep é obrigatório.</small>
-          <small class="text-red-500" *ngIf="clienteForm.get('cep')?.errors?.['cepInvalido']">Cep inválido.</small>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-bold mb-1">Nome</label>
+          <input pInputText formControlName="nome" class="w-full" />
         </div>
-      </div>
-    </div>
 
-    <!-- LINHA 4: Logradouro | Número -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block font-bold mb-1">Logradouro</label>
-        <input pInputText formControlName="logradouro" class="w-full" />
-        <div *ngIf="clienteForm.get('logradouro')?.invalid && clienteForm.get('logradouro')?.touched">
-          <small class="text-red-500" *ngIf="clienteForm.get('logradouro')?.errors?.['required']">O campo logradouro é obrigatório.</small>
-        </div>
-      </div>
-
-      <div>
-        <label class="block font-bold mb-1">Número</label>
-        <input pInputText formControlName="numero" class="w-full" />
-        <div *ngIf="clienteForm.get('numero')?.invalid && clienteForm.get('numero')?.touched">
-          <small class="text-red-500" *ngIf="clienteForm.get('numero')?.errors?.['required']">O campo número é obrigatório.</small>
-        </div>
-      </div>
-    </div>
-
-    <!-- LINHA 5: Complemento | Bairro -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block font-bold mb-1">Complemento</label>
-        <input pInputText formControlName="complemento" class="w-full" />
-      </div>
-
-      <div>
-        <label class="block font-bold mb-1">Bairro</label>
-        <input pInputText formControlName="bairro" class="w-full" />
-        <div *ngIf="clienteForm.get('bairro')?.invalid && clienteForm.get('bairro')?.touched">
-          <small class="text-red-500" *ngIf="clienteForm.get('bairro')?.errors?.['required']">O campo bairro é obrigatório.</small>
-        </div>
-      </div>
-    </div>
-
-    <!-- LINHA 6: Localidade | UF -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block font-bold mb-1">Localidade</label>
-        <input pInputText formControlName="localidade" class="w-full" />
-        <div *ngIf="clienteForm.get('localidade')?.invalid && clienteForm.get('localidade')?.touched">
-          <small class="text-red-500" *ngIf="clienteForm.get('localidade')?.errors?.['required']">O campo localidade é obrigatório.</small>
+        <div>
+          <label class="block font-bold mb-1">CPF</label>
+          <p-inputmask formControlName="cpf" placeholder="999.999.999-99" mask="999.999.999-99" class="w-full" />
+          <div *ngIf="clienteForm.get('cpf')?.invalid && clienteForm.get('cpf')?.touched">
+            <small class="text-red-500" *ngIf="clienteForm.get('cpf')?.errors?.['required']">O campo cpf é
+              obrigatório.</small>
+            <br>
+            <small class="text-red-500" *ngIf="clienteForm.get('cpf')?.errors?.['cpfInvalido']">Cpf não está
+              valido.</small>
+          </div>
         </div>
       </div>
 
-      <div>
-        <label class="block font-bold mb-1">UF</label>
-        <input pInputText formControlName="uf" class="w-full" />
-        <div *ngIf="clienteForm.get('uf')?.invalid && clienteForm.get('uf')?.touched">
-          <small class="text-red-500" *ngIf="clienteForm.get('uf')?.errors?.['required']">O campo UF é obrigatório.</small>
+      <!-- LINHA 3: Telefone | CEP -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-bold mb-1">Telefone</label>
+          <p-inputmask formControlName="telefone" mask="(99) 9999-9999" class="w-full" />
+          <div *ngIf="clienteForm.get('telefone')?.invalid && clienteForm.get('telefone')?.touched">
+            <small class="text-red-500" *ngIf="clienteForm.get('telefone')?.errors?.['required']">O campo telefone é
+              obrigatório.</small>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold mb-1">CEP</label>
+          <p-inputmask formControlName="cep" mask="99999-999" class="w-full" (onBlur)="buscaCep()" />
+          <div *ngIf="clienteForm.get('cep')?.invalid && clienteForm.get('cep')?.touched">
+            <small class="text-red-500" *ngIf="clienteForm.get('cep')?.errors?.['required']">O campo cep é
+              obrigatório.</small>
+            <small class="text-red-500" *ngIf="clienteForm.get('cep')?.errors?.['cepInvalido']">Cep inválido.</small>
+          </div>
         </div>
       </div>
-    </div>
+
+      <!-- LINHA 4: Logradouro | Número -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-bold mb-1">Logradouro</label>
+          <input pInputText formControlName="logradouro" class="w-full" />
+          <div *ngIf="clienteForm.get('logradouro')?.invalid && clienteForm.get('logradouro')?.touched">
+            <small class="text-red-500" *ngIf="clienteForm.get('logradouro')?.errors?.['required']">O campo logradouro é
+              obrigatório.</small>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold mb-1">Número</label>
+          <input pInputText formControlName="numero" class="w-full" />
+          <div *ngIf="clienteForm.get('numero')?.invalid && clienteForm.get('numero')?.touched">
+            <small class="text-red-500" *ngIf="clienteForm.get('numero')?.errors?.['required']">O campo número é
+              obrigatório.</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- LINHA 5: Complemento | Bairro -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-bold mb-1">Complemento</label>
+          <input pInputText formControlName="complemento" class="w-full" />
+        </div>
+
+        <div>
+          <label class="block font-bold mb-1">Bairro</label>
+          <input pInputText formControlName="bairro" class="w-full" />
+          <div *ngIf="clienteForm.get('bairro')?.invalid && clienteForm.get('bairro')?.touched">
+            <small class="text-red-500" *ngIf="clienteForm.get('bairro')?.errors?.['required']">O campo bairro é
+              obrigatório.</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- LINHA 6: Localidade | UF -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-bold mb-1">Localidade</label>
+          <input pInputText formControlName="localidade" class="w-full" />
+          <div *ngIf="clienteForm.get('localidade')?.invalid && clienteForm.get('localidade')?.touched">
+            <small class="text-red-500" *ngIf="clienteForm.get('localidade')?.errors?.['required']">O campo localidade é
+              obrigatório.</small>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold mb-1">UF</label>
+          <input pInputText formControlName="uf" class="w-full" />
+          <div *ngIf="clienteForm.get('uf')?.invalid && clienteForm.get('uf')?.touched">
+            <small class="text-red-500" *ngIf="clienteForm.get('uf')?.errors?.['required']">O campo UF é
+              obrigatório.</small>
+          </div>
+        </div>
+      </div>
 
 
       <!-- SELECIONAR PLANO -->
       <div class="pt-3 border-t">
         <div class="flex items-center justify-between mb-2">
           <h3 class="text-base font-semibold">Selecionar Plano</h3>
-          <p-selectButton
-            [options]="billingOptions"
-            formControlName="billingCycle"
-            optionLabel="label"
-            optionValue="value"
-          ></p-selectButton>
+          <p-selectButton [options]="billingOptions" formControlName="billingCycle" optionLabel="label"
+            optionValue="value"></p-selectButton>
         </div>
 
         <div class="grid md:grid-cols-1 gap-3">
-          <p-card
-            *ngFor="let plano of listaPlano"
-            class="cursor-pointer border transition-shadow"
-            [ngClass]="{
+          <p-card *ngFor="let plano of listaPlano" class="cursor-pointer border transition-shadow" [ngClass]="{
               'ring-2 ring-primary-400 border-primary-300 shadow-md': clienteForm.value.planoId === +plano.id,
               'border-surface-200': clienteForm.value.planoId !== +plano.id
-            }"
-            (click)="onSelectPlano(plano.id)"
-          >
+            }" (click)="onSelectPlano(plano.id)">
             <div class="flex items-start justify-between">
               <!-- Radio + texto -->
               <div class="flex items-start gap-3">
-               <p-radioButton
-                name="planoId"                 
-                formControlName="planoId"
-                [value]="+plano.id"            
-                [inputId]="'plano-' + plano.id"
-                (onClick)="onSelectPlano(plano.id)"   
-              ></p-radioButton>
+                <p-radioButton name="planoId" formControlName="planoId" [value]="+plano.id"
+                  [inputId]="'plano-' + plano.id" (onClick)="onSelectPlano(plano.id)"></p-radioButton>
 
                 <label class="cursor-pointer" [for]="'plano-' + plano.id">
                   <div class="font-semibold">{{ plano.nomePlano }}</div>
@@ -183,7 +195,7 @@
                 <div class="text-xs text-muted-color">
                   / {{ clienteForm.value.billingCycle === 'ANUAL' ? 'ano' : 'mês' }}
                 </div>
-                
+
               </div>
             </div>
           </p-card>
@@ -195,6 +207,6 @@
 
   <ng-template pTemplate="footer">
     <p-button label="Cancelar" icon="pi pi-times" (onClick)="visible = false" text></p-button>
-    <p-button label="Salvar" icon="pi pi-check" (onClick)="salvar()" ></p-button>
+    <p-button label="Salvar" icon="pi pi-check" (onClick)="salvar()"></p-button>
   </ng-template>
 </p-dialog>

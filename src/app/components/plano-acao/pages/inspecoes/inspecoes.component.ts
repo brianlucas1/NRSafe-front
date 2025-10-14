@@ -34,6 +34,8 @@ export class InspecoesComponent implements OnInit {
   idPlanoAcao!: number;
   idPlanoAcaoNorma!: number;
 
+  planoConcluido = false;
+
   listaSubItensNorma: SubItensNormaDTO[] = [];
   listaPlanoAcaoSubItems: PlanoAcaoSubItemResponseDTO[] = [];
 
@@ -174,14 +176,15 @@ export class InspecoesComponent implements OnInit {
 
       const content = resp?.content ?? [];
 
-      this.listaPlanoAcaoSubItems = content.map((r: any) => ({
+      this.listaPlanoAcaoSubItems = content.map((r: any) => ({      
         ...r,
         // garanta que os campos editáveis existam (null-safe)
         status: r.status ?? null,
         previsao: r.previsao ?? null,
         responsavel: r.responsavel ?? null,
         planoAcao: r.planoAcao ?? null
-      }));
+      })
+    );
 
       this.totalRecords = resp?.totalElements ?? 0;
 
@@ -265,6 +268,9 @@ export class InspecoesComponent implements OnInit {
         this.totaisGerais.totalMulta = 0;
       }
       this.listaPlanoAcaoSubItems.forEach(plano => {
+          if(plano.statusPlanoAcao === 'CO'){
+          this.planoConcluido = true;
+        }
         this.totaisGerais!.totalInvestimento += plano.investimento ?? 0;
         this.totaisGerais!.totalMulta += plano.multa ?? 0;
       });

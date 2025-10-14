@@ -29,7 +29,7 @@
             <p-button label="Limpar filtros" (onClick)="limparFiltro()" />
           </div>
           <div class="flex-4" style="margin-top: 20px;">
-            <p-button icon="pi pi-save" [loading]="saving" label="Salvar alterações" (onClick)="salvarAlteracoes()" />
+            <p-button icon="pi pi-save" [loading]="saving" [disabled]="planoConcluido" label="Salvar alterações" (onClick)="salvarAlteracoes()" />
           </div>
 
           <div class="flex-4" style="margin-top: 20px;">
@@ -91,12 +91,11 @@
       <td>
         <span class="block max-w-[150px] truncate" tooltipClass="tooltip-wide" pTooltip="{{ row.descSubItem }}"
           tooltipPosition="top">
-          <td>{{ row.descSubItem ? row.descSubItem : row.descCheckListPergunta }}</td>
-
+          <td >{{ row.descSubItem ? row.descSubItem : row.descCheckListPergunta }}</td>
         </span>
       </td>
       <td>
-        <input type="text" pInputText [(ngModel)]="row.planoAcao"  [ngClass]="{'p-invalid': isFieldInvalid(row,'planoAcao')}" placeholder="Plano de ação" class="w-full" />
+        <input type="text"  [disabled]="planoConcluido"  pInputText [(ngModel)]="row.planoAcao"  [ngClass]="{'p-invalid': isFieldInvalid(row,'planoAcao')}" placeholder="Plano de ação" class="w-full" />
       </td>
       <td *ngIf= "row.descCheckListPergunta == null" class="text-right">R$ {{ row.multa | number: '1.2-2' }}</td>
       <td *ngIf= "row.descCheckListPergunta != null" class="text-right">
@@ -105,6 +104,7 @@
           [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
           mode="currency"
           currency="BRL"
+           [disabled]="planoConcluido"
           locale="pt-BR"
           [minFractionDigits]="2"
           [maxFractionDigits]="2"
@@ -116,6 +116,7 @@
       <td class="text-right">
         <p-inputNumber
           [(ngModel)]="row.investimento"
+           [disabled]="planoConcluido"
           [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
           mode="currency"
           currency="BRL"
@@ -128,7 +129,7 @@
       </td>
 
       <td>
-        <input type="text"  [ngClass]="{'p-invalid': isFieldInvalid(row,'responsavel')}" pInputText [(ngModel)]="row.responsavel" placeholder="Digite um responsavel" class="w-full" />
+        <input type="text"  [ngClass]="{'p-invalid': isFieldInvalid(row,'responsavel')}"  [disabled]="planoConcluido" pInputText [(ngModel)]="row.responsavel" placeholder="Digite um responsavel" class="w-full" />
       </td>  
 
       <td class="text-right">
@@ -136,6 +137,7 @@
           [(ngModel)]="row.previsao"
           [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
           dateFormat="dd/mm/yy"
+           [disabled]="planoConcluido"
           [ngClass]="{'p-invalid': isFieldInvalid(row,'previsao')}"
           [showButtonBar]="true"
           [appendTo]="'body'"
@@ -144,7 +146,7 @@
       </td>
 
        <td>
-        <p-dropdown [options]="statusOptions" optionLabel="descricao" [appendTo]="'body'" optionValue="codigo"
+        <p-dropdown  [disabled]="planoConcluido" [options]="statusOptions" optionLabel="descricao" [appendTo]="'body'" optionValue="codigo"
           [(ngModel)]="row.status"    [ngClass]="{'p-invalid': isFieldInvalid(row,'status')}"
           placeholder="Selecione" class="w-full"></p-dropdown>
       </td>

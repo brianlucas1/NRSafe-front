@@ -12,6 +12,7 @@ import { PlanoService } from '../../../../services/plano-service';
 import { PlanoResponseDTO } from '../../../models/response/plano-response-dto';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { RadioButtonModule } from 'primeng/radiobutton';
+import { cpfValidator, sanitizeCpf } from '../../../util/cpf-validator';
 
 export type Ciclo = 'MENSAL' | 'ANUAL';
 
@@ -55,18 +56,18 @@ export class DialogCadastroClienteComponent implements OnInit {
     this.buscaPlanosAtivos();
   }
 
-  // === AJUSTE: adiciona billingCycle ao form
   criaFormCliente() {
     this.clienteForm = this.fb.group({
-      cnpj: ['', [Validators.required, Validators.minLength(14), cnpjValido]],
-      razaoSocial: ['', Validators.required],
-      nomeFantasia: [''],
-      email: ['', [Validators.email, Validators.required]],
-      telefone: [''],
+      cnpj: [null, [Validators.required, Validators.minLength(14), cnpjValido]],
+      razaoSocial: [null, Validators.required],
+      nome: [null],
+      cpf: [null, [Validators.required, Validators.minLength(14), cpfValidator()]],
+      email: [null, [Validators.email, Validators.required]],
+      telefone: [null],
       logradouro: [{ value: '', disabled: true }],
       bairro: [{ value: '', disabled: true }],
-      numero: [''],
-      complemento: [''],
+      numero: [null],
+      complemento: [null],
       localidade: [{ value: '', disabled: true }],
       uf: [{ value: '', disabled: true }],
       cep: ['', [Validators.required, validaCep]],
@@ -134,6 +135,8 @@ export class DialogCadastroClienteComponent implements OnInit {
       nomeFantasia: formValue.nomeFantasia,
       email: formValue.email,
       telefone: formValue.telefone,
+      nome: formValue.nome,
+      cpf: sanitizeCpf(formValue.cpf),
       // se seu backend já aceita esses campos, mantenha:
       planoId: formValue.planoId,             // <-- importante!
       billingCycle: formValue.billingCycle,   // <-- opcional

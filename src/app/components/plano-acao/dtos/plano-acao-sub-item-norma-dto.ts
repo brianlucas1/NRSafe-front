@@ -3,6 +3,7 @@ export interface PlanoAcaoSubItemResponseDTO{
     id:number
     idPlanoAcaoNorma:number
     subItem:string
+    statusPlanoAcao:string
     descSubItem:string
     planoAcao:string
     descCheckListPergunta:string	
