@@ -9,6 +9,8 @@ import { PlanoResponseDTO } from "../../../../models/response/plano-response-dto
 import { AssinaturaPlanoResumoDTO } from "../../../../models/dtos/assinatura-plano-resumo-dto";
 import { PlanoRecursoResponseDTO } from "../../../../models/response/recurso-response-dto";
 import { TrocaPlanoRequestDTO } from "../../dtos/troca-plano-request-dto";
+import { AuthStorageService } from "../../../../../services/auth/auth-storage-service";
+import { Role } from "../../../../models/enums/role-enum";
 
 @Component({
     selector: 'app-troca-plano',
@@ -23,6 +25,8 @@ import { TrocaPlanoRequestDTO } from "../../dtos/troca-plano-request-dto";
 
 export class TrocarPlanoComponent {
 
+
+   isAdmin: boolean = false;
   // Estado “claro” com Signals
   readonly planos = signal<PlanoResponseDTO[]>([]);
   readonly assinatura = signal<AssinaturaPlanoResumoDTO | null>(null);
@@ -38,8 +42,7 @@ export class TrocarPlanoComponent {
 trackByRecursoId: TrackByFunction<PlanoRecursoResponseDTO> = (_: number, r) => r.id ?? r.chave;
 
   constructor(
-    private authService: AuthService,
-    private router: Router,
+    private storage: AuthStorageService,
     private planoService: PlanoService,
     private assinaturaService: AssinaturaService,
     private msg: MessageService,
@@ -49,6 +52,12 @@ trackByRecursoId: TrackByFunction<PlanoRecursoResponseDTO> = (_: number, r) => r
   ngOnInit(): void {
     this.carregarDados();
   }
+
+
+   verificarSeAdmin(): void {
+          const roles = this.storage.getRoles();
+          this.isAdmin = roles.includes(Role.ADMIN);
+      }
 
   private carregarDados() {
     this.loading.set(true);

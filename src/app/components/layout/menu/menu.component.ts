@@ -26,6 +26,7 @@ export class MenuComponent implements OnInit {
 
     constructor(
         private authService: AuthService,
+        
         private storage: AuthStorageService,
         private clienteService: ClienteService,
         private router: Router
@@ -57,32 +58,26 @@ export class MenuComponent implements OnInit {
 
         // Cria o menu baseado no tipo de usuário
         if (this.isAdmin) {
-            // Menu para ADMIN: Início, Gerencial, Clientes
+            // Menu para ADMIN: Início, Gerencial,
             this.model = [
                 {
                     label: 'Início',
                     icon: 'pi pi-fw pi-home',
                     items: [
-                        { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },
-                        { label: 'Gestão de plano ação', icon: 'pi pi-chart-bar', routerLink: ['/plano-acao'] },
+                        { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },                    
                     ]
                 },
                 {
-                    label: 'GERENCIAL',
+                    label: 'Gerencial',
                     icon: 'pi pi-cog',
                     items: [
                         { label: 'LISTA DE CLIENTES', icon: 'pi pi-users', routerLink: ['/clientes'] },
                     ]
                 },
                 {
-                    label: 'Clientes',
-                    icon: 'pi pi-building',
-                    items: [
-                        { label: 'Empresas', icon: 'pi pi-building', routerLink: ['/empresas'] },
-                        { label: 'Filiais', icon: 'pi pi-building-columns', routerLink: ['/filiais'] },
-                        { label: 'Sites/Setor', icon: 'pi pi-hammer', routerLink: ['/sites'] },
-                    ]
-                }
+                    label: 'Suporte',
+                    icon: 'pi pi-cog',                   
+                },
             ];
         } else {
             // Menu para outros usuários: Início, Cliente, Clientes (sem Gerencial)

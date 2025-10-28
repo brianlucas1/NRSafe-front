@@ -49,7 +49,7 @@ export class FiliaisComponent implements OnInit {
       })
   }
 
-  inativalFilial(filial:FilialResponseDTO){
+  inativarFilial(filial:FilialResponseDTO){
     this.confirmationService.confirm({
       message: `Tem certeza de que deseja inativar/ativar essa filial <strong>${filial.razaoSocial}</strong>?`,
       header: 'Confirmação',

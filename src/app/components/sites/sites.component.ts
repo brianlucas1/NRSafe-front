@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DialogCadastroSitesComponent } from './dialog-cadastro-sites/dialog-cadastro-sites.component';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { Column } from '../../util/colum-table';
 import { StandaloneImports } from '../../util/standalone-imports';
 import { SiteResponseDTO } from '../../models/response/site-reponse-dto';
@@ -11,25 +11,26 @@ import { Table } from 'primeng/table';
   selector: 'app-sites',
   imports: [StandaloneImports, DialogCadastroSitesComponent],
   standalone: true,
-  providers: [MessageService],
+  providers: [MessageService,ConfirmationService],
   templateUrl: './sites.component.html',
   styleUrl: './sites.component.scss'
 })
-export class SitesComponent  implements OnInit {
+export class SitesComponent implements OnInit {
 
   dialogCadastro: boolean = false;
   listaSites: SiteResponseDTO[] = [];
   cols!: Column[];
   siteSelecionado?: SiteResponseDTO;
-  
-  
-    constructor(
-      private siteService: SiteService,
-      private msgService: MessageService,
-    ) { }
 
-      ngOnInit(): void {
-      this.buscaSites();
+
+  constructor(
+    private siteService: SiteService,
+    private confirmationService: ConfirmationService,
+    private msgService: MessageService,
+  ) { }
+
+  ngOnInit(): void {
+    this.buscaSites();
   }
 
   async buscaSites() {
@@ -45,21 +46,46 @@ export class SitesComponent  implements OnInit {
   }
 
   abreModalCadastro(): void {
-      this.dialogCadastro = true;
+    this.siteSelecionado = undefined; // evita pré-preenchimento indevido
+    this.dialogCadastro = true;
+  }
+
+  inativarSite(site:SiteResponseDTO){
+      this.confirmationService.confirm({
+        message: `Tem certeza de que deseja inativar/ativar esse site <strong>${site.razaoSocial}</strong>?`,
+        header: 'Confirmação',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Sim',
+        rejectLabel: 'Não',
+        acceptButtonStyleClass: 'p-button-success',
+        rejectButtonStyleClass: 'p-button-danger',
+        accept: () => {
+          this.siteService.inativarSite(site.id!).subscribe(() => {
+            this.msgService.add({
+              severity: 'success',
+              summary: 'Sucesso',
+              detail: 'Site inativado com sucesso',
+            });
+          this.buscaSites();       
+         });
+        },
+        reject: () => {
+        }
+      });
     }
-  
-    editarSite(site: any) {
-      this.siteSelecionado = site
-      this.dialogCadastro = true;
-    }
-  
-    filtro(table: Table, event: Event) {
-      table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-    }
-  
-    fechaModalCadastro(): void {
-      this.dialogCadastro = false;
-       this.buscaSites();
-    }
+
+  editarSite(site: any) {
+    this.siteSelecionado = site
+    this.dialogCadastro = true;
+  }
+
+  filtro(table: Table, event: Event) {
+    table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+  }
+
+  fechaModalCadastro(): void {
+    this.dialogCadastro = false;
+    this.buscaSites();
+  }
 
 }

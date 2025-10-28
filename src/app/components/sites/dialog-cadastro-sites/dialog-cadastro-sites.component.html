@@ -31,6 +31,7 @@
       formControlName="filial"
       [options]="listaFiliaisOptions"
       optionLabel="razaoSocial"
+      optionValue="id"
       placeholder="Selecione"
       [showClear]="true"
       (onChange)="onFilialChange($event.value)"
@@ -44,6 +45,7 @@
       formControlName="empresa"
       [options]="listaEmpresasOptions"
       optionLabel="razaoSocial"
+      optionValue="id"
       placeholder="Selecione"
       [showClear]="true"
       (onChange)="onEmpresaChange($event.value)"
@@ -144,7 +146,12 @@
 
   <ng-template pTemplate="footer">
     <p-button label="Cancelar" icon="pi pi-times" (onClick)="visible = false" text />
-    <p-button label="Salvar" icon="pi pi-check" (onClick)="salvar()" />
+    <p-button
+      label="Salvar"
+      icon="pi pi-check"
+      [loading]="isSaving"
+      [disabled]="isSaving"
+      (onClick)="salvar()" />
   </ng-template>
 
 </p-dialog>
