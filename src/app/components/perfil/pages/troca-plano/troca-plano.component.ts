@@ -10,6 +10,8 @@ import { AssinaturaPlanoResumoDTO } from "../../../../models/dtos/assinatura-pla
 import { PlanoRecursoResponseDTO } from "../../../../models/response/recurso-response-dto";
 import { TrocaPlanoRequestDTO } from "../../dtos/troca-plano-request-dto";
 import { AuthStorageService } from "../../../../../services/auth/auth-storage-service";
+import { AuthStateService } from "../../../../../services/auth/auth-state.service";
+import { LoggerService } from "../../../../../services/logger.service";
 import { Role } from "../../../../models/enums/role-enum";
 
 @Component({
@@ -43,6 +45,8 @@ trackByRecursoId: TrackByFunction<PlanoRecursoResponseDTO> = (_: number, r) => r
 
   constructor(
     private storage: AuthStorageService,
+    private authState: AuthStateService,
+    private logger: LoggerService,
     private planoService: PlanoService,
     private assinaturaService: AssinaturaService,
     private msg: MessageService,
@@ -55,7 +59,7 @@ trackByRecursoId: TrackByFunction<PlanoRecursoResponseDTO> = (_: number, r) => r
 
 
    verificarSeAdmin(): void {
-          const roles = this.storage.getRoles();
+          const roles = this.authState.obterPapeis();
           this.isAdmin = roles.includes(Role.ADMIN);
       }
 

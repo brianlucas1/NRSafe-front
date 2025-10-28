@@ -1,0 +1,26 @@
+# Instruções do Copilot (Projeto Angular + PrimeNG)
+- Escreva **funções, métodos, variáveis e comentários em português do Brasil**.
+- Padrões: SOLID, Clean Code, nomes descritivos, early-return, evitar "God components".
+- Comentários: explique o "porquê", não o "o quê".
+- Use `async/await` para operações assíncronas.
+- Tratamento de erros: use `try/catch` e logue erros com `LoggerService`.
+- Evite duplicação de código (DRY). Crie funções reutilizáveis.
+- Modularize: componentes pequenos e focados.
+- Separe lógica de apresentação, negócios e dados.
+- Utilize injeção de dependência para serviços.
+- Gerencie estado com RxJS (Subjects, Observables).
+- Evite manipulação direta do DOM. Use `Renderer2` se necessário.
+- Formulários: use `ReactiveFormsModule` com validação personalizada.
+- Angular:
+  - Use `standalone components` quando apropriado e `OnPush`.
+  - RxJS: prefira `async pipe`, `takeUntilDestroyed()`, evitar `subscribe()` desnecessário.
+  - Estrutura: `core/`, `shared/`, `features/`, `services/`, `components/`.
+  - Testes: gere `*.spec.ts` com Jasmine/Karma.
+- PrimeNG:
+  - Use `p-table`, `p-dialog`, `p-toast`, `p-confirmDialog` e `MessageService`.
+  - Acessibilidade: adicionar `aria-*` e `label`/`header` adequados.
+- Logs:
+  - Crie um `LoggerService` e use `logger.info|warn|error(...)` em vez de `console.log`.
+- Estilo:
+  - Tipar tudo (TypeScript estrito). Use `readonly`, `private`, `protected`.
+  - Evite `any`. Prefira `unknown` + narrows.

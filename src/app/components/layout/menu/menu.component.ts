@@ -5,6 +5,8 @@ import { ItemMenuComponent } from './item/item.component';
 import { MenuItem } from 'primeng/api';
 import { AuthService } from '../../../../services/auth/auth-service';
 import { AuthStorageService } from '../../../../services/auth/auth-storage-service';
+import { AuthStateService } from '../../../../services/auth/auth-state.service';
+import { LoggerService } from '../../../../services/logger.service';
 import { ClienteService } from '../../../../services/cliente-service';
 import { ClienteResponseDTO } from '../../../models/response/cliente-response-dto';
 import { firstValueFrom } from 'rxjs';
@@ -28,6 +30,8 @@ export class MenuComponent implements OnInit {
         private authService: AuthService,
         
         private storage: AuthStorageService,
+        private authState: AuthStateService,
+        private logger: LoggerService,
         private clienteService: ClienteService,
         private router: Router
     ) { }
@@ -43,7 +47,7 @@ export class MenuComponent implements OnInit {
     }
 
     verificarSeAdmin(): void {
-        const roles = this.storage.getRoles();
+        const roles = this.authState.obterPapeis();
         this.isAdmin = roles.includes(Role.ADMIN);
     }
 
