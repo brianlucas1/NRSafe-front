@@ -1,6 +1,5 @@
 import { Component, Input, OnInit, Renderer2, ViewChild, OnDestroy } from '@angular/core';
 import { StandaloneImports } from '../../../util/standalone-imports';
-import { AuthStorageService } from '../../../../services/auth/auth-storage-service';
 import { AuthStateService } from '../../../../services/auth/auth-state.service';
 import { LayoutService } from '../layout.service';
 import { MenuComponent } from '../menu/menu.component';
@@ -30,7 +29,6 @@ export class CorpoComponent implements OnDestroy {
     @ViewChild(BarraSuperiorComponent) appTopBar!: BarraSuperiorComponent;
 
     constructor(
-        private authService: AuthStorageService,
         private authState: AuthStateService,
         private loadingService: LoadingService,
         private logger: LoggerService,

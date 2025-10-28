@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { StandaloneImports } from '../../../util/standalone-imports';
 import { LoginSerivce } from '../../../../services/login-service';
 import { MessageService } from 'primeng/api';
-import { AuthStorageService } from '../../../../services/auth/auth-storage-service';
 import { AuthStateService } from '../../../../services/auth/auth-state.service';
 import { LoggerService } from '../../../../services/logger.service';
 
@@ -27,7 +26,6 @@ export class ResetSenhaComponent implements OnInit {
     private fb: FormBuilder,
     private loginService: LoginSerivce,
     private msgService: MessageService,
-    private authStorage: AuthStorageService,
     private authState: AuthStateService,
     private logger: LoggerService,
     ) { }

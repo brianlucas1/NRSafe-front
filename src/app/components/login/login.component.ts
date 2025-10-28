@@ -9,7 +9,6 @@ import { RippleModule } from 'primeng/ripple';
 
 import { LoginRequest } from './login-request';
 import { AuthService } from '../../../services/auth/auth-service';
-import { AuthStorageService } from '../../../services/auth/auth-storage-service';
 import { AuthStateService } from '../../../services/auth/auth-state.service';
 import { LoggerService } from '../../../services/logger.service';
 import { LoginSerivce } from '../../../services/login-service';
@@ -32,7 +31,6 @@ export class LoginComponent  implements OnInit {
   constructor(
     private authService : AuthService,
     private service: MessageService,
-    private authStorageService: AuthStorageService,
     private authState: AuthStateService,
     private logger: LoggerService,
     private router: Router,

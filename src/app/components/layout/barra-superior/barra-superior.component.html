@@ -26,9 +26,13 @@
 
         <div class="layout-topbar-menu hidden lg:block">
             <div class="layout-topbar-menu-content">
+                <span class="layout-topbar-action rotulo-usuario-acao" aria-label="Usuário logado">
+                    <i class="pi pi-user mr-2"></i>
+                    <span class="rotulo-usuario">{{ (rotuloUsuario$ | async) || 'Usuário' }}</span>
+                </span>
                 <a [routerLink]="['/perfil']" class="layout-topbar-action" style="text-decoration: none;">
-                    <i class="pi pi-user"></i>
-                    <span>Profile</span>
+                    <i class="pi pi-cog"></i>
+                    <span>Perfil</span>
                 </a>
             </div>
         </div>

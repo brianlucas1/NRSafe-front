@@ -9,7 +9,6 @@ import { PlanoResponseDTO } from "../../../../models/response/plano-response-dto
 import { AssinaturaPlanoResumoDTO } from "../../../../models/dtos/assinatura-plano-resumo-dto";
 import { PlanoRecursoResponseDTO } from "../../../../models/response/recurso-response-dto";
 import { TrocaPlanoRequestDTO } from "../../dtos/troca-plano-request-dto";
-import { AuthStorageService } from "../../../../../services/auth/auth-storage-service";
 import { AuthStateService } from "../../../../../services/auth/auth-state.service";
 import { LoggerService } from "../../../../../services/logger.service";
 import { Role } from "../../../../models/enums/role-enum";
@@ -44,7 +43,6 @@ export class TrocarPlanoComponent {
 trackByRecursoId: TrackByFunction<PlanoRecursoResponseDTO> = (_: number, r) => r.id ?? r.chave;
 
   constructor(
-    private storage: AuthStorageService,
     private authState: AuthStateService,
     private logger: LoggerService,
     private planoService: PlanoService,

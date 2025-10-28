@@ -4,18 +4,16 @@ import { Router } from "@angular/router";
 import { Observable, throwError, switchMap, catchError, finalize } from "rxjs";
 import { LoadingService } from "../../app/util/loading-service";
 import { AuthService } from "./auth-service";
-import { AuthStorageService } from "./auth-storage-service";
 import { AuthStateService } from './auth-state.service';
 import { LoggerService } from '../logger.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   constructor(
-    private authStorage: AuthStorageService,
     private authState: AuthStateService,
     private authService: AuthService,
     private router: Router,
-    private loadingService: LoadingService, // Injeta o loading service
+    private loadingService: LoadingService, // Serviço de loading
     private logger: LoggerService
   ) {}
 
@@ -25,22 +23,15 @@ export class AuthInterceptor implements HttpInterceptor {
       return next.handle(req);
     }
 
-    this.loadingService.show(); 
+    this.loadingService.show();
 
     // Se o token está expirado, tenta fazer o refresh
     if (this.authState.tokenExpirado()) {
-      const refreshToken = this.authStorage.getRefreshToken();
-      if (!refreshToken) {
-        this.loadingService.hide(); // Sempre desativa o loading antes de sair
-        this.authStorage.clear();
-        this.router.navigate(['/login']);
-        return throwError(() => new Error('Refresh token ausente'));
-      }
-
       return this.authService.refreshToken().pipe(
         switchMap(() => {
           const newAccessToken = this.authState.obterTokenAcesso();
           const cloned = req.clone({
+            withCredentials: true,
             setHeaders: {
               Authorization: `Bearer ${newAccessToken}`
             }
@@ -49,7 +40,7 @@ export class AuthInterceptor implements HttpInterceptor {
         }),
         catchError(err => {
           this.logger.error('Falha ao atualizar token via refresh.', err);
-          this.authStorage.clear();
+          this.authState.limpar();
           this.router.navigate(['/login']);
           return throwError(() => err);
         }),
@@ -61,6 +52,7 @@ export class AuthInterceptor implements HttpInterceptor {
     const accessToken = this.authState.obterTokenAcesso();
     if (accessToken) {
       const authReq = req.clone({
+        withCredentials: true,
         setHeaders: {
           Authorization: `Bearer ${accessToken}`
         }
@@ -69,7 +61,7 @@ export class AuthInterceptor implements HttpInterceptor {
         catchError(err => {
           if (err.status === 401) {
             this.logger.warn('Requisição 401: limpando sessão e redirecionando para login.');
-            this.authStorage.clear();
+            this.authState.limpar();
             this.router.navigate(['/login']);
           }
           return throwError(() => err);
@@ -78,7 +70,8 @@ export class AuthInterceptor implements HttpInterceptor {
       );
     }
 
-    return next.handle(req).pipe(
+    // Sem token: ainda enviamos cookies (para permitir refresh-side em backends que validam sessão por cookie)
+    return next.handle(req.clone({ withCredentials: true })).pipe(
       finalize(() => this.loadingService.hide())
     );
   }

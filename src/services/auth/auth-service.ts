@@ -6,7 +6,6 @@ import { tap } from 'rxjs/operators';
 import { LoginRequest } from "../../app/components/login/login-request";
 import { JwtResponse } from "../../app/models/jwt-response";
 import { environment } from "../../environments/environment";
-import { AuthStorageService } from "./auth-storage-service";
 import { AuthStateService } from './auth-state.service';
 import { LoggerService } from '../logger.service';
 
@@ -16,23 +15,22 @@ import { LoggerService } from '../logger.service';
 
 export class AuthService {
 
-  constructor(private http: HttpClient, private storage: AuthStorageService, private authState: AuthStateService, private logger: LoggerService) { }
+  constructor(private http: HttpClient, private authState: AuthStateService, private logger: LoggerService) { }
 
 
-  // Login: delega persistência de sessão ao AuthStateService (memória + transição para storage legado)
+  // Login: delega persistência de sessão ao AuthStateService (memória). Cookies HttpOnly são enviados pelo navegador.
   login(loginRequest: LoginRequest): Observable<JwtResponse> {
     return this.http
-      .post<JwtResponse>(`${environment.url_back}auth`, loginRequest)
+      .post<JwtResponse>(`${environment.url_back}auth`, loginRequest, { withCredentials: true })
       .pipe(
         tap(res => this.armazenarTokens(res))
       );
   }
 
 
-  // Refresh: por enquanto ainda utiliza o refreshToken do storage legado
+  // Refresh: agora usa cookie HttpOnly no backend (sem enviar refreshToken no body)
   refreshToken(): Observable<JwtResponse> {
-    const refreshToken = this.storage.getRefreshToken();
-    return this.http.post<JwtResponse>(environment.url_back + 'auth/refresh', { refreshToken })
+    return this.http.post<JwtResponse>(environment.url_back + 'auth/refresh', {}, { withCredentials: true })
       .pipe(
         tap(res => this.armazenarTokens(res))
       );
