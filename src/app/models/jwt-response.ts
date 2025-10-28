@@ -1,8 +1,6 @@
-export interface  JwtResponse { 
-    accessToken?:string
-    refreshToken?:string
-    expiresIn?:number
-    roles?: string[]
-    idCliente:number
-    nomeCliente:string
+export interface JwtResponse {
+  accessToken?: string;
+  expiresIn?: number;
+  roles?: string[];
+  loggedUserLabel?: string;
 }

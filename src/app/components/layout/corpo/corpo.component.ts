@@ -1,12 +1,13 @@
 import { Component, Input, OnInit, Renderer2, ViewChild, OnDestroy } from '@angular/core';
 import { StandaloneImports } from '../../../util/standalone-imports';
-import { AuthStorageService } from '../../../../services/auth/auth-storage-service';
+import { AuthStateService } from '../../../../services/auth/auth-state.service';
 import { LayoutService } from '../layout.service';
 import { MenuComponent } from '../menu/menu.component';
 import { BarraSuperiorComponent } from '../barra-superior/barra-superior.component';
 import { filter, Subscription } from 'rxjs';
 import { NavigationEnd, Router } from '@angular/router';
 import { LoadingService } from '../../../util/loading-service';
+import { LoggerService } from '../../../../services/logger.service';
 
 @Component({
     selector: 'app-corpo',
@@ -28,8 +29,9 @@ export class CorpoComponent implements OnDestroy {
     @ViewChild(BarraSuperiorComponent) appTopBar!: BarraSuperiorComponent;
 
     constructor(
-        private authService: AuthStorageService,
+        private authState: AuthStateService,
         private loadingService: LoadingService,
+        private logger: LoggerService,
         public renderer: Renderer2,
         private layoutService: LayoutService,
         public router: Router
@@ -68,7 +70,7 @@ export class CorpoComponent implements OnDestroy {
 
 
     isLogado(): boolean {
-    return this.authService.isLoggedIn();
+    return this.authState.estaLogado();
 }
 
 
