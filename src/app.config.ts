@@ -1,5 +1,5 @@
 import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, APP_INITIALIZER } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
 import Aura from '@primeng/themes/aura';
@@ -7,6 +7,12 @@ import { providePrimeNG } from 'primeng/config';
 import { appRoutes } from './app.routes';
 import { all } from 'primelocale';
 import { AuthInterceptor } from './services/auth/auth-interceptor';
+import { AuthService } from './services/auth/auth-service';
+import { firstValueFrom } from 'rxjs';
+
+function initAuthFactory(auth: AuthService) {
+  return () => firstValueFrom(auth.refreshToken()).catch(() => null);
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,6 +29,12 @@ export const appConfig: ApplicationConfig = {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
+      multi: true
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initAuthFactory,
+      deps: [AuthService],
       multi: true
     },
     providePrimeNG({

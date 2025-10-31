@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { StandaloneImports } from '../../../util/standalone-imports';
 import { Router, RouterModule } from '@angular/router';
 import { ItemMenuComponent } from './item/item.component';
@@ -6,9 +6,7 @@ import { MenuItem } from 'primeng/api';
 import { AuthService } from '../../../../services/auth/auth-service';
 import { AuthStateService } from '../../../../services/auth/auth-state.service';
 import { LoggerService } from '../../../../services/logger.service';
-import { ClienteService } from '../../../../services/cliente-service';
-import { ClienteResponseDTO } from '../../../models/response/cliente-response-dto';
-import { firstValueFrom } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Role } from '../../../models/enums/role-enum';
 
 
@@ -18,54 +16,30 @@ import { Role } from '../../../models/enums/role-enum';
     imports: [StandaloneImports, RouterModule, ItemMenuComponent],
     templateUrl: './menu.component.html',
     styleUrl: './menu.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 
 })
 export class MenuComponent implements OnInit {
 
-    clienteLogado?: ClienteResponseDTO;
     isAdmin: boolean = false;
 
     constructor(
         private authService: AuthService,
         private authState: AuthStateService,
         private logger: LoggerService,
-        private clienteService: ClienteService,
         private router: Router
     ) { }
 
     model: MenuItem[] = [];
 
-    async buscaClienteLogado(): Promise<void> {
-        try {
-            this.clienteLogado = await firstValueFrom(this.clienteService.buscaClienteLogado());
-        } catch (err) {
-            // Erro ao buscar cliente logado
-        }
-    }
-
-    verificarSeAdmin(): void {
-        const roles = this.authState.obterPapeis();
-        this.isAdmin = roles.includes(Role.ADMIN);
-    }
-
-    async ngOnInit() {
-        // Verifica se é ADMIN
-        this.verificarSeAdmin();
-
-        // Só busca cliente se não for ADMIN
-        if (!this.isAdmin) {
-            await this.buscaClienteLogado();
-        }
-
-        // Cria o menu baseado no tipo de usuário
+    private criarModelo(rotuloUsuario?: string): void {
         if (this.isAdmin) {
-            // Menu para ADMIN: Início, Gerencial,
             this.model = [
                 {
                     label: 'Início',
                     icon: 'pi pi-fw pi-home',
                     items: [
-                        { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },                    
+                        { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },
                     ]
                 },
                 {
@@ -77,40 +51,56 @@ export class MenuComponent implements OnInit {
                 },
                 {
                     label: 'Suporte',
-                    icon: 'pi pi-cog',                   
+                    icon: 'pi pi-cog',
                 },
             ];
-        } else {
-            // Menu para outros usuários: Início, Cliente, Clientes (sem Gerencial)
-            this.model = [
-                {
-                    label: 'Início',
-                    icon: 'pi pi-fw pi-home',
-                    items: [
-                        { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },
-                        { label: 'Gestão de plano ação', icon: 'pi pi-chart-bar', routerLink: ['/plano-acao'] },
-                    ]
-                },
-                {
-                    label: this.clienteLogado?.razaoSocial ?? 'Cliente',
-                    icon: 'pi pi-briefcase',
-                    items: [
-                        { label: 'Colaboradores', icon: 'pi pi-user', routerLink: ['/funcionarios'] },
-                        { label: 'Check-list', icon: 'pi pi-clipboard', routerLink: ['/check-list'] },
-                    ]
-                },
-
-                {
-                    label: 'Clientes',
-                    icon: 'pi pi-building',
-                    items: [
-                        { label: 'Empresas', icon: 'pi pi-building', routerLink: ['/empresas'] },
-                        { label: 'Filiais', icon: 'pi pi-building-columns', routerLink: ['/filiais'] },
-                        { label: 'Sites', icon: 'pi pi-hammer', routerLink: ['/sites'] },
-                    ]
-                }
-            ];
+            return;
         }
+
+        const labelCliente = rotuloUsuario ?? 'Cliente';
+        this.model = [
+            {
+                label: 'Início',
+                icon: 'pi pi-fw pi-home',
+                items: [
+                    { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },
+                    { label: 'Gestão de plano ação', icon: 'pi pi-chart-bar', routerLink: ['/plano-acao'] },
+                ]
+            },
+            {
+                label: labelCliente,
+                icon: 'pi pi-briefcase',
+                items: [
+                    { label: 'Colaboradores', icon: 'pi pi-user', routerLink: ['/funcionarios'] },
+                    { label: 'Check-list', icon: 'pi pi-clipboard', routerLink: ['/check-list'] },
+                ]
+            },
+            {
+                label: 'Clientes',
+                icon: 'pi pi-building',
+                items: [
+                    { label: 'Empresas', icon: 'pi pi-building', routerLink: ['/empresas'] },
+                    { label: 'Filiais', icon: 'pi pi-building-columns', routerLink: ['/filiais'] },
+                    { label: 'Sites', icon: 'pi pi-hammer', routerLink: ['/sites'] },
+                ]
+            }
+        ];
+    }
+
+    private verificarSeAdmin(): void {
+        const roles = this.authState.obterPapeis();
+        this.isAdmin = roles.includes(Role.ADMIN);
+    }
+
+    ngOnInit(): void {
+        this.verificarSeAdmin();
+        // Primeiro desenho do menu
+        this.criarModelo(this.authState.obterRotuloUsuario() ?? undefined);
+        // Atualiza quando o rótulo mudar (ex.: após refresh inicial)
+        this.authState
+            .observarRotuloUsuario()
+            .pipe(takeUntilDestroyed())
+            .subscribe(rotulo => this.criarModelo(rotulo ?? undefined));
     }
 
     fazerLogout() {

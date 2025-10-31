@@ -57,12 +57,17 @@ export class LoginComponent  implements OnInit {
         await firstValueFrom(this.authService.login(loginRequest));
       });
       this.router.navigate(['/dashboard']);
-    } catch (erro) {
+    } catch (erro: any) {
       this.logger.error('Erro ao realizar login.', erro);
+      const status = erro?.status as number | undefined;
+      const payload = erro?.error;
+      const serverMsg = (typeof payload === 'string') ? payload : (payload?.message || payload?.detail || '');
+      const isDisabled = status === 423 || /disabled|inativo|inativado/i.test(String(serverMsg));
+
       this.service.add({
         severity: 'error',
         summary: 'Erro',
-        detail: 'Usuário ou senha inválidos'
+        detail: isDisabled ? 'Usuário inativado, contate o suporte.' : 'Usuário ou senha inválidos'
       });
     }
   }

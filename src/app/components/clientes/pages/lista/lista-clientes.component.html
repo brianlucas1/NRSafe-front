@@ -12,13 +12,15 @@
   #dt
   class="tabela-zebrada"
   [value]="listaClientes"
-  [rows]="10"
-  [columns]="cols" 
+  [lazy]="true"
+  (onLazyLoad)="onLazyLoad($event)"
+  [rows]="rows"
+  [totalRecords]="totalRecords"
   [paginator]="true"
   dataKey="id"
   [tableStyle]="{ 'min-width': '75rem' }"
   [rowsPerPageOptions]="[10, 20, 30]"
-  currentPageReportTemplate="Mostrando {first} de {last} total {totalRecords} clientes"
+  currentPageReportTemplate="Mostrando {first}–{last} de {totalRecords} clientes"
   [showCurrentPageReport]="true">
 
   <ng-template #caption>
@@ -31,7 +33,7 @@
     </div>
   </ng-template>
 
-  <ng-template #header>
+  <ng-template pTemplate="header">
     <tr>
 
       <th pSortableColumn="cnpj" style="min-width:16rem">
@@ -49,7 +51,7 @@
     </tr>
   </ng-template>
 
-  <ng-template #body let-cliente>
+  <ng-template pTemplate="body" let-cliente>
     <tr>
       <td style="min-width: 16rem">{{ cliente.cnpj }}</td>
       <td>{{ cliente.razaoSocial}}</td>
@@ -57,6 +59,12 @@
       <td>
         <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editarCliente(cliente)" />
       </td>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="4">Nenhum cliente encontrado.</td>
     </tr>
   </ng-template>
 

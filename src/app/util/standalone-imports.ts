@@ -30,6 +30,10 @@ import { DropdownModule } from "primeng/dropdown";
 import { BlockUIModule } from "primeng/blockui";
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { SkeletonModule } from 'primeng/skeleton';
+import { MessageModule } from 'primeng/message';
+import { TabViewModule } from 'primeng/tabview';
+import { InputSwitchModule } from 'primeng/inputswitch';
 
 import { TooltipModule } from "primeng/tooltip";
 
@@ -39,6 +43,10 @@ export const StandaloneImports = [
     BlockUIModule,
     CarouselModule,
     ProgressSpinnerModule,
+    SkeletonModule,
+    MessageModule,
+    TabViewModule,
+    InputSwitchModule,
     CardModule,
     FormsModule,
     TooltipModule,

@@ -12,8 +12,6 @@ export class AuthStateService {
   private readonly expiraEm$ = new BehaviorSubject<number>(0);
   private readonly rotuloUsuario$ = new BehaviorSubject<string | null>(null);
 
-  // Agora com refresh via cookie HttpOnly, não espelhamos mais no storage
-  private readonly espelharNoStorage: boolean = false;
 
   constructor(private readonly logger: LoggerService) {
     // Por ora, reidratamos do storage legado (até migrarmos refresh para cookie HttpOnly)

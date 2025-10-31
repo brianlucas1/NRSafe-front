@@ -1,11 +1,11 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { ClienteRequestDTO } from "../app/models/request/cliente-request-dto";
-import { ClienteResponseDTO } from "../app/models/response/cliente-response-dto";
 import { environment } from "../environments/environment";
 import { EmpresaResponseDTO } from "../app/models/response/empresa-reponse-dto";
 import { EmpresaRequestDTO } from "../app/models/request/empresa-request-dto";
+import { PageDTO } from "../app/models/dtos/page-dto";
+import { EmpresaClienteResumoDTO } from "../app/components/clientes/dtos/empresa-cliente-resumo-dto";
 
 @Injectable({
     providedIn: 'root',
@@ -23,6 +23,13 @@ export class EmpresaService {
 
     buscaTodasEmpresas(): Observable<EmpresaResponseDTO[]> {
         return this.http.get<EmpresaResponseDTO[]>(this.URL_API);
+    }
+
+    listarPorCliente(clienteId: number, page = 0, size = 10): Observable<PageDTO<EmpresaClienteResumoDTO>> {
+        return this.http.get<PageDTO<EmpresaClienteResumoDTO>>(
+            `${this.URL_API}/cliente/${clienteId}`,
+            { params: { page, size } as any }
+        );
     }
 
     inativarEmpresa(empresa: EmpresaRequestDTO){

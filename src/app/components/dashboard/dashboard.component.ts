@@ -6,6 +6,8 @@ import { EmpresaResponseDTO } from '../../models/response/empresa-reponse-dto';
 import { StandaloneImports } from '../../util/standalone-imports';
 import { firstValueFrom } from 'rxjs';
 import { GraficoImports } from '../../util/grafico-imports';
+import { AuthStateService } from '../../../services/auth/auth-state.service';
+import { Role } from '../../models/enums/role-enum';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,6 +20,7 @@ import { GraficoImports } from '../../util/grafico-imports';
 export class DashboardComponent implements OnInit {
 
   tituloDash = 'Visitas';
+  isAdmin = false;
 
   tipoConsultaOptions = [
     { label: 'Por Visita', value: 'V' },
@@ -33,12 +36,16 @@ export class DashboardComponent implements OnInit {
     private fb: FormBuilder,
     private empService: EmpresaService,
     private msgService: MessageService,
+    private authState: AuthStateService,
   ) { }
 
   async ngOnInit() {
+    this.isAdmin = this.authState.possuiPapel(Role.ADMIN);
     this.criaForm();
-    this.aplicarFiltros();
-    await this.carregaEmpresas();
+    if (!this.isAdmin) {
+      this.aplicarFiltros();
+      await this.carregaEmpresas();
+    }
   }
 
   criaForm() {

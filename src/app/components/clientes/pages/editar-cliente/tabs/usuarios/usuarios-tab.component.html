@@ -1,0 +1,32 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<p-table
+  [value]="usuarios"
+  [lazy]="true"
+  (onLazyLoad)="onLazyLoad($event)"
+  [paginator]="true"
+  [rows]="rows"
+  [totalRecords]="total"
+  [loading]="loading">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Nome</th>
+      <th style="width: 140px">Ativo</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-u>
+    <tr>
+      <td>{{ u.nome }}</td>
+      <td>
+        <p-inputSwitch [ngModel]="u.ativo" (onChange)="onToggle(u, $event)"></p-inputSwitch>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="2">Nenhum usuário encontrado.</td>
+    </tr>
+  </ng-template>
+</p-table>
+

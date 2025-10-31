@@ -1,4 +1,4 @@
-<div class="w-full">
+<div class="w-full" *ngIf="!isAdmin; else adminInfo">
   <form [formGroup]="filterForm">
     <p-toolbar styleClass="mb-6">
       <ng-template #start>
@@ -36,7 +36,11 @@
   </form>
 </div>
 
-<div  class="grid grid-cols-12 gap-8">
+<ng-template #adminInfo>
+  <p-message severity="info" text="Painel de gráficos não se aplica ao perfil ADMIN."></p-message>
+</ng-template>
+
+<div  class="grid grid-cols-12 gap-8" *ngIf="!isAdmin">
 
   <div class="col-span-12 xl:col-span-6">
     <!-- Gráfico de Torta -->
@@ -57,4 +61,4 @@
 </div>
 
 
-<app-dashboard-table  [filtros]="filtrosSelecionados"></app-dashboard-table>
+<app-dashboard-table  *ngIf="!isAdmin" [filtros]="filtrosSelecionados"></app-dashboard-table>

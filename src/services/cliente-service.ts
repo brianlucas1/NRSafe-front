@@ -4,6 +4,8 @@ import { environment } from "../environments/environment";
 import { Observable, tap } from "rxjs";
 import { ClienteRequestDTO } from "../app/models/request/cliente-request-dto";
 import { ClienteResponseDTO } from "../app/models/response/cliente-response-dto";
+import { PageDTO } from "../app/models/dtos/page-dto";
+import { ClienteListResponseDTO } from "../app/models/response/cliente-list-response-dto";
 
 @Injectable({
   providedIn: 'root',
@@ -18,12 +20,14 @@ export class ClienteService{
         return this.http.post(this.URL_API+'/cadastro', cliente ) 
      }
 
-     buscaTodosClientes(): Observable<ClienteResponseDTO[]>{
-      return this.http.get<ClienteResponseDTO[]>(this.URL_API);
+     // Lista paginada (novo endpoint)
+     buscaClientes(page = 0, size = 10): Observable<PageDTO<ClienteListResponseDTO>>{
+      return this.http.get<PageDTO<ClienteListResponseDTO>>(this.URL_API, { params: { page, size } as any });
      }
 
-     buscaClienteLogado():Observable<ClienteResponseDTO>{
-      return this.http.get<ClienteResponseDTO>(this.URL_API+'/logado');
+     // Legacy: manter assinatura antiga se houver outros usos
+     buscaTodosClientes(): Observable<ClienteResponseDTO[]>{
+      return this.http.get<ClienteResponseDTO[]>(this.URL_API);
      }
 
 }
