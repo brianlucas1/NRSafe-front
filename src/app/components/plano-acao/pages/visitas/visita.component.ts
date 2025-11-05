@@ -151,6 +151,7 @@ export class VisitasComponent implements OnInit {
   }
 
   async onLazyLoad(event: TableLazyLoadEvent) {
+    if (this.loading) return;
     this.lastLazyEvent = event;
     this.carregaPlanoAcao(event);
     this.carregarTotaisGerais();
@@ -199,26 +200,27 @@ export class VisitasComponent implements OnInit {
     const page = Math.floor((event.first ?? 0) / (event.rows ?? this.rows));
     const size = event.rows ?? this.rows;
 
-    this.sortField = Array.isArray(event.sortField)
+    const uiSortField = Array.isArray(event.sortField)
       ? event.sortField[0] ?? this.sortField
       : (event.sortField ?? this.sortField);
+    const effectiveSortField = this.mapSortField(uiSortField);
 
     const incoming = event.sortOrder ?? this.sortOrder; // pode vir null
-    if (incoming === 1 || incoming === -1) {
-      this.sortOrder = incoming;
-    }
+    const effectiveSortOrder: 1 | -1 = (incoming === 1 || incoming === -1) ? incoming : this.sortOrder;
 
     const filtros = {
       idEmpresa: form.empresaSelecionada ?? null,
-      dtInicio: form.dtInicio ? this.toStartOfDayIso(form.dtInicio) : null,
-      dtFim: form.dtFim ? this.toEndOfDayIso(form.dtFim) : null,
+      // Envia LocalDateTime no horário local (sem Z) compatível com Java LocalDateTime
+      dtInicio: form.dtInicio ? this.toLocalDate(form.dtInicio, false) : null,
+      dtFim: form.dtFim ? this.toLocalDate(form.dtFim, true) : null,
       tipoPlano: form.tipoPlano ?? null,
     };
 
     return {
       page,
       size,
-      sort: `${this.sortField},${this.sortOrder === 1 ? 'asc' : 'desc'}`,
+      // Usa valores efetivos sem mutar propriedades do template (evita onLazyLoad duplicado)
+      sort: `${effectiveSortField},${effectiveSortOrder === 1 ? 'asc' : 'desc'}`,
       ...filtros
     };
   }
@@ -235,13 +237,26 @@ export class VisitasComponent implements OnInit {
     }
   }
 
-  // normaliza datas p/ evitar perda por fuso/horário
-  private toStartOfDayIso(d: Date) {
-    const nd = new Date(d); nd.setHours(0, 0, 0, 0); return nd.toISOString();
+
+  // Mapeia nome do campo do UI -> backend
+  private mapSortField(field?: string): string {
+    const map: Record<string, string> = {
+      totalMulta: 'multa',
+      dtHrCriacao: 'dthrCriacao',
+      dthrAtualizacao: 'dthrAtualizacao'
+    };
+    if (!field) return 'dthrCriacao';
+    return map[field] ?? field;
   }
 
-  private toEndOfDayIso(d: Date) {
-    const nd = new Date(d); nd.setHours(23, 59, 59, 999); return nd.toISOString();
+  // LocalDateTime (sem timezone) para Java: YYYY-MM-DDTHH:mm:ss
+  private toLocalDate(d: Date, endOfDay: boolean): string {
+    const nd = new Date(d);
+    if (endOfDay) nd.setHours(23, 59, 59, 999); else nd.setHours(0, 0, 0, 0);
+    const y = nd.getFullYear();
+    const M = String(nd.getMonth() + 1).padStart(2, '0');
+    const day = String(nd.getDate()).padStart(2, '0');
+    return `${y}-${M}-${day}`;
   }
 
 }
