@@ -6,11 +6,11 @@
         <div class="flex items-center gap-2">
           <div>
             <label class="block font-bold mb-1">Por empresa</label>
-            <p-select [options]="listaEmpresas" 
+            <p-select [options]="empresas" 
              formControlName="empresaSelecionada"
              optionLabel="razaoSocial"
              optionValue="id" 
-             placeholder="{{ (listaEmpresas?.length ? 'Selecione a empresa' : 'Sem empresas disponíveis') }}"
+             placeholder="{{ (empresas?.length ? 'Selecione a empresa' : 'Sem empresas disponíveis') }}"
              [emptyMessage]="''"
              [emptyFilterMessage]="''">
             </p-select>
@@ -51,19 +51,19 @@
 </div>
 
 <p-table
-    [value]="listaPlanoAcao"
+    [value]="planos"
     [lazy]="true"
     (onLazyLoad)="onLazyLoad($event)"
     [paginator]="true"
-    [rows]="rows"
-    [totalRecords]="totalRecords"
-    [loading]="loading"
-    [rowsPerPageOptions]="[10,20,30]"
-    [sortField]="sortField"
-    [sortOrder]="sortOrder"
+    [rows]="linhasPorPagina"
+    [totalRecords]="totalRegistros"
+    [loading]="carregando"
+    [rowsPerPageOptions]="[50,100]"
+    [sortField]="campoOrdenacao"
+    [sortOrder]="ordem"
     [responsiveLayout]="'scroll'"
     [scrollable]="true"
-    currentPageReportTemplate="Mostrando {first}–{last} de {totalRecords}"
+    currentPageReportTemplate="Mostrando {first}–{last} de {totalRegistros}"
     [showCurrentPageReport]="true"
     styleClass="w-full tabela-zebrada">
 

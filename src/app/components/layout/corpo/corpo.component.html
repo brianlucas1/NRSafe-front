@@ -5,7 +5,7 @@
   </div>
 </p-blockUI>
 
-<div *ngIf="isLogado(); else loginLayout" class="layout-wrapper" [ngClass]="containerClass">
+<div *ngIf="isLogado$ | async; else loginLayout" class="layout-wrapper" [ngClass]="containerClass">
   <app-menu></app-menu>
   <app-barra-superior></app-barra-superior>
 

@@ -7,7 +7,6 @@ import { AuthService } from '../../../../services/auth/auth-service';
 import { AuthStateService } from '../../../../services/auth/auth-state.service';
 import { LoggerService } from '../../../../services/logger.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Role } from '../../../models/enums/role-enum';
 
 
 @Component({
@@ -88,8 +87,7 @@ export class MenuComponent implements OnInit {
     }
 
     private verificarSeAdmin(): void {
-        const roles = this.authState.obterPapeis();
-        this.isAdmin = roles.includes(Role.ADMIN);
+        this.isAdmin = this.authState.isSuporte();
     }
 
     ngOnInit(): void {

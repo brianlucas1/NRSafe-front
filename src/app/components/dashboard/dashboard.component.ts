@@ -7,7 +7,8 @@ import { StandaloneImports } from '../../util/standalone-imports';
 import { firstValueFrom } from 'rxjs';
 import { GraficoImports } from '../../util/grafico-imports';
 import { AuthStateService } from '../../../services/auth/auth-state.service';
-import { Role } from '../../models/enums/role-enum';
+import { DashBoardService } from '../../../services/dash-board-service';
+import { ResumoDashboardDTO } from '../../models/dtos/resumo-dashboard-dto';
 
 @Component({
   selector: 'app-dashboard',
@@ -32,15 +33,19 @@ export class DashboardComponent implements OnInit {
 
   filtrosSelecionados: any = null;
 
+  resumo!: ResumoDashboardDTO;
+
+
   constructor(
     private fb: FormBuilder,
     private empService: EmpresaService,
     private msgService: MessageService,
     private authState: AuthStateService,
+    private dashService: DashBoardService,
   ) { }
 
   async ngOnInit() {
-    this.isAdmin = this.authState.possuiPapel(Role.ADMIN);
+    this.isAdmin = this.authState.isSuporte();
     this.criaForm();
     if (!this.isAdmin) {
       this.aplicarFiltros();
@@ -88,6 +93,7 @@ export class DashboardComponent implements OnInit {
       dtFim: form.dtFim ? form.dtFim.toISOString() : null
     };
     this.filtrosSelecionados = filtros;
+    this.carregaResumo();
   }
 
   getTituloDash() {
@@ -97,5 +103,20 @@ export class DashboardComponent implements OnInit {
       this.tituloDash = 'Visitas';
     }
     return this.tituloDash;
+  }
+
+  private carregaResumo() {
+    if (!this.filtrosSelecionados) {
+      return;
+    }
+    this.dashService.buscaResumoFinanceiroPorFiltro({
+      ...this.filtrosSelecionados,
+      tipoConsulta: this.filterForm.value?.tipoConsulta ?? null
+    }).subscribe({
+      next: (res) => this.resumo = res,
+      error: (err) => {
+        console.error('Erro ao carregar resumo:', err);
+      }
+    });
   }
 }

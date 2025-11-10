@@ -11,7 +11,6 @@ import { PlanoRecursoResponseDTO } from "../../../../models/response/recurso-res
 import { TrocaPlanoRequestDTO } from "../../dtos/troca-plano-request-dto";
 import { AuthStateService } from "../../../../../services/auth/auth-state.service";
 import { LoggerService } from "../../../../../services/logger.service";
-import { Role } from "../../../../models/enums/role-enum";
 
 @Component({
     selector: 'app-troca-plano',
@@ -57,8 +56,7 @@ trackByRecursoId: TrackByFunction<PlanoRecursoResponseDTO> = (_: number, r) => r
 
 
    verificarSeAdmin(): void {
-          const roles = this.authState.obterPapeis();
-          this.isAdmin = roles.includes(Role.ADMIN);
+          this.isAdmin = this.authState.isSuporte();
       }
 
   private carregarDados() {

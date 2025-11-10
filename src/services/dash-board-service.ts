@@ -7,6 +7,7 @@ import { VisitaGraficoDashDTO } from "../app/models/dtos/visita-grafico-dash-dto
 import { DadosTabelaVisitaDTO } from "../app/models/dtos/visita-grafico-empresa-dto";
 import { GraficoTortaInspecaoDTO } from "../app/models/dtos/inspecao-grafico-dto";
 import { InspecaoGraficoDashDTO } from "../app/models/dtos/inspecao-grafico-dash-dto";
+import { ResumoDashboardDTO } from "../app/models/dtos/resumo-dashboard-dto";
 
 @Injectable({
   providedIn: 'root',
@@ -126,5 +127,25 @@ export class DashBoardService {
     if (filtros.dtInicio) params = params.set('dtInicio', filtros.dtInicio);
     if (filtros.dtFim) params = params.set('dtFim', filtros.dtFim);
     return this.http.get<DadosTabelaVisitaDTO[]>(`${this.URL_API}/inspecao-tabela-filtro`, { params });
+  }
+
+  buscaResumoFinanceiroPorFiltro(filtros: {
+    idFilial?: number;
+    idSite?: number;
+    idEmpresa?: number;
+    dtInicio?: string;
+    dtFim?: string;
+    tipoConsulta?: string | null;
+  }): Observable<ResumoDashboardDTO> {
+    let params = new HttpParams();
+
+    if (filtros.idEmpresa != null) params = params.set('idEmpresa', filtros.idEmpresa.toString());
+    if (filtros.idFilial != null) params = params.set('idFilial', filtros.idFilial.toString());
+    if (filtros.idSite != null) params = params.set('idSite', filtros.idSite.toString());
+    if (filtros.dtInicio) params = params.set('dtInicio', filtros.dtInicio);
+    if (filtros.dtFim) params = params.set('dtFim', filtros.dtFim);
+    if (filtros.tipoConsulta != null) params = params.set('tipoPlano', String(filtros.tipoConsulta));
+
+    return this.http.get<ResumoDashboardDTO>(`${this.URL_API}/resumo-filtro`, { params });
   }
 }

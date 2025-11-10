@@ -13,6 +13,8 @@ import { AtualizaSubitemRequestDTO } from '../../dtos/request/atualiza-sub-item-
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { PlanoAcaoContextService } from '../../services/plano-acao-context';
 import { Router } from '@angular/router';
+import { ArquivoDownloadService } from '../../../../util/arquivo-download';
+import { formataDataDiaMesAno } from '../../../../util/data-java';
 
 @Component({
   selector: 'app-inspecoes',
@@ -58,7 +60,8 @@ export class InspecoesComponent implements OnInit {
     private ctx: PlanoAcaoContextService,
     private confirmationService: ConfirmationService,
     private msgService: MessageService,
-    private planoAcaoService: PlanoAcaoService) {
+    private planoAcaoService: PlanoAcaoService,
+    private arquivoDownload: ArquivoDownloadService) {
   }
 
   async ngOnInit(): Promise<void> {
@@ -138,22 +141,14 @@ export class InspecoesComponent implements OnInit {
 
     this.planoAcaoService.exportarCsvCompletoItens(listaIdPlanoAcaoInspecao)
       .subscribe(blob => {
-        // Cria URL para download
-        const url = window.URL.createObjectURL(blob);
-        // Cria link temporário
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'plano_acao_normas.xlsx'; // ou .csv se backend retornar CSV
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
+        this.arquivoDownload.baixar(blob, 'plano_acao_normas.xlsx');
       }, err => {
         this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao exportar arquivo!' })
       });
   }
 
   async onLazyLoad(event: TableLazyLoadEvent) {
+    if (this.loading) return; // evita chamadas duplicadas enquanto carrega
     this.lastLazyEvent = event;
     await this.carregaPlanoAcaoSubItensNormas(event);
     this.carregarTotaisGerais();
@@ -244,20 +239,30 @@ export class InspecoesComponent implements OnInit {
 
     return {
       page, size,
-      sort: `${this.sortField},${this.sortOrder === 1 ? 'asc' : 'desc'}`,
+      sort: `${this.mapSortField(this.sortField)},${this.sortOrder === 1 ? 'asc' : 'desc'}`,
       normaId: form.normaSelecionada ?? null,
-      dtInicio: form.dtInicio ? this.toStartOfDayIso(form.dtInicio) : null,
-      dtFim: form.dtFim ? this.toEndOfDayIso(form.dtFim) : null
+      dtInicio: form.dtInicio ? formataDataDiaMesAno(form.dtInicio, false) : null,
+      dtFim: form.dtFim ? formataDataDiaMesAno(form.dtFim, true) : null
     };
   }
 
-  // normaliza datas p/ UTC ISO e evita perdas por fuso
-  private toStartOfDayIso(d: Date) {
-    const nd = new Date(d); nd.setHours(0, 0, 0, 0); return nd.toISOString();
+  private mapSortField(field?: string): string {
+    if (!field) return this.sortField;
+    const map: Record<string, string> = {
+      totalMulta: 'multa',
+      totalInvestimento: 'investimento',
+      descricao: 'descSubItem',
+      // demais campos iguais ao backend
+      planoAcao: 'planoAcao',
+      responsavel: 'responsavel',
+      previsao: 'previsao',
+      status: 'status',
+      norma: 'norma'
+    };
+    return map[field] ?? field;
   }
-  private toEndOfDayIso(d: Date) {
-    const nd = new Date(d); nd.setHours(23, 59, 59, 999); return nd.toISOString();
-  }
+
+  // datas agora centralizadas em util/data-java.ts
 
   private carregarTotaisGerais() {
     if (this.listaPlanoAcaoSubItems != null) {

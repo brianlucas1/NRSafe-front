@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map, distinctUntilChanged } from 'rxjs';
 import { JwtResponse } from '../../app/models/jwt-response';
-import { Role } from '../../app/models/enums/role-enum';
 import { LoggerService } from '../logger.service';
 
 @Injectable({ providedIn: 'root' })
@@ -49,13 +48,29 @@ export class AuthStateService {
     return !!token && Date.now() < exp;
   }
 
+  observarAutenticado(): Observable<boolean> {
+    // Observa mudanças de token/expiração e emite status de autenticação
+    return combineLatest([
+      this.tokenAcesso$.asObservable(),
+      this.expiraEm$.asObservable()
+    ]).pipe(
+      map(([token, exp]) => !!token && Date.now() < exp),
+      distinctUntilChanged()
+    );
+  }
+
   tokenExpirado(): boolean {
      return !this.obterTokenAcesso() || Date.now() > this.obterInstanteExpiracao();
      }
 
-  possuiPapel(papel: Role): boolean { 
+  possuiPapel(papel: string): boolean { 
     return (this.obterPapeis() || []).includes(papel);
-   }
+  }
+
+  isSuporte(): boolean {
+    const rotulo = this.obterRotuloUsuario();
+    return (rotulo || '').toUpperCase() === 'SUPORTE';
+  }
 
   // Escritas
   definirSessaoAPartirDoJwt(resposta: JwtResponse): void {

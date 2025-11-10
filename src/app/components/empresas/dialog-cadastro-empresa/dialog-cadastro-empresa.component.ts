@@ -53,7 +53,7 @@ ngOnChanges(changes: SimpleChanges): void {
       nomeFantasia: [this.empresaSelecionada?.nomeFantasia,],
       email: [this.empresaSelecionada?.email, [Validators.email]],
       telefone: [this.empresaSelecionada?.telefone ],
-     logradouro: [{ value: this.empresaSelecionada?.enderecoDTO?.logradouro, disabled: true }],
+      logradouro: [{ value: this.empresaSelecionada?.enderecoDTO?.logradouro, disabled: true }],
       bairro: [{value : this.empresaSelecionada?.enderecoDTO?.bairro, disabled: true } ],
       numero: [ this.empresaSelecionada?.enderecoDTO?.numero],
       complemento: [ this.empresaSelecionada?.enderecoDTO?.complemento],

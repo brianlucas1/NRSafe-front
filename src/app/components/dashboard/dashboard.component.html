@@ -40,8 +40,30 @@
   <p-message severity="info" text="Painel de gráficos não se aplica ao perfil ADMIN."></p-message>
 </ng-template>
 
-<div  class="grid grid-cols-12 gap-8" *ngIf="!isAdmin">
+ <div class="cards grid"  *ngIf="!isAdmin">
+      <div class="col-9 md:col-3">
+        <div class="card-info">
+          <div class="card-label"><strong>Perguntas respondidas</strong></div>
+          <div class="card-value text-primary">{{ resumo.totalPerguntasRespondidas || 0 }}</div>
+        </div>
+      </div>
+      <div class="col-12 md:col-3">
+        <div class="card-info">
+          <div class="card-label"> <strong>Valor total de multas</strong></div>
+          <div class="card-value text-primary">{{ resumo.totalMulta | currency:'BRL':'symbol':'1.2-2' }}</div>
+        </div>
+      </div>
+      <div class="col-12 md:col-3">
+        <div class="card-info">
+          <div class="card-label"><strong>Valor total de investimento</strong></div>
+          <div class="card-value text-primary">{{ resumo.totalInvestimento | currency:'BRL':'symbol':'1.2-2' }}</div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <br>
 
+<div  class="grid grid-cols-12 gap-8" *ngIf="!isAdmin">
   <div class="col-span-12 xl:col-span-6">
     <!-- Gráfico de Torta -->
     <div class="card flex flex-col items-center p-4">

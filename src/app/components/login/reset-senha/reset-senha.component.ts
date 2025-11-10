@@ -22,8 +22,7 @@ export class ResetSenhaComponent implements OnInit {
   resetSenhaForm!: FormGroup;
 
   constructor(private route: ActivatedRoute,
-    private router:Router,
-    private fb: FormBuilder,
+        private fb: FormBuilder,
     private loginService: LoginSerivce,
     private msgService: MessageService,
     private authState: AuthStateService,
@@ -58,7 +57,8 @@ export class ResetSenhaComponent implements OnInit {
     const redefinirSenhaDTO = {
       email: this.resetSenhaForm.value.email,
       token: this.token,
-      novaSenha: this.resetSenhaForm.value.novaSenha
+      novaSenha: this.resetSenhaForm.value.novaSenha,
+      confirmaSenha: this.resetSenhaForm.value.confirmarSenha
     };
 
     try {

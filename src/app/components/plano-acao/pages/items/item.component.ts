@@ -16,6 +16,7 @@ import { AssinaturaPlanoAcaoRequestDTO } from '../../dtos/request/assinatura-pln
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { PlanoAcaoContextService } from '../../services/plano-acao-context';
 import { PlanoAcaoItemResponseDTO } from '../../dtos/plano-acao-item-reponse-dto';
+import { ArquivoDownloadService } from '../../../../util/arquivo-download';
 
 
 @Component({
@@ -75,6 +76,7 @@ export class ItemComponent implements OnInit {
     private location: Location,
     private ctx: PlanoAcaoContextService,
     private planoAcaoService: PlanoAcaoService,
+    private arquivoDownload: ArquivoDownloadService,
   ) { }
 
   async ngOnInit(): Promise<void> {
@@ -151,16 +153,7 @@ export class ItemComponent implements OnInit {
 
     this.planoAcaoService.exportarCsvNormasCompleto(listaIdPlanoAcaoNorma)
       .subscribe(blob => {
-        // Cria URL para download
-        const url = window.URL.createObjectURL(blob);
-        // Cria link temporário
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'plano_acao_normas.xlsx'; // ou .csv se backend retornar CSV
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
+        this.arquivoDownload.baixar(blob, 'plano_acao_normas.xlsx');
       }, err => {
         this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao exportar arquivo!' })
       });
@@ -170,16 +163,7 @@ export class ItemComponent implements OnInit {
   exportarNormasComItens(idPlanoAcaoNorma: number) {
     this.planoAcaoService.exportarCsvNormasComInspecao(idPlanoAcaoNorma)
       .subscribe(blob => {
-        // Cria URL para download
-        const url = window.URL.createObjectURL(blob);
-        // Cria link temporário
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'plano_acao_normas.xlsx'; // ou .csv se backend retornar CSV
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
+        this.arquivoDownload.baixar(blob, 'plano_acao_normas.xlsx');
       }, err => {
         this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao exportar arquivo!' })
       });

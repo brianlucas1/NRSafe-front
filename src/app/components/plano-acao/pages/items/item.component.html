@@ -43,7 +43,7 @@
 
 <div>
   <p-table [value]="listaPlanoAcaoNormas" [lazy]="true" (onLazyLoad)="onLazyLoad($event)" [paginator]="true"
-    [rows]="rows" [totalRecords]="totalRecords" [loading]="loading" [rowsPerPageOptions]="[10,20,30]"
+    [rows]="rows" [totalRecords]="totalRecords" [loading]="loading" [rowsPerPageOptions]="[50,100]"
     [sortField]="sortField" [sortOrder]="sortOrder" [responsiveLayout]="'scroll'" [scrollable]="true"
     currentPageReportTemplate="Mostrando {first}–{last} de {totalRecords}" [showCurrentPageReport]="true"
     styleClass="w-full tabela-zebrada">

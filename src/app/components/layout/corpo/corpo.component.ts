@@ -16,9 +16,10 @@ import { LoggerService } from '../../../../services/logger.service';
     templateUrl: './corpo.component.html',
     styleUrl: './corpo.component.scss'
 })
-export class CorpoComponent implements OnDestroy {
+export class CorpoComponent implements OnDestroy, OnInit {
 
      isLoading$: any;
+     isLogado$: any;
 
 
     overlayMenuOpenSubscription: Subscription;
@@ -37,6 +38,7 @@ export class CorpoComponent implements OnDestroy {
         public router: Router
     ) {
         this.isLoading$ = this.loadingService.loading$;
+        this.isLogado$ = this.authState.observarAutenticado();
 
         this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
             if (!this.menuOutsideClickListener) {
@@ -57,6 +59,8 @@ export class CorpoComponent implements OnDestroy {
         });
     }
 
+    ngOnInit(): void {}
+
 
     get containerClass() {
         return {
@@ -67,11 +71,6 @@ export class CorpoComponent implements OnDestroy {
             'layout-mobile-active': this.layoutService.layoutState().staticMenuMobileActive
         };
     }
-
-
-    isLogado(): boolean {
-    return this.authState.estaLogado();
-}
 
 
     isOutsideClicked(event: MouseEvent) {

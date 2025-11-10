@@ -23,17 +23,17 @@
             <p-datepicker formControlName="dtFim" showIcon iconDisplay="input" dateFormat="dd/mm/yy" />
           </div>
           <div class="flex-4" style="margin-top: 20px;">
-            <p-button label="Consultar" (onClick)="aplicarFiltros()" />
+            <p-button type="button" label="Consultar" (onClick)="aplicarFiltros()" />
           </div>
           <div class="flex-4" style="margin-top: 20px;">
-            <p-button label="Limpar filtros" (onClick)="limparFiltro()" />
+            <p-button type="button" label="Limpar filtros" (onClick)="limparFiltro()" />
           </div>
           <div class="flex-4" style="margin-top: 20px;">
-            <p-button icon="pi pi-save" [loading]="saving" [disabled]="planoConcluido" label="Salvar alterações" (onClick)="salvarAlteracoes()" />
+            <p-button type="button" icon="pi pi-save" [loading]="saving" [disabled]="planoConcluido" label="Salvar alterações" (onClick)="salvarAlteracoes()" />
           </div>
 
           <div class="flex-4" style="margin-top: 20px;">
-            <p-button label="Exportar CSV" (onClick)="exportarCsvItensCompleto()" />
+            <p-button type="button" label="Exportar CSV" (onClick)="exportarCsvItensCompleto()" />
           </div>
 
         </div>
@@ -44,7 +44,7 @@
 
 
 <p-table [value]="listaPlanoAcaoSubItems" [lazy]="true" (onLazyLoad)="onLazyLoad($event)" [paginator]="true"
-  [rows]="rows" [totalRecords]="totalRecords" [loading]="loading" [rowsPerPageOptions]="[10,20,30]"
+  [rows]="rows" [totalRecords]="totalRecords" [loading]="loading" [rowsPerPageOptions]="[50,100]"
   [sortField]="sortField" [sortOrder]="sortOrder" [responsiveLayout]="'scroll'" [scrollable]="true"
   currentPageReportTemplate="Mostrando {first}–{last} de {totalRecords}" [showCurrentPageReport]="true"
   styleClass="w-full tabela-zebrada">
@@ -60,11 +60,11 @@
       <th pSortableColumn="norma" class="min-w-[120px]">
         Item <p-sortIcon field="norma"></p-sortIcon>
       </th>
-      <th pSortableColumn="descricao" class="min-w-[50px]">
-        Descricao <p-sortIcon field="descricao"></p-sortIcon>
-      </th>     
-      <th pSortableColumn="planoAcao" class="min-w-[120px]">
-        Proposta de melhoria <p-sortIcon field="planoAcao"></p-sortIcon>
+      <th class="min-w-[50px]">
+        Descrição 
+      </th>
+      <th  class="min-w-[120px]">
+        Proposta de melhoria 
       </th>
       <th pSortableColumn="totalMulta" class="min-w-[120px] text-right">
         Multa <p-sortIcon field="totalMulta"></p-sortIcon>
@@ -72,11 +72,11 @@
       <th pSortableColumn="totalInvestimento" class="min-w-[150px] text-right">
         Investimento <p-sortIcon field="totalInvestimento"></p-sortIcon>
       </th>
-      <th pSortableColumn="responsavel" class="min-w-[120px]">
-        Responsável <p-sortIcon field="responsavel"></p-sortIcon>
-      </th>      
+      <th  class="min-w-[120px]">
+        Responsável 
+      </th>
       <th pSortableColumn="previsao" class="min-w-[180px]">
-        Previsão<p-sortIcon field="previsao"></p-sortIcon>
+        Previsão <p-sortIcon field="previsao"></p-sortIcon>
       </th>
        <th pSortableColumn="status" class="min-w-[120px]">
         Status <p-sortIcon field="status"></p-sortIcon>
