@@ -1,5 +1,5 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, computed, inject, PLATFORM_ID, signal } from '@angular/core';
+import { Component, computed, inject, PLATFORM_ID, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { $t, updatePreset, updateSurfacePalette } from '@primeng/themes';
@@ -40,6 +40,7 @@ declare type SurfacesType = {
     selector: 'app-configurator',
     standalone: true,
     imports: [CommonModule, FormsModule, SelectButtonModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="flex flex-col gap-4">
             <div>

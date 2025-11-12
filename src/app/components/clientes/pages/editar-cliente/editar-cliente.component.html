@@ -1,0 +1,67 @@
+
+
+<ng-container *ngIf="vm$ | async as vm">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+  <p-skeleton *ngIf="vm.carregando" height="2rem" styleClass="mb-3"></p-skeleton>
+  <p-message *ngIf="vm.erro" severity="error" [text]="vm.erro"></p-message>
+
+  <ng-container *ngIf="!vm.carregando && vm.detalhes as d">
+    <div class="content-card surface-card border-1 surface-border border-round p-4">
+    <div class="page-header">
+      <h2 class="titulo">Editar Cliente</h2>
+      <h3 class="subtitulo">{{ d.cliente.razaoSocial }}</h3>
+      <div class="identificador">{{ d.cliente.cnpj }}</div>
+    </div>
+
+    <div class="cards grid">
+      <div class="col-12 md:col-3">
+        <div class="card-info">
+          <div class="card-label">Usuários cadastrados</div>
+          <div class="card-value text-primary">{{ d.quantidadeUsuarios }}</div>
+        </div>
+      </div>
+      <div class="col-12 md:col-3">
+        <div class="card-info">
+          <div class="card-label">Plano</div>
+          <div class="card-value text-primary">{{ d.planoAtual?.planoNome || '-' }}</div>
+        </div>
+      </div>
+      <div class="col-12 md:col-3">
+        <div class="card-info">
+          <div class="card-label">Licenças disponíveis</div>
+          <div class="card-value text-primary">{{ d.licencas?.disponiveis ?? '-' }}</div>
+        </div>
+      </div>
+      <div class="col-12 md:col-3">
+        <div class="card-info">
+          <div class="card-label">Empresas cadastradas</div>
+          <div class="card-value text-primary">{{ d.quantidadeEmpresas }}</div>
+        </div>
+      </div>
+    </div>
+<br>
+<br>
+<hr>
+    <p-tabView [(activeIndex)]="activeIndex">
+
+      <p-tabPanel header="Funcionários">
+        <app-clientes-funcionarios-tab *ngIf="activeIndex === 0" [clienteId]="clienteId" (atualizado)="onFilhoAtualizou()"></app-clientes-funcionarios-tab>
+      </p-tabPanel>
+
+      <p-tabPanel header="Empresas">
+        <app-clientes-empresas-tab *ngIf="activeIndex === 1" [clienteId]="clienteId" (atualizado)="onFilhoAtualizou()"></app-clientes-empresas-tab>
+      </p-tabPanel>
+
+      <p-tabPanel header="Plano">
+        <app-clientes-plano-tab *ngIf="activeIndex === 2" [clienteId]="clienteId"></app-clientes-plano-tab>
+      </p-tabPanel>
+
+      <p-tabPanel header="Histórico">
+        <app-clientes-historico-tab *ngIf="activeIndex === 3" [clienteId]="clienteId"></app-clientes-historico-tab>
+      </p-tabPanel>
+      
+    </p-tabView>
+    </div>
+  </ng-container>
+</ng-container>

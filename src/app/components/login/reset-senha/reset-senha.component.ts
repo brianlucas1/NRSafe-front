@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StandaloneImports } from '../../../util/standalone-imports';
 import { LoginSerivce } from '../../../../services/login-service';
 import { MessageService } from 'primeng/api';
-import { AuthStorageService } from '../../../../services/auth/auth-storage-service';
+import { AuthStateService } from '../../../../services/auth/auth-state.service';
+import { LoggerService } from '../../../../services/logger.service';
 
 @Component({
   selector: 'app-reset-senha',
@@ -12,7 +13,8 @@ import { AuthStorageService } from '../../../../services/auth/auth-storage-servi
   standalone: true,
   providers: [MessageService],
   templateUrl: './reset-senha.component.html',
-  styleUrl: './reset-senha.component.scss'
+  styleUrl: './reset-senha.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResetSenhaComponent implements OnInit {
 
@@ -20,11 +22,11 @@ export class ResetSenhaComponent implements OnInit {
   resetSenhaForm!: FormGroup;
 
   constructor(private route: ActivatedRoute,
-     private router:Router,
-     private fb: FormBuilder,
-     private loginService: LoginSerivce,
+        private fb: FormBuilder,
+    private loginService: LoginSerivce,
     private msgService: MessageService,
-    private authStorage: AuthStorageService,
+    private authState: AuthStateService,
+    private logger: LoggerService,
     ) { }
 
   ngOnInit(): void {
@@ -32,7 +34,7 @@ export class ResetSenhaComponent implements OnInit {
       this.token = params['token'];
     });
 
-    this.authStorage.clear();
+    this.authState.limpar();
     
     this.resetSenhaForm = this.fb.group({
       email: ['', [Validators.required,Validators.email]],
@@ -47,27 +49,28 @@ export class ResetSenhaComponent implements OnInit {
     return senha === confirmar ? null : { senhasDiferentes: true };
   }
 
-  cadastraNovaSenha() {
+  async cadastraNovaSenha(): Promise<void> {
     if (this.resetSenhaForm.invalid) {
       this.resetSenhaForm.markAllAsTouched();
       return;
     }
-     const redefinirSenhaDTO = {
-      email:  this.resetSenhaForm.value.email,
+    const redefinirSenhaDTO = {
+      email: this.resetSenhaForm.value.email,
       token: this.token,
-      novaSenha: this.resetSenhaForm.value.novaSenha
+      novaSenha: this.resetSenhaForm.value.novaSenha,
+      confirmaSenha: this.resetSenhaForm.value.confirmarSenha
     };
 
-    this.loginService.resetaSenha(redefinirSenhaDTO)
-    .subscribe({
-        next: res =>{
-        this.msgService.add({ severity: 'success', summary: 'Sucesso!', detail: res.msg });
-        this.resetSenhaForm.reset();
-        },
-        error: error => {
-           this.msgService.add({ severity: 'success', summary: 'Erro !', detail: error });
-        }
-      })
+    try {
+      await import('rxjs').then(async ({ firstValueFrom }) => {
+        await firstValueFrom(this.loginService.resetaSenha(redefinirSenhaDTO));
+      });
+      this.msgService.add({ severity: 'success', summary: 'Sucesso!', detail: 'Senha alterada com sucesso.' });
+      this.resetSenhaForm.reset();
+    } catch (erro) {
+      this.logger.error('Erro ao cadastrar nova senha.', erro);
+      this.msgService.add({ severity: 'error', summary: 'Erro!', detail: 'Não foi possível redefinir a senha.' });
+    }
   }
 
 }

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { SiteService } from '../../../../services/site-service';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { CorporativoService } from '../../../../services/corporativo-service';
 import { Endereco } from '../../../models/endereco';
@@ -11,6 +11,8 @@ import { cnpjValido } from '../../../util/cnpj-validator';
 import { SiteRequestDTO } from '../../../models/request/site-request-dto';
 import { SiteResponseDTO } from '../../../models/response/site-reponse-dto';
 import { FilialResponseDTO } from '../../../models/response/filial-reponse-dto';
+import { EmpresaService } from '../../../../services/empresa-service';
+import { EmpresaResponseDTO } from '../../../models/response/empresa-reponse-dto';
 
 @Component({
   selector: 'app-dialog-cadastro-sites',
@@ -20,18 +22,28 @@ import { FilialResponseDTO } from '../../../models/response/filial-reponse-dto';
   templateUrl: './dialog-cadastro-sites.component.html',
   styleUrl: './dialog-cadastro-sites.component.scss'
 })
-export class DialogCadastroSitesComponent implements OnChanges{
+export class DialogCadastroSitesComponent implements OnChanges {
 
-  @Input()  siteSelecionado?:SiteResponseDTO;  
+  @Input() siteSelecionado?: SiteResponseDTO;
   @Input() visible: boolean = false;
   @Output() fechar = new EventEmitter<void>();
 
   listaFiliais: FilialResponseDTO[] = [];
+  listaEmpresas: EmpresaResponseDTO[] = [];
+
+  listaFiliaisOptions: any[] = [];
+  listaEmpresasOptions: any[] = [];
+
+  filialDisabled = false;
+  empresaDisabled = false;
+
+  isSaving = false;
 
   siteForm!: FormGroup;
   cepConsultado?: Endereco
 
   constructor(private fb: FormBuilder,
+    private empService: EmpresaService,
     private msgService: MessageService,
     private filialService: FilialService,
     private siteService: SiteService,
@@ -39,93 +51,203 @@ export class DialogCadastroSitesComponent implements OnChanges{
   ) { }
 
   ngOnInit(): void {
+    this.buscaEmpresas();
     this.buscaFiliais();
     this.montaForm();
   }
 
-   ngOnChanges(changes: SimpleChanges): void {
-      if (changes['siteSelecionado'] && this.siteSelecionado) {
-        this.montaForm();
-      }
-      if (this.siteSelecionado?.filialVinculada) {
-        this.siteForm.get('filial')?.disable();
-      }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['siteSelecionado'] && this.siteSelecionado) {
+      this.montaForm(); // já aplica estados
     }
-      
-
-   montaForm(){
-    this.siteForm = this.fb.group({
-      cnpj: [ this.siteSelecionado?.cnpj, [Validators.required, Validators.minLength(14), cnpjValido]],
-      razaoSocial: [this.siteSelecionado?.razaoSocial, Validators.required],
-      nomeFantasia: [this.siteSelecionado?.nomeFantasia,],
-      email: [this.siteSelecionado?.email, [Validators.email]],
-      telefone: [this.siteSelecionado?.telefone ],
-      filial : [this.siteSelecionado?.filialVinculada, [Validators.required]],
-      logradouro: [{ value: this.siteSelecionado?.enderecoDTO?.logradouro, disabled: true }],
-      bairro: [{value : this.siteSelecionado?.enderecoDTO?.bairro, disabled: true } ],
-      numero: [ this.siteSelecionado?.enderecoDTO?.numero],
-      complemento: [ this.siteSelecionado?.enderecoDTO?.complemento],
-      localidade: [{ value : this.siteSelecionado?.enderecoDTO?.localidade, disabled: true }],
-      uf: [{value : this.siteSelecionado?.enderecoDTO?.uf, disabled: true }],
-      cep: [this.siteSelecionado?.enderecoDTO?.cep, [Validators.required, validaCep]]
-    });
   }
 
+
+
+  montaForm() {
+  this.siteForm = this.fb.group({
+    id: [this.siteSelecionado?.id ?? null], // <- chave para detectar edição
+    cnpj: [this.siteSelecionado?.cnpj, [Validators.required, Validators.minLength(14), cnpjValido]],
+    razaoSocial: [this.siteSelecionado?.razaoSocial, Validators.required],
+    nomeFantasia: [this.siteSelecionado?.nomeFantasia],
+    email: [this.siteSelecionado?.email, [Validators.email]],
+    telefone: [this.siteSelecionado?.telefone],
+
+    filial:  [this.siteSelecionado?.filialVinculada?.id ?? null],
+    empresa: [this.siteSelecionado?.empresaVinculada?.id ?? null],
+
+    logradouro: [this.siteSelecionado?.enderecoDTO?.logradouro],
+    bairro:     [this.siteSelecionado?.enderecoDTO?.bairro],
+    numero:     [ this.siteSelecionado?.enderecoDTO?.numero ],
+    complemento:[ this.siteSelecionado?.enderecoDTO?.complemento ],
+    localidade: [this.siteSelecionado?.enderecoDTO?.localidade],
+    uf:         [this.siteSelecionado?.enderecoDTO?.uf],
+    cep:        [ this.siteSelecionado?.enderecoDTO?.cep, [Validators.required, validaCep] ]
+  }, { validators: this.requireExactlyOneOf('filial','empresa') });
+
+  this.setupMutualExclusion();
+  this.aplicarEstadosIniciais();
+}
+
+
+  onFilialChange(val: number | null) { this.siteForm.get('filial')!.setValue(val ?? null); }
+  onEmpresaChange(val: number | null) { this.siteForm.get('empresa')!.setValue(val ?? null); }
+
+
+
+  private requireExactlyOneOf(...keys: string[]) {
+    return (ctrl: AbstractControl) => {
+      const values = keys.map(k => ctrl.get(k)?.value);
+      const count = values.filter(v => v !== null && v !== undefined && v !== '').length;
+      return count === 1 ? null : { exactlyOne: true };
+    };
+  }
+
+ private buildPayloadFromForm() {
+  const v = this.siteForm.getRawValue();
+
+  const onlyDigits = (s?: string) => (s || '').replace(/\D+/g, '');
+
+  return {
+    id: v.id ?? null,
+    cnpj: onlyDigits(v.cnpj),
+    razaoSocial: v.razaoSocial,
+    nomeFantasia: v.nomeFantasia || null,
+    email: v.email || null,
+    telefone: onlyDigits(v.telefone) || null,
+
+    // NESTED endereco (o DTO do back espera isso)
+    endereco: {
+      cep: onlyDigits(v.cep),
+      logradouro: v.logradouro,
+      complemento: v.complemento || null,
+      numero: v.numero ? Number(v.numero) : null,
+      bairro: v.bairro,
+      localidade: v.localidade,
+      uf: v.uf
+    },
+
+    // NESTED empresa/filial (apenas UM deles)
+    empresa: v.empresa ? { id: v.empresa } : null,
+    filial:  v.filial  ? { id: v.filial  } : null
+  };
+}
+
+
+
+  private setupMutualExclusion() {
+    const filialCtrl = this.siteForm.get('filial')!;
+    const empresaCtrl = this.siteForm.get('empresa')!;
+
+    filialCtrl.valueChanges.subscribe((val) => {
+      const temFilial = !!val;
+      this.filialDisabled = false;
+      if (temFilial) {
+        this.empresaDisabled = true;
+        empresaCtrl.setValue(null, { emitEvent: false });
+        empresaCtrl.disable({ emitEvent: false });
+      } else {
+        this.empresaDisabled = false;
+        empresaCtrl.enable({ emitEvent: false });
+      }
+    });
+
+    empresaCtrl.valueChanges.subscribe((val) => {
+      const temEmpresa = !!val;
+      this.empresaDisabled = false;
+      if (temEmpresa) {
+        this.filialDisabled = true;
+        filialCtrl.setValue(null, { emitEvent: false });
+        filialCtrl.disable({ emitEvent: false });
+      } else {
+        this.filialDisabled = false;
+        filialCtrl.enable({ emitEvent: false });
+      }
+    });
+
+    // aplica o estado inicial (ex.: edição)
+    this.aplicarEstadosIniciais();
+  }
+
+  private aplicarEstadosIniciais() {
+    const filialCtrl = this.siteForm.get('filial')!;
+    const empresaCtrl = this.siteForm.get('empresa')!;
+    if (filialCtrl.value) {
+      empresaCtrl.disable({ emitEvent: false });
+      this.empresaDisabled = true;
+    } else if (empresaCtrl.value) {
+      filialCtrl.disable({ emitEvent: false });
+      this.filialDisabled = true;
+    } else {
+      filialCtrl.enable({ emitEvent: false });
+      empresaCtrl.enable({ emitEvent: false });
+      this.filialDisabled = this.empresaDisabled = false;
+    }
+  }
 
   salvar() {
-    if (this.siteForm.invalid) {
-      this.siteForm.markAllAsTouched();
-      this.msgService.add({ severity: 'error', summary: 'Error Message', detail: 'Preencher todos os campos.' });
-      return;
-    } else {
-      const site = this.montaSite();
-      this.siteService.cadastrarSite(site)
-        .subscribe({         
-          next: res => {
-             this.siteForm.reset();
-            this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Site cadastrada com sucesso' });
-            this.onHideDialog();
-          },
-          error: error => {
-            this.msgService.add({ severity: 'error', summary: 'Error Message', detail: error.error.message });
-          }
-        })
-    }
+  if (this.siteForm.invalid) {
+    this.siteForm.markAllAsTouched();
+    this.msgService.add({ severity: 'error', summary: 'Formulário inválido', detail: 'Preencha os campos obrigatórios.' });
+    return;
   }
 
-  montaSite() {
-    const formValue = this.siteForm.getRawValue();
-    const siteDTO: SiteRequestDTO = {
-      cnpj: formValue.cnpj,
-      razaoSocial: formValue.razaoSocial,
-      nomeFantasia: formValue.nomeFantasia,
-      email: formValue.email,
-      telefone: formValue.telefone,
-      endereco: {
-        cep: formValue.cep,
-        logradouro: formValue.logradouro,
-        complemento: formValue.complemento,
-        numero: Number(formValue.numero),
-        bairro: formValue.bairro,
-        localidade: formValue.localidade,
-        uf: formValue.uf
+  const payload = this.buildPayloadFromForm();
+  this.isSaving = true;
+
+  this.save$(payload).subscribe({
+    next: _ => {
+      this.isSaving = false;
+      this.msgService.add({
+        severity: 'success',
+        summary: 'Sucesso',
+        detail: payload.id ? 'Site atualizado com sucesso.' : 'Site cadastrado com sucesso.'
+      });
+      this.siteForm.reset();
+      this.onHideDialog(); // emite o fechar → pai fecha modal e recarrega lista
+    },
+    error: err => {
+      this.isSaving = false;
+      const detail = err?.error?.message || 'Erro ao salvar o site.';
+      this.msgService.add({ severity: 'error', summary: 'Falha no salvamento', detail });
+    }
+  });
+}
+
+  private save$(payload: any) {
+  const isEdit = !!payload.id;
+  return isEdit
+    ? this.siteService.atualizarSite(payload.id, payload) // PUT/PATCH /sites/{id}
+    : this.siteService.cadastrarSite(payload);            // POST /sites
+}
+
+  montaSite(): SiteRequestDTO {
+  const v = this.siteForm.getRawValue();
+  return {
+    cnpj: v.cnpj,
+    razaoSocial: v.razaoSocial,
+    nomeFantasia: v.nomeFantasia,
+    email: v.email,
+    telefone: v.telefone,
+    endereco: {
+      cep: v.cep, logradouro: v.logradouro, complemento: v.complemento,
+      numero: Number(v.numero), bairro: v.bairro, localidade: v.localidade, uf: v.uf
+    },
+    filial:  v.filial  ? { id: v.filial  } as any : null,
+    empresa: v.empresa ? { id: v.empresa } as any : null
+  };
+}
+
+
+
+  buscaFiliais() {
+    this.filialService.buscaTodasFiliaisPorCliente().subscribe({
+      next: res => {
+        this.listaFiliais = res;
+        this.listaFiliaisOptions = [{ id: null, razaoSocial: 'Selecione' }, ...res];
       },
-      filial: formValue.filial
-    }
-    return siteDTO;
-  }
-
-
-  async buscaFiliais() {
-    await this.filialService.buscaTodasFiliaisPorCliente()
-      .subscribe({
-        next: res => {
-          this.listaFiliais = res;
-        },
-        error: error => {
-          this.msgService.add({ severity: 'error', summary: 'Error Message', detail: error.error.message });
-        }
-      })
+      error: error => this.msgService.add({ severity: 'error', summary: 'Erro', detail: error.error.message })
+    });
   }
 
   buscaCep() {
@@ -150,6 +272,17 @@ export class DialogCadastroSitesComponent implements OnChanges{
 
   onHideDialog() {
     this.fechar.emit();
+  }
+
+
+  buscaEmpresas() {
+    this.empService.buscaTodasEmpresas().subscribe({
+      next: res => {
+        this.listaEmpresas = res;
+        this.listaEmpresasOptions = [{ id: null, razaoSocial: 'Selecione' }, ...res];
+      },
+      error: error => this.msgService.add({ severity: 'error', summary: 'Erro', detail: error.error.message })
+    });
   }
 
 }

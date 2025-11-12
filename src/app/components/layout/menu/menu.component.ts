@@ -1,14 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { StandaloneImports } from '../../../util/standalone-imports';
 import { Router, RouterModule } from '@angular/router';
 import { ItemMenuComponent } from './item/item.component';
 import { MenuItem } from 'primeng/api';
 import { AuthService } from '../../../../services/auth/auth-service';
-import { AuthStorageService } from '../../../../services/auth/auth-storage-service';
-import { ClienteService } from '../../../../services/cliente-service';
-import { ClienteResponseDTO } from '../../../models/response/cliente-response-dto';
-import { firstValueFrom } from 'rxjs';
-import { Role } from '../../../models/enums/role-enum';
+import { AuthStateService } from '../../../../services/auth/auth-state.service';
+import { LoggerService } from '../../../../services/logger.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 
 @Component({
@@ -17,71 +15,92 @@ import { Role } from '../../../models/enums/role-enum';
     imports: [StandaloneImports, RouterModule, ItemMenuComponent],
     templateUrl: './menu.component.html',
     styleUrl: './menu.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 
 })
 export class MenuComponent implements OnInit {
 
-    clienteLogado?: ClienteResponseDTO;
+    isAdmin: boolean = false;
 
     constructor(
         private authService: AuthService,
-        private storage: AuthStorageService,
-        private clienteService: ClienteService,
+        private authState: AuthStateService,
+        private logger: LoggerService,
         private router: Router
     ) { }
 
     model: MenuItem[] = [];
 
-    async buscaClienteLogado(): Promise<void> {
-        try {
-            this.clienteLogado = await firstValueFrom(this.clienteService.buscaClienteLogado());
-
-        } catch (err) {
-            console.error('Erro ao buscar cliente logado', err);
+    private criarModelo(rotuloUsuario?: string): void {
+        if (this.isAdmin) {
+            this.model = [
+                {
+                    label: 'Início',
+                    icon: 'pi pi-fw pi-home',
+                    items: [
+                        { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },
+                    ]
+                },
+                {
+                    label: 'Gerencial',
+                    icon: 'pi pi-cog'
+                },
+                {
+                    label: 'Suporte',
+                    icon: 'pi pi-cog',
+                      items: [
+                        { label: 'LISTA DE CLIENTES', icon: 'pi pi-users', routerLink: ['/clientes'] },
+                    ]
+                },
+            ];
+            return;
         }
+
+        const labelCliente = rotuloUsuario ?? 'Cliente';
+        this.model = [
+            {
+                label: 'Início',
+                icon: 'pi pi-fw pi-home',
+                items: [
+                    { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },
+                    { label: 'Gestão de plano ação', icon: 'pi pi-chart-bar', routerLink: ['/plano-acao'] },
+                ]
+            },
+            {
+                label: labelCliente,
+                icon: 'pi pi-briefcase',
+                items: [
+                    { label: 'Colaboradores', icon: 'pi pi-user', routerLink: ['/funcionarios'] },
+                    { label: 'Check-list', icon: 'pi pi-clipboard', routerLink: ['/check-list'] },
+                    { label: 'Permissões', icon: 'pi pi-shield', routerLink: ['/permissoes'] },
+                ]
+            },
+            {
+                label: 'Clientes',
+                icon: 'pi pi-building',
+                items: [
+                    { label: 'Empresas', icon: 'pi pi-building', routerLink: ['/empresas'] },
+                    { label: 'Filiais', icon: 'pi pi-building-columns', routerLink: ['/filiais'] },
+                    { label: 'Sites', icon: 'pi pi-hammer', routerLink: ['/sites'] },
+                ]
+            }
+        ];
     }
 
-   async ngOnInit() {
-    await this.buscaClienteLogado();
+    private verificarSeAdmin(): void {
+        this.isAdmin = this.authState.isSuporte();
+    }
 
-    const model: (MenuItem | null)[] = [
-    {
-      label: 'Início',
-      icon: 'pi pi-fw pi-home',
-      items: [
-        { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },
-        { label: 'GESTÃO DE PLANO DE AÇÃO', icon: 'pi pi-clipboard', routerLink: ['/empresas'] },
-      ]
-    },
-    {
-      label: this.clienteLogado?.razaoSocial ?? 'admin',
-      icon: 'pi pi-briefcase',
-      items: [
-        { label: 'Colaboradores', icon: 'pi pi-user', routerLink: ['/funcionarios'] },
-      ]
-    },
-    this.storage.hasRole(Role.ADMIN) ? {
-      label: 'GERENCIAL',
-      icon: 'pi pi-cog',
-      items: [
-        { label: 'LISTA DE CLIENTES', icon: 'pi pi-users', routerLink: ['/clientes'] },
-      ]
-    } : null,
-    {
-      label: 'Clientes',
-      icon: 'pi pi-building',
-      items: [
-        { label: 'Empresas', icon: 'pi pi-building', routerLink: ['/empresas'] },
-        { label: 'Filiais', icon: 'pi pi-building-columns', routerLink: ['/filiais'] },
-        { label: 'Sites', icon: 'pi pi-hammer', routerLink: ['/sites'] },
-      ]
-    },
-  ];
-
-  // Filtra os nulls com predicate
-  return this.model = model.filter((item): item is MenuItem => item !== null);
-}
-
+    ngOnInit(): void {
+        this.verificarSeAdmin();
+        // Primeiro desenho do menu
+        this.criarModelo(this.authState.obterRotuloUsuario() ?? undefined);
+        // Atualiza quando o rótulo mudar (ex.: após refresh inicial)
+        this.authState
+            .observarRotuloUsuario()
+            .pipe(takeUntilDestroyed())
+            .subscribe(rotulo => this.criarModelo(rotulo ?? undefined));
+    }
 
     fazerLogout() {
         this.authService.logout();

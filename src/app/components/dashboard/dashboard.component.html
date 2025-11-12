@@ -1,24 +1,95 @@
-<div class="w-full">
-
-    <p-fluid class="grid grid-cols-12 gap-8">
-
-        <!-- Card 1 -->
-        <div class="col-span-12 xl:col-span-6">
-            <div class="card h-full">
-                <div class="font-semibold text-xl mb-4">Bar</div>
-                <p-chart type="bar" [data]="barData" [options]="barOptions" style="height: 300px;"></p-chart>
-            </div>
+<div class="w-full" *ngIf="!isAdmin; else adminInfo">
+  <form [formGroup]="filterForm">
+    <p-toolbar styleClass="mb-6">
+      <ng-template #start>
+        <div class="flex items-center gap-2">
+          <div>
+            <label class="block font-bold mb-1">Por empresa</label>
+            <p-select [options]="listaEmpresas" 
+             formControlName="empresaSelecionada"
+             optionLabel="razaoSocial"
+             optionValue="id" 
+             placeholder="{{ (listaEmpresas?.length ? 'Selecione a empresa' : 'Sem empresas disponíveis') }}"
+             [emptyMessage]="''"
+             [emptyFilterMessage]="''">
+            </p-select>
+          </div>
+          <div class="flex-4">
+            <label class="block font-bold mb-1">Data Início</label>
+            <p-datepicker  formControlName="dtInicio" showIcon iconDisplay="input" dateFormat="dd/mm/yy" />
+          </div>
+          <div class="flex-4">
+            <label class="block font-bold mb-1">Data Fim</label>
+            <p-datepicker  formControlName="dtFim" showIcon iconDisplay="input" dateFormat="dd/mm/yy" />
+          </div>
+          <div>
+            <label class="block font-bold mb-1">Tipo Consulta</label>
+            <p-select [options]="tipoConsultaOptions" formControlName="tipoConsulta"  placeholder="Selecione o tipo da consulta">
+            </p-select>
+          </div>
+          <div class="flex-4" style="margin-top: 20px;">
+            <p-button label="Consultar" (onClick)="aplicarFiltros()" />
+          </div>
         </div>
+      </ng-template>
+    </p-toolbar>
+  </form>
+</div>
 
-        <!-- Card 2 -->
-        <div class="col-span-12 xl:col-span-6">
-            <div class="card h-full">
-                <div class="font-semibold text-xl mb-4">Pie</div>
-                <p-chart type="pie" [data]="pieData" [options]="pieOptions" style="height: 300px;"></p-chart>
-            </div>
+<ng-template #adminInfo>
+  <p-message severity="info" text="Painel de gráficos não se aplica ao perfil ADMIN."></p-message>
+</ng-template>
+
+ <div class="cards grid"  *ngIf="!isAdmin">
+      <div class="col-9 md:col-3">
+        <div class="card-info">
+          <div class="card-label"><strong>PERGUNTAS RESPONDIDA</strong></div>
+          <div class="card-value text-primary">{{ resumo.totalPerguntasRespondidas || 0 }}</div>
         </div>
-    </p-fluid>
+      </div>
+      <div class="col-12 md:col-3">
+        <div class="card-info">
+          <div class="card-label"> <strong>PASSÍVEL DE MULTAS</strong></div>
+          <div class="card-value text-primary">{{ resumo.totalMulta | currency:'BRL':'symbol':'1.2-2' }}</div>
+        </div>
+      </div>
+      <div class="col-12 md:col-3">
+        <div class="card-info">
+          <div class="card-label"><strong>PASSÍVEL DE INVESTIMENTO</strong></div>
+          <div class="card-value text-primary">{{ resumo.totalInvestimento | currency:'BRL':'symbol':'1.2-2' }}</div>
+        </div>
+      </div>
+      <div class="col-12 md:col-3">
+        <div class="card-info">
+          <div class="card-label"><strong>DIFERENÇA</strong></div>
+          <div class="card-value"
+               [ngClass]="(resumo.totalMulta - resumo.totalInvestimento) >= 0 ? 'text-green-600' : 'text-red-600'">
+            {{ (resumo.totalMulta - resumo.totalInvestimento) | currency:'BRL':'symbol':'1.2-2' }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <br>
 
+<div  class="grid grid-cols-12 gap-8" *ngIf="!isAdmin">
+  <div class="col-span-12 xl:col-span-6">
+    <!-- Gráfico de Torta -->
+    <div class="card flex flex-col items-center p-4">
+      <div class="font-semibold text-xl mb-4"> {{ getTituloDash() }} por Status</div>
+      <app-dashboard-torta [filtros]="filtrosSelecionados"></app-dashboard-torta>
+    </div>
+  </div>
 
+  <div class="col-span-12 xl:col-span-6">
+    <!-- Gráfico de Barras -->
+    <div  class="card flex flex-col items-center p-4 " >
+      <div class="font-semibold text-xl mb-4">{{ getTituloDash () }} Diárias / Mensais</div>
+      <app-dashboard-grafico [filtros]="filtrosSelecionados"></app-dashboard-grafico>
+    </div>
+  </div>
 
 </div>
+
+
+<app-dashboard-table  *ngIf="!isAdmin" [filtros]="filtrosSelecionados"></app-dashboard-table>

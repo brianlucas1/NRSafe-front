@@ -7,15 +7,15 @@ import { FuncionarioResponseDTO } from '../../models/response/funcionario-respon
 import { FuncionarioService } from '../../../services/funcionario-service';
 import { firstValueFrom } from 'rxjs';
 import { DesvincularFuncionarioDTO } from '../../models/request/funcionario-desvincular-dto';
-import { EmpresaResponseDTO } from '../../models/response/empresa-reponse-dto';
-import { FilialResponseDTO } from '../../models/response/filial-reponse-dto';
-import { SiteResponseDTO } from '../../models/response/site-reponse-dto';
+import { AssinaturaService } from '../../../services/assinatura-service';
+import { TagModule } from 'primeng/tag';
+
 
 @Component({
   selector: 'app-funcionario',
   imports: [StandaloneImports, DialogCadastroFuncionarioComponent],
   standalone: true,
-  providers: [MessageService, ConfirmationService],
+  providers: [MessageService, ConfirmationService, TagModule ],
   templateUrl: './funcionario.component.html',
   styleUrl: './funcionario.component.scss'
 })
@@ -26,11 +26,14 @@ export class FuncionarioComponent implements OnInit {
   funcionarioSelecionado? : FuncionarioResponseDTO;
   cols!: Column[];
 
+  qtdLicencas: number = 0;
+
   displayInativaFuncionario: boolean = false;
   expandedRows: { [key: string]: boolean } = {};
 
   constructor(
     private msgService: MessageService,
+    private assinaturaService: AssinaturaService,
     private funcService: FuncionarioService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService
@@ -38,6 +41,7 @@ export class FuncionarioComponent implements OnInit {
 
   ngOnInit(): void {
     this.buscaFuncionariosDoCliente();
+    this.buscaQuantidadeLicencas();
   }
 
   async buscaFuncionariosDoCliente() {
@@ -46,6 +50,17 @@ export class FuncionarioComponent implements OnInit {
     } catch (err) {
       this.msgService.add({ severity: 'error', summary: 'Error Message', detail: 'Erro ao buscar Empresas' });
     }
+  }
+
+  async buscaQuantidadeLicencas() {
+    this.assinaturaService.buscaQuantidadeLicencas().subscribe({
+      next: (res) => {
+        this.qtdLicencas = res.disponiveis;
+      },
+      error: (err) => {
+        this.msgService.add({ severity: 'error', summary: 'Error Message', detail: 'Erro ao buscar quantidade de licenças' });
+      }
+    });
   }
 
 
@@ -120,7 +135,12 @@ export class FuncionarioComponent implements OnInit {
 
 
   abreModalCadastro(): void {
-    this.dialogCadastro = true;
+    if(this.qtdLicencas <= 0){
+      this.msgService.add({ severity: 'error', summary: 'Error Message', detail: 'Número de licenças insuficiente para cadastrar novos funcionários' });
+      return;
+    }else{
+      this.dialogCadastro = true;
+    }
   }
 
   editarFuncionario(funcionario: any) {
@@ -131,6 +151,7 @@ export class FuncionarioComponent implements OnInit {
   fechaModalCadastro(): void {
     this.dialogCadastro = false;
     this.buscaFuncionariosDoCliente();
+    this.buscaQuantidadeLicencas(); 
   }
 
   toggleRow(func: any): void {

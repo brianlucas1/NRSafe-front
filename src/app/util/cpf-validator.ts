@@ -27,3 +27,9 @@ export function cpfValidator(): ValidatorFn {
     return null;
   };
 }
+
+export function sanitizeCpf(input: string | null | undefined): string | null {
+  if (input == null) return null;                 // mantém semântica de nulo
+  const digits = input.replace(/\D/g, "");        // remove tudo que não é dígito (., -, espaço, etc.)
+  return digits.length ? digits : null;           // evita string vazia viajando no app
+}

@@ -1,4 +1,5 @@
 import { Endereco } from "../endereco";
+import { EmpresaRequestDTO } from "./empresa-request-dto";
 import { FilialRequestDTO } from "./filial-request-dto";
 
 export class SiteRequestDTO {
@@ -11,4 +12,5 @@ export class SiteRequestDTO {
     email?: string
     endereco?: Endereco
     filial?: FilialRequestDTO
+    empresa?: EmpresaRequestDTO
 }

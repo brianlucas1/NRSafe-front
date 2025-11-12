@@ -1,37 +1,37 @@
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable, switchMap, catchError, throwError, of } from "rxjs";
-import { AuthService } from "./auth-service";
-import { AuthStorageService } from "./auth-storage-service";
 import { Router } from "@angular/router";
+import { Observable, throwError, switchMap, catchError, finalize } from "rxjs";
+import { LoadingService } from "../../app/util/loading-service";
+import { AuthService } from "./auth-service";
+import { AuthStateService } from './auth-state.service';
+import { LoggerService } from '../logger.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   constructor(
-    private authStorage: AuthStorageService,
+    private authState: AuthStateService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private loadingService: LoadingService, // Serviço de loading
+    private logger: LoggerService
   ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Ignorar requisições para login e refresh
-    if (req.url.includes('/auth') || req.url.includes('/auth/refresh') || req.url.includes('/login/recupera-senha') || req.url.includes('/login/redefinir-senha') ) {
+    // Ignora requests que não precisam de loading
+    if (req.url.includes('/auth') || req.url.includes('/login/recupera-senha') || req.url.includes('/login/redefinir-senha')) {
       return next.handle(req);
     }
 
-    // Se o token está expirado, tenta fazer o refresh
-    if (this.authStorage.isTokenExpired()) {
-      const refreshToken = this.authStorage.getRefreshToken();
-      if (!refreshToken) {
-        this.authStorage.clear();
-        this.router.navigate(['/login']);
-        return throwError(() => new Error('Refresh token ausente'));
-      }
+    this.loadingService.show();
 
+    // Se o token está expirado, tenta fazer o refresh
+    if (this.authState.tokenExpirado()) {
       return this.authService.refreshToken().pipe(
         switchMap(() => {
-          const newAccessToken = this.authStorage.getAccessToken();
+          const newAccessToken = this.authState.obterTokenAcesso();
           const cloned = req.clone({
+            withCredentials: true,
             setHeaders: {
               Authorization: `Bearer ${newAccessToken}`
             }
@@ -39,19 +39,40 @@ export class AuthInterceptor implements HttpInterceptor {
           return next.handle(cloned);
         }),
         catchError(err => {
-          this.authStorage.clear();
+          this.logger.error('Falha ao atualizar token via refresh.', err);
+          this.authState.limpar();
           this.router.navigate(['/login']);
           return throwError(() => err);
-        })
+        }),
+        finalize(() => this.loadingService.hide()) // Sempre finaliza
       );
     }
 
     // Token ainda válido
-    const accessToken = this.authStorage.getAccessToken();
-    const authReq = accessToken
-      ? req.clone({ setHeaders: { Authorization: `Bearer ${accessToken}` } })
-      : req;
+    const accessToken = this.authState.obterTokenAcesso();
+    if (accessToken) {
+      const authReq = req.clone({
+        withCredentials: true,
+        setHeaders: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+      return next.handle(authReq).pipe(
+        catchError(err => {
+          if (err.status === 401) {
+            this.logger.warn('Requisição 401: limpando sessão e redirecionando para login.');
+            this.authState.limpar();
+            this.router.navigate(['/login']);
+          }
+          return throwError(() => err);
+        }),
+        finalize(() => this.loadingService.hide()) // Finaliza após a request
+      );
+    }
 
-    return next.handle(authReq);
+    // Sem token: ainda enviamos cookies (para permitir refresh-side em backends que validam sessão por cookie)
+    return next.handle(req.clone({ withCredentials: true })).pipe(
+      finalize(() => this.loadingService.hide())
+    );
   }
 }

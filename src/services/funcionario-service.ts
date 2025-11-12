@@ -1,11 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { ClienteRequestDTO } from "../app/models/request/cliente-request-dto";
-import { ClienteResponseDTO } from "../app/models/response/cliente-response-dto";
 import { environment } from "../environments/environment";
-import { EmpresaResponseDTO } from "../app/models/response/empresa-reponse-dto";
-import { EmpresaRequestDTO } from "../app/models/request/empresa-request-dto";
 import { FuncionarioRequestDTO } from "../app/models/request/funcionario-request-dto";
 import { FuncionarioResponseDTO } from "../app/models/response/funcionario-response-dto";
 import { DesvincularFuncionarioDTO } from "../app/models/request/funcionario-desvincular-dto";

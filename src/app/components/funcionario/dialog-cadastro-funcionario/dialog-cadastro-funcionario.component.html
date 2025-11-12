@@ -12,7 +12,7 @@
 
             <div class="flex flex-col md:flex-row gap-4">
                 <div class="flex-4">
-                    <label class="block font-bold mb-1">Cpf</label>
+                    <label class="block font-bold mb-1">CPF</label>
                     <p-inputmask formControlName="cpf" placeholder="999.999.999-99" mask="999.999.999-99"
                         class="w-full" />
                     <div *ngIf="funcionarioForm.get('cpf')?.invalid && funcionarioForm.get('cpf')?.touched">
@@ -23,7 +23,7 @@
                 </div>
 
                 <div class="flex-4">
-                    <label class="block font-bold mb-1">Rg</label>
+                    <label class="block font-bold mb-1">RG</label>
                     <p-inputmask formControlName="rg" placeholder="99-999-999-9" mask="99-999-999-9"
                         class="w-full" />
                     <div *ngIf="funcionarioForm.get('rg')?.invalid && funcionarioForm.get('rg')?.touched">

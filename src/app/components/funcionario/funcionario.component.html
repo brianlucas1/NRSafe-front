@@ -3,14 +3,26 @@
 <p-confirmDialog></p-confirmDialog>
 
 <p-toolbar styleClass="mb-6">
-  <ng-template #start>
+  <ng-template pTemplate="start">
+    <p-button
+      label="Cadastrar novo funcionário"
+      icon="pi pi-user-plus"
+      (onClick)="abreModalCadastro()"
+    ></p-button>
+  </ng-template>
+
+  <ng-template pTemplate="end">
     <div class="flex items-center gap-2">
-      <div>
-        <p-button label="Cadastrar novo funcionário" (onClick)="abreModalCadastro()" />
-      </div>
+      <i class="pi pi-id-card text-color-secondary"></i>
+      <span class="text-sm text-color-secondary">Licenças disponíveis</span>
+    <p-tag severity="info" icon="pi pi-hashtag" styleClass="px-3 py-2 font-semibold">
+      {{ qtdLicencas | number:'1.0-0' }}
+    </p-tag>
     </div>
   </ng-template>
 </p-toolbar>
+
+
 
 <app-dialog-cadastro-funcionario 
   [visible]="dialogCadastro"
@@ -19,15 +31,16 @@
   ></app-dialog-cadastro-funcionario>
 
 <p-table #dt
+  class="tabela-zebrada"
   [value]="listaFuncionarios"
   [paginator]="true" 
-  [rows]="10"
+  [rows]="50"
   dataKey="funcId"
   [expandedRowKeys]="expandedRows"
   (onRowExpand)="onRowExpand($event)"
   (onRowCollapse)="onRowCollapse($event)"
   [tableStyle]="{ 'min-width': '75rem' }"
-  [rowsPerPageOptions]="[10, 20, 30]"
+  [rowsPerPageOptions]="[50,100]"
   currentPageReportTemplate="Mostrando {first} de {last} total {totalRecords} funcionários"
   [showCurrentPageReport]="true">
   <ng-template #caption>
@@ -95,7 +108,7 @@
           <p *ngIf="funcionario.listaEmpresas?.length">
             <strong>Empresas:</strong>
           </p>
-          <p-table *ngIf="funcionario.listaEmpresas?.length" [value]="funcionario.listaEmpresas" class="mb-3"
+          <p-table class="tabela-zebrada" *ngIf="funcionario.listaEmpresas?.length" [value]="funcionario.listaEmpresas" class="mb-3"
             [style]="{ 'min-width': '100%' }">
             <ng-template pTemplate="header">
     <tr>
@@ -120,7 +133,7 @@
 <p *ngIf="funcionario.listaFilial?.length">
   <strong>Filiais:</strong>
 </p>
-<p-table *ngIf="funcionario.listaFilial?.length" [value]="funcionario.listaFilial" class="mb-3"
+<p-table  class="tabela-zebrada" *ngIf="funcionario.listaFilial?.length" [value]="funcionario.listaFilial" class="mb-3"
   [style]="{ 'min-width': '100%' }">
   <ng-template pTemplate="header">
     <tr>
@@ -145,7 +158,7 @@
 <p *ngIf="funcionario.listaSites?.length">
   <strong>Sites:</strong>
 </p>
-<p-table *ngIf="funcionario.listaSites?.length" [value]="funcionario.listaSites" [style]="{ 'min-width': '100%' }">
+<p-table  class="tabela-zebrada" *ngIf="funcionario.listaSites?.length" [value]="funcionario.listaSites" [style]="{ 'min-width': '100%' }">
   <ng-template pTemplate="header">
     <tr>
       <th>CNPJ</th>

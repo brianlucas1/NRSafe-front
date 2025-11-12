@@ -1,4 +1,4 @@
-import { Component, HostBinding, Input } from '@angular/core';
+import { Component, HostBinding, Input, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { StandaloneImports } from '../../../../util/standalone-imports';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { LayoutService } from '../../layout.service';
@@ -14,6 +14,7 @@ import { Subscription, filter } from 'rxjs';
   templateUrl: './item.component.html',
   styleUrl: './item.component.scss',
   providers: [LayoutService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
    animations: [
         trigger('children', [
             state(
@@ -32,7 +33,7 @@ import { Subscription, filter } from 'rxjs';
         ])
     ],
 })
-export class ItemMenuComponent {
+export class ItemMenuComponent implements OnInit, OnDestroy {
 
    @Input() item!: MenuItem;
 
@@ -51,6 +52,8 @@ export class ItemMenuComponent {
     menuResetSubscription: Subscription;
 
     key: string = '';
+
+    routerSubscription: Subscription;
 
     constructor(
         public router: Router,
@@ -72,7 +75,7 @@ export class ItemMenuComponent {
             this.active = false;
         });
 
-        this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((params) => {
+        this.routerSubscription = this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((params) => {
             if (this.item.routerLink) {
                 this.updateActiveStateFromRoute();
             }
@@ -136,6 +139,10 @@ export class ItemMenuComponent {
 
         if (this.menuResetSubscription) {
             this.menuResetSubscription.unsubscribe();
+        }
+
+        if (this.routerSubscription) {
+            this.routerSubscription.unsubscribe();
         }
     }
 

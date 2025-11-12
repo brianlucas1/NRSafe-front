@@ -197,3 +197,14 @@
   scrollbar-width: thin;
   scrollbar-color: #556268 transparent;
 }
+
+// New layout styles for sidebar/menu used by menu.component.html
+.layout-sidebar {
+  padding: 0.5rem 0.75rem; // bring content slightly inward
+}
+
+.layout-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}

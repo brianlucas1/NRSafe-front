@@ -30,26 +30,39 @@
                           "src/assets"
                         ],
                         "styles": [
-                            "src/styles.scss",
-                            "node_modules/primeflex/primeflex.css"
+                            "src/styles.scss"
                         ],
-                        "scripts": []
+                        "scripts": [],
+                        "optimization": true,
+                        "sourceMap": false,
+                        "namedChunks": false,
+                        "extractLicenses": true
                     },
                     "configurations": {
                         "production": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/environment.ts",
+                                    "with": "src/environments/environment-prod.ts"
+                                }
+                            ],
                             "budgets": [
                                 {
                                     "type": "initial",
-                                    "maximumWarning": "1mb",
-                                    "maximumError": "5mb"
+                                    "maximumWarning": "2.5mb",
+                                    "maximumError": "3mb"
                                 },
                                 {
                                     "type": "anyComponentStyle",
-                                    "maximumWarning": "2kb",
-                                    "maximumError": "4kb"
+                                    "maximumWarning": "3kb",
+                                    "maximumError": "5kb"
                                 }
                             ],
-                            "outputHashing": "all"
+                            "outputHashing": "all",
+                            "optimization": true,
+                            "sourceMap": false,
+                            "namedChunks": false,
+                            "extractLicenses": true
                         },
                         "development": {
                             "optimization": false,
@@ -89,9 +102,7 @@
                             
                         ],
                         "styles": [
-                            "src/styles.scss",
-                             "node_modules/primeflex/primeflex.css"
-
+                            "src/styles.scss"
                         ],
                         "scripts": []
                     }

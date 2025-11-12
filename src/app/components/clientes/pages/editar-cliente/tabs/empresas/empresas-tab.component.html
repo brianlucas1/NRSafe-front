@@ -1,0 +1,39 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<p-table
+  class="tabela-zebrada"
+  [value]="empresas"
+  [lazy]="true"
+  [lazyLoadOnInit]="true"
+  (onLazyLoad)="onLazyLoad($event)"
+  [paginator]="true"
+  [rows]="rows"
+  [totalRecords]="total"
+  [loading]="loading"
+  [rowsPerPageOptions]="[50,100]">
+  <ng-template pTemplate="header">
+    <tr>
+      <th style="width: 120px">ID</th>
+      <th>Razão Social</th>
+      <th>Cnpj</th>
+      <th style="width: 120px">Ativo</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-e>
+    <tr>
+      <td>{{ e.id }}</td>
+      <td>{{ e.razaoSocial }}</td>
+       <td>{{ e.cnpj }}</td>
+      <td>
+        <p-inputSwitch [ngModel]="e.ativo" (onChange)="onToggle(e, $event)"></p-inputSwitch>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="3">{{ loading ? 'Carregando...' : 'Nenhuma empresa encontrada.' }}</td>
+    </tr>
+  </ng-template>
+</p-table>
+

@@ -1,4 +1,5 @@
 <p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
 <p-toolbar styleClass="mb-6">
   <ng-template #start>
     <div class="flex items-center gap-2">
@@ -17,13 +18,14 @@
 
 <p-table 
   #dt
+  class="tabela-zebrada"
   [value]="listaSites"
-  [rows]="10"
+  [rows]="50"
   [columns]="cols" 
   [paginator]="true"
   dataKey="id"
   [tableStyle]="{ 'min-width': '75rem' }"
-  [rowsPerPageOptions]="[10, 20, 30]"
+  [rowsPerPageOptions]="[50,100]"
   currentPageReportTemplate="Mostrando {first} de {last} total {totalRecords} sites"
   [showCurrentPageReport]="true">
 
@@ -71,7 +73,7 @@
       <td>{{ site.email}}</td>
       <td>{{ site.nomeFantasia }}</td>
         <td>
-        <i class="pi" [ngClass]="{
+        <i class="pi" (click)="inativarSite(site)" [ngClass]="{
                         'text-green-500 pi-check-circle': site.stAtivo =='A',
                         'text-red-500 pi-times-circle': site.stAtivo =='I'
                     }"></i>

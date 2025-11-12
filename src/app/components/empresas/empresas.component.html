@@ -11,22 +11,25 @@
   </ng-template>
 </p-toolbar>
 
-<app-dialog-cadastro-empresa [visible]="dialogCadastro" [empresaSelecionada]="empresaParaEditar"
-  (fechar)="fechaModalCadastro()">
+<app-dialog-cadastro-empresa
+ [visible]="dialogCadastro" 
+ [empresaSelecionada]="empresaParaEditar"
+ (fechar)="fechaModalCadastro()">
 </app-dialog-cadastro-empresa>
 
 <p-table
   #dt
+  class="tabela-zebrada"
   [value]="listaEmpresas"
   [expandedRowKeys]="expandedRows"
   (onRowExpand)="onRowExpand($event)"
   (onRowCollapse)="onRowCollapse($event)"
   dataKey="id"
   [paginator]="true"
-  [rows]="10"
+  [rows]="50"
   [columns]="cols"
   [tableStyle]="{ 'min-width': '75rem' }"
-  [rowsPerPageOptions]="[10, 20, 30]"
+  [rowsPerPageOptions]="[50,100]"
   currentPageReportTemplate="Mostrando {first} de {last} total {totalRecords} empresas"
   [showCurrentPageReport]="true"
 >
@@ -104,6 +107,7 @@
       <p><strong>Filiais de {{ empresa.razaoSocial }}:</strong></p>
 
       <p-table
+      class="tabela-zebrada"
         [value]="empresa.listaFiliais"
         [responsiveLayout]="'scroll'"
         class="p-datatable-sm"

@@ -20,13 +20,14 @@
 
 <p-table 
   #dt
+  class="tabela-zebrada"
   [value]="listaFiliais"
-  [rows]="10"
+  [rows]="50"
   [columns]="cols" 
   [paginator]="true"
   dataKey="id"
   [tableStyle]="{ 'min-width': '75rem' }"
-  [rowsPerPageOptions]="[10, 20, 30]"
+  [rowsPerPageOptions]="[50,100]"
   currentPageReportTemplate="Mostrando {first} de {last} total {totalRecords} filiais"
   [showCurrentPageReport]="true">
 
@@ -78,7 +79,7 @@
       <td>{{ filial.email}}</td>
       <td>{{ filial.nomeFantasia }}</td>
       <td>
-        <i class="pi"  (click)="inativalFilial(filial)" [ngClass]="{
+        <i class="pi"  (click)="inativarFilial(filial)" [ngClass]="{
                         'text-green-500 pi-check-circle': filial.stAtivo =='A',
                         'text-red-500 pi-times-circle': filial.stAtivo =='I'
                     }"></i>
@@ -103,6 +104,7 @@
       <p><strong>Sites de {{ filial.razaoSocial }}:</strong></p>
 
       <p-table
+      class="tabela-zebrada"
         [value]="filial.listaSites"
         [responsiveLayout]="'scroll'"
         class="p-datatable-sm"

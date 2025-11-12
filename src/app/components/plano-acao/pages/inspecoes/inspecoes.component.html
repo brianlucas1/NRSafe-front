@@ -1,0 +1,177 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="w-full">
+  <form [formGroup]="filterForm">
+    <p-toolbar styleClass="mb-6">
+      <ng-template #start>
+        <div class="flex items-center gap-2">
+          <div>
+            <label class="block font-bold mb-1">Por Item</label>
+            <p-select [options]="listaSubItensNorma" formControlName="normaSelecionada" optionLabel="descSubItem"
+              optionValue="id"
+              placeholder="{{ (listaSubItensNorma.length ? 'Selecione o item' : 'Sem Itens disponíveis') }}"
+              [emptyMessage]="''" [emptyFilterMessage]="''">
+            </p-select>
+          </div>
+          <div class="flex-4">
+            <label class="block font-bold mb-1">Data Início</label>
+            <p-datepicker formControlName="dtInicio" showIcon iconDisplay="input" dateFormat="dd/mm/yy" />
+          </div>
+          <div class="flex-4">
+            <label class="block font-bold mb-1">Data Fim</label>
+            <p-datepicker formControlName="dtFim" showIcon iconDisplay="input" dateFormat="dd/mm/yy" />
+          </div>
+          <div class="flex-4" style="margin-top: 20px;">
+            <p-button type="button" label="Consultar" (onClick)="aplicarFiltros()" />
+          </div>
+          <div class="flex-4" style="margin-top: 20px;">
+            <p-button type="button" label="Limpar filtros" (onClick)="limparFiltro()" />
+          </div>
+          <div class="flex-4" style="margin-top: 20px;">
+            <p-button type="button" icon="pi pi-save" [loading]="saving" [disabled]="planoConcluido" label="Salvar alterações" (onClick)="salvarAlteracoes()" />
+          </div>
+
+          <div class="flex-4" style="margin-top: 20px;">
+            <p-button type="button" label="Exportar CSV" (onClick)="exportarCsvItensCompleto()" />
+          </div>
+
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </form>
+</div>
+
+
+<p-table [value]="listaPlanoAcaoSubItems" [lazy]="true" (onLazyLoad)="onLazyLoad($event)" [paginator]="true"
+  [rows]="rows" [totalRecords]="totalRecords" [loading]="loading" [rowsPerPageOptions]="[50,100]"
+  [sortField]="sortField" [sortOrder]="sortOrder" [responsiveLayout]="'scroll'" [scrollable]="true"
+  currentPageReportTemplate="Mostrando {first}–{last} de {totalRecords}" [showCurrentPageReport]="true"
+  styleClass="w-full tabela-zebrada">
+
+  <ng-template pTemplate="caption">
+    <div class="flex items-center justify-between">
+      <h5 class="m-0 font-semibold">Plano de Ação Itens</h5>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="header">
+    <tr>
+      <th pSortableColumn="norma" class="min-w-[120px]">
+        Item <p-sortIcon field="norma"></p-sortIcon>
+      </th>
+      <th class="min-w-[50px]">
+        Descrição 
+      </th>
+      <th  class="min-w-[120px]">
+        Proposta de melhoria 
+      </th>
+      <th pSortableColumn="totalMulta" class="min-w-[120px] text-right">
+        Multa <p-sortIcon field="totalMulta"></p-sortIcon>
+      </th>
+      <th pSortableColumn="totalInvestimento" class="min-w-[150px] text-right">
+        Investimento <p-sortIcon field="totalInvestimento"></p-sortIcon>
+      </th>
+      <th  class="min-w-[120px]">
+        Responsável 
+      </th>
+      <th pSortableColumn="previsao" class="min-w-[180px]">
+        Previsão <p-sortIcon field="previsao"></p-sortIcon>
+      </th>
+       <th pSortableColumn="status" class="min-w-[120px]">
+        Status <p-sortIcon field="status"></p-sortIcon>
+      </th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-row>
+    <tr class="odd:bg-gray-50">
+      <td>{{ row.subItem ? row.subItem : 'CheckList'}}</td>
+      <!-- Descrição resumida com tooltip -->
+      <td>
+        <span class="block max-w-[150px] truncate" tooltipClass="tooltip-wide" pTooltip="{{ row.descSubItem }}"
+          tooltipPosition="top">
+          <td >{{ row.descSubItem ? row.descSubItem : row.descCheckListPergunta }}</td>
+        </span>
+      </td>
+      <td>
+        <input type="text"  [disabled]="planoConcluido"  pInputText [(ngModel)]="row.planoAcao"  [ngClass]="{'p-invalid': isFieldInvalid(row,'planoAcao')}" placeholder="Plano de ação" class="w-full" />
+      </td>
+      <td *ngIf= "row.descCheckListPergunta == null" class="text-right">R$ {{ row.multa | number: '1.2-2' }}</td>
+      <td *ngIf= "row.descCheckListPergunta != null" class="text-right">
+        <p-inputNumber
+          [(ngModel)]="row.multa"
+          [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
+          mode="currency"
+          currency="BRL"
+           [disabled]="planoConcluido"
+          locale="pt-BR"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="2"
+          [min]="0"
+          placeholder="R$ 0,00">
+        </p-inputNumber>
+
+      </td>
+      <td class="text-right">
+        <p-inputNumber
+          [(ngModel)]="row.investimento"
+           [disabled]="planoConcluido"
+          [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
+          mode="currency"
+          currency="BRL"
+          locale="pt-BR"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="2"
+          [min]="0"
+          placeholder="R$ 0,00">
+        </p-inputNumber>
+      </td>
+
+      <td>
+        <input type="text"  [ngClass]="{'p-invalid': isFieldInvalid(row,'responsavel')}"  [disabled]="planoConcluido" pInputText [(ngModel)]="row.responsavel" placeholder="Digite um responsavel" class="w-full" />
+      </td>  
+
+      <td class="text-right">
+        <p-datepicker
+          [(ngModel)]="row.previsao"
+          [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
+          dateFormat="dd/mm/yy"
+           [disabled]="planoConcluido"
+          [ngClass]="{'p-invalid': isFieldInvalid(row,'previsao')}"
+          [showButtonBar]="true"
+          [appendTo]="'body'"
+          placeholder="dd/mm/aaaa">
+        </p-datepicker>
+      </td>
+
+       <td>
+        <p-dropdown  
+          [disabled]="planoConcluido"
+          [options]="statusOptions"
+          optionLabel="descricao"
+          [appendTo]="'body'"
+          optionValue="codigo"
+          [(ngModel)]="row.status" 
+          [ngClass]="{'p-invalid': isFieldInvalid(row,'status')}"
+          placeholder="Selecione" class="w-full">
+      </p-dropdown>
+      </td>
+
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <tr *ngIf="totaisGerais">
+      <td colspan="3" class="text-right text-sm text-gray-600">TOTAL (geral/filtros):</td>
+      <td class="text-right text-sm text-gray-600">R$ {{ totaisGerais.totalMulta | number:'1.2-2' }}</td>
+      <td class="text-right text-sm text-gray-600">R$ {{ totaisGerais.totalInvestimento | number:'1.2-2' }}</td>
+      <td colspan="6"></td>
+    </tr>
+  </ng-template>
+
+</p-table>
+
+  <div class="flex justify-end mt-4">
+    <button pButton type="button" icon="pi pi-arrow-left" label="Voltar" (click)="voltar()"></button>
+  </div>

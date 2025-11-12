@@ -1,0 +1,22 @@
+.content-card {
+  background: var(--surface-card);
+  box-shadow: var(--card-shadow, none);
+}
+
+.card-info {
+  padding: 1rem; border: 1px solid var(--surface-border); border-radius: var(--content-border-radius);
+  .card-label { color: var(--text-color-secondary); }
+  .card-value { font-size: 1.5rem; font-weight: 600; }
+}
+
+.cards {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr; /* default: stack on small screens */
+}
+
+@media (min-width: 768px) { /* md breakpoint */
+  .cards {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

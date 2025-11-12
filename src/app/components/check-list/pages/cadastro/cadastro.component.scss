@@ -1,0 +1,17 @@
+.drawer {
+  width: 100%;
+  max-width: 520px;
+}
+.field { margin-bottom: 1rem; }
+.pergunta-row {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+  margin-bottom: .5rem;
+}
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: .5rem;
+  margin-top: 1rem;
+}

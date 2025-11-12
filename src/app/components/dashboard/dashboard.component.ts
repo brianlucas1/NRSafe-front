@@ -1,113 +1,126 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { EmpresaService } from '../../../services/empresa-service';
 import { MessageService } from 'primeng/api';
+import { EmpresaResponseDTO } from '../../models/response/empresa-reponse-dto';
 import { StandaloneImports } from '../../util/standalone-imports';
-import { debounceTime, Subscription } from 'rxjs';
-import { LayoutService } from '../layout/layout.service';
+import { firstValueFrom } from 'rxjs';
+import { GraficoImports } from '../../util/grafico-imports';
+import { AuthStateService } from '../../../services/auth/auth-state.service';
+import { DashBoardService } from '../../../services/dash-board-service';
+import { ResumoDashboardDTO } from '../../models/dtos/resumo-dashboard-dto';
 
 @Component({
   selector: 'app-dashboard',
-   imports: [StandaloneImports],
-    standalone: true,
-    providers: [MessageService],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss'
+  standalone: true,
+  imports: [StandaloneImports, GraficoImports],
+  styleUrls: ['./dashboard.component.scss'],
+  providers: [MessageService]
 })
 export class DashboardComponent implements OnInit {
 
+  tituloDash = 'Visitas';
+  isAdmin = false;
 
-  ngOnInit(): void {
-   this.iniciaDash();
+  tipoConsultaOptions = [
+    { label: 'Por Visita', value: 'V' },
+    { label: 'Por Inspeções', value: 'I' },
+  ];
+
+  filterForm!: FormGroup;
+  listaEmpresas?: EmpresaResponseDTO[] = [];
+
+  filtrosSelecionados: any = null;
+
+  resumo: ResumoDashboardDTO = {
+    totalMulta: 0,
+    totalInvestimento: 0,
+    totalPerguntasRespondidas: 0,
+  };
+
+
+  constructor(
+    private fb: FormBuilder,
+    private empService: EmpresaService,
+    private msgService: MessageService,
+    private authState: AuthStateService,
+    private dashService: DashBoardService,
+  ) { }
+
+  async ngOnInit() {
+    this.isAdmin = this.authState.isSuporte();
+    this.criaForm();
+    if (!this.isAdmin) {
+      this.aplicarFiltros();
+      await this.carregaEmpresas();
+    }
   }
 
-  barOptions: any;
+  criaForm() {
+    const hoje = new Date();
+    const fim = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
 
-  pieData: any;
+    // início = fim - 31 dias
+    const inicio = new Date(fim);
+    inicio.setDate(inicio.getDate() - 31);
 
-  pieOptions: any;
+    this.filterForm = this.fb.group({
+      empresaSelecionada: [null],
+      dtInicio: [inicio],
+      dtFim: [fim],
+      tipoConsulta: [null],
+    });
+  }
 
-  barData: any;
-
-   subscription: Subscription;
-    constructor(private layoutService: LayoutService) {
-        this.subscription = this.layoutService.configUpdate$.pipe(debounceTime(25)).subscribe(() => {
-            this.iniciaDash();
-        });
+  async carregaEmpresas() {
+    try {
+      this.listaEmpresas = await firstValueFrom(this.empService.buscaTodasEmpresas());
+    } catch (error: any) {
+      this.msgService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: error?.message || 'Falha ao carregar empresas'
+      });
     }
+  }
 
+  aplicarFiltros() {
+    const form = this.filterForm.value;
 
-iniciaDash(){
+    const filtros = {
+      idFilial: form.filialSelecionada ?? null,
+      tipoConsulta: form.tipoConsulta ?? null,
+      idSite: form.siteSelecionado ?? null,
+      idEmpresa: form.empresaSelecionada ?? null,
+      dtInicio: form.dtInicio ? form.dtInicio.toISOString() : null,
+      dtFim: form.dtFim ? form.dtFim.toISOString() : null
+    };
+    this.filtrosSelecionados = filtros;
+    this.carregaResumo();
+  }
 
-  const documentStyle = getComputedStyle(document.documentElement);
-  const textColor = documentStyle.getPropertyValue('--text-color');
-  const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
-  const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
+  getTituloDash() {
+    if (this.filterForm.value.tipoConsulta === 'I') {
+      this.tituloDash = 'Inspeções';
+    } else {
+      this.tituloDash = 'Visitas';
+    }
+    return this.tituloDash;
+  }
 
-
-   this.barData = {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-            datasets: [
-                {
-                    label: 'My First dataset',
-                    backgroundColor: documentStyle.getPropertyValue('--p-primary-500'),
-                    borderColor: documentStyle.getPropertyValue('--p-primary-500'),
-                    data: [65, 59, 80, 81, 56, 55, 40]
-                },
-                {
-                    label: 'My Second dataset',
-                    backgroundColor: documentStyle.getPropertyValue('--p-primary-200'),
-                    borderColor: documentStyle.getPropertyValue('--p-primary-200'),
-                    data: [28, 48, 40, 19, 86, 27, 90]
-                }
-            ]
-        };
-
-
-    this.pieData = {
-            labels: ['A', 'B', 'C'],
-            datasets: [
-                {
-                    data: [540, 325, 702],
-                    backgroundColor: [documentStyle.getPropertyValue('--p-indigo-500'), documentStyle.getPropertyValue('--p-purple-500'), documentStyle.getPropertyValue('--p-teal-500')],
-                    hoverBackgroundColor: [documentStyle.getPropertyValue('--p-indigo-400'), documentStyle.getPropertyValue('--p-purple-400'), documentStyle.getPropertyValue('--p-teal-400')]
-                }
-            ]
-        };     
-
-  this.barOptions = {
-            maintainAspectRatio: false,
-            aspectRatio: 0.8,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: textColor
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        color: textColorSecondary,
-                        font: {
-                            weight: 500
-                        }
-                    },
-                    grid: {
-                        display: false,
-                        drawBorder: false
-                    }
-                },
-                y: {
-                    ticks: {
-                        color: textColorSecondary
-                    },
-                    grid: {
-                        color: surfaceBorder,
-                        drawBorder: false
-                    }
-                }
-            }
-        };
-
-}
-    
+  private carregaResumo() {
+    if (!this.filtrosSelecionados) {
+      return;
+    }
+    this.dashService.buscaResumoFinanceiroPorFiltro({
+      ...this.filtrosSelecionados,
+      tipoConsulta: this.filterForm.value?.tipoConsulta ?? null
+    }).subscribe({
+      next: (res) => this.resumo = res,
+      error: (err) => {
+        console.error('Erro ao carregar resumo:', err);
+      }
+    });
+  }
 }

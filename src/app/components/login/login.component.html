@@ -8,23 +8,29 @@
                 <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
                     <div class="text-center mb-8">
 
-                        <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">NRSafe</div>
-                        <span class="text-muted-color font-medium">Faça o login para continuar</span>
+                        <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">
+                            <a class="layout-topbar-logo" routerLink="/">
+                                <img style="width: 250px;" src="assets/images/logo/logo-horizontal.png"
+                                    class="w-12 h-auto object-contain" />
+                            </a>
+                        </div>
                     </div>
 
-                    <div>
-                        <label for="email1"
-                            class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                        <input pInputText id="email1" type="text" placeholder="email"  formControlName="email" />
-                        <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-                            <small class="text-red-500" *ngIf="loginForm.get('email')?.errors?.['required']">O campo email é obrigatório.</small>
-                            <br>
-                            <small class="text-red-500" *ngIf="loginForm.get('email')?.errors?.['email']">E-mail não está valido.</small>
-                        </div>
-                        <div style="margin-top: 20px;">
-                            <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Senha</label>
-                            <p-password id="password1" formControlName="senha" placeholder="senha" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false"></p-password>
-                        </div>   
+                    <div class="w-full max-w-md">
+                        <label for="email1" class="form-label">Email</label>
+  <input pInputText id="email1" type="email" placeholder="email"
+         formControlName="email" class="w-full" />
+
+  <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+    <small class="text-red-500" *ngIf="loginForm.get('email')?.errors?.['required']">O campo email é obrigatório.</small><br>
+    <small class="text-red-500" *ngIf="loginForm.get('email')?.errors?.['email']">E-mail não está válido.</small>
+  </div>
+
+  <div class="mt-3">
+    <label for="password1" class="form-label">Senha</label>
+    <p-password id="password1" formControlName="senha" placeholder="senha"
+                [toggleMask]="true" [feedback]="false" [fluid]="true" styleClass="mb-4"></p-password>
+  </div>
                         <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                             <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary"
                                 routerLink="/esqueceu-senha">Esqueceu a senha?</span>

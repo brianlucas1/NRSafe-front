@@ -1,11 +1,13 @@
-import { Component, Input, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, Renderer2, ViewChild, OnDestroy } from '@angular/core';
 import { StandaloneImports } from '../../../util/standalone-imports';
-import { AuthStorageService } from '../../../../services/auth/auth-storage-service';
+import { AuthStateService } from '../../../../services/auth/auth-state.service';
 import { LayoutService } from '../layout.service';
 import { MenuComponent } from '../menu/menu.component';
 import { BarraSuperiorComponent } from '../barra-superior/barra-superior.component';
 import { filter, Subscription } from 'rxjs';
 import { NavigationEnd, Router } from '@angular/router';
+import { LoadingService } from '../../../util/loading-service';
+import { LoggerService } from '../../../../services/logger.service';
 
 @Component({
     selector: 'app-corpo',
@@ -14,20 +16,30 @@ import { NavigationEnd, Router } from '@angular/router';
     templateUrl: './corpo.component.html',
     styleUrl: './corpo.component.scss'
 })
-export class CorpoComponent {
+export class CorpoComponent implements OnDestroy, OnInit {
+
+     isLoading$: any;
+     isLogado$: any;
+
 
     overlayMenuOpenSubscription: Subscription;
+    routerSubscription: Subscription;
 
     menuOutsideClickListener: any;
 
     @ViewChild(BarraSuperiorComponent) appTopBar!: BarraSuperiorComponent;
 
     constructor(
-        private authService: AuthStorageService,
+        private authState: AuthStateService,
+        private loadingService: LoadingService,
+        private logger: LoggerService,
         public renderer: Renderer2,
         private layoutService: LayoutService,
         public router: Router
     ) {
+        this.isLoading$ = this.loadingService.loading$;
+        this.isLogado$ = this.authState.observarAutenticado();
+
         this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
             if (!this.menuOutsideClickListener) {
                 this.menuOutsideClickListener = this.renderer.listen('document', 'click', (event) => {
@@ -42,10 +54,12 @@ export class CorpoComponent {
             }
         });
 
-        this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+        this.routerSubscription = this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
             this.hideMenu();
         });
     }
+
+    ngOnInit(): void {}
 
 
     get containerClass() {
@@ -57,11 +71,6 @@ export class CorpoComponent {
             'layout-mobile-active': this.layoutService.layoutState().staticMenuMobileActive
         };
     }
-
-
-    isLogado(): boolean {
-    return this.authService.isLoggedIn();
-}
 
 
     isOutsideClicked(event: MouseEvent) {
@@ -100,6 +109,10 @@ export class CorpoComponent {
     ngOnDestroy() {
         if (this.overlayMenuOpenSubscription) {
             this.overlayMenuOpenSubscription.unsubscribe();
+        }
+
+        if (this.routerSubscription) {
+            this.routerSubscription.unsubscribe();
         }
 
         if (this.menuOutsideClickListener) {

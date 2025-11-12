@@ -1,4 +1,5 @@
 import { Endereco } from "../endereco";
+import { EmpresaResponseDTO } from "./empresa-reponse-dto";
 import { FilialResponseDTO } from "./filial-reponse-dto";
 
 export class SiteResponseDTO {
@@ -12,4 +13,5 @@ export class SiteResponseDTO {
     nomeFantasia?: string
     stAtivo?: string
     filialVinculada?: FilialResponseDTO
+    empresaVinculada?: EmpresaResponseDTO
 }

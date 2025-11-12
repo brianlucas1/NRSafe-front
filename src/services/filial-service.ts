@@ -35,4 +35,9 @@ export class FilialService {
          return this.http.put(this.URL_API + '/atualizar', filial)
     }
 
+    buscaFilialPorEmpresa(empresa:any){
+      return this.http.put(this.URL_API + '/atualizar', empresa)
+
+    }
+
 }
