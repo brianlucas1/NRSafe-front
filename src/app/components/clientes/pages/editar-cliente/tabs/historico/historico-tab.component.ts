@@ -16,7 +16,7 @@ export class ClientesHistoricoTabComponent {
   @Input({ required: true }) clienteId!: number;
 
   historico: AssinaturaHistoricoResponseDTO[] = [];
-  rows = 10;
+  rows = 50;
   total = 0;
   loading = false;
 

@@ -76,12 +76,12 @@ export class DialogCadastroSitesComponent implements OnChanges {
     filial:  [this.siteSelecionado?.filialVinculada?.id ?? null],
     empresa: [this.siteSelecionado?.empresaVinculada?.id ?? null],
 
-    logradouro: [{ value: this.siteSelecionado?.enderecoDTO?.logradouro, disabled: true }],
-    bairro:     [{ value: this.siteSelecionado?.enderecoDTO?.bairro,     disabled: true }],
+    logradouro: [this.siteSelecionado?.enderecoDTO?.logradouro],
+    bairro:     [this.siteSelecionado?.enderecoDTO?.bairro],
     numero:     [ this.siteSelecionado?.enderecoDTO?.numero ],
     complemento:[ this.siteSelecionado?.enderecoDTO?.complemento ],
-    localidade: [{ value: this.siteSelecionado?.enderecoDTO?.localidade, disabled: true }],
-    uf:         [{ value: this.siteSelecionado?.enderecoDTO?.uf,         disabled: true }],
+    localidade: [this.siteSelecionado?.enderecoDTO?.localidade],
+    uf:         [this.siteSelecionado?.enderecoDTO?.uf],
     cep:        [ this.siteSelecionado?.enderecoDTO?.cep, [Validators.required, validaCep] ]
   }, { validators: this.requireExactlyOneOf('filial','empresa') });
 

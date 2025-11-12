@@ -43,20 +43,29 @@
  <div class="cards grid"  *ngIf="!isAdmin">
       <div class="col-9 md:col-3">
         <div class="card-info">
-          <div class="card-label"><strong>Perguntas respondidas</strong></div>
+          <div class="card-label"><strong>PERGUNTAS RESPONDIDA</strong></div>
           <div class="card-value text-primary">{{ resumo.totalPerguntasRespondidas || 0 }}</div>
         </div>
       </div>
       <div class="col-12 md:col-3">
         <div class="card-info">
-          <div class="card-label"> <strong>Valor total de multas</strong></div>
+          <div class="card-label"> <strong>PASSÍVEL DE MULTAS</strong></div>
           <div class="card-value text-primary">{{ resumo.totalMulta | currency:'BRL':'symbol':'1.2-2' }}</div>
         </div>
       </div>
       <div class="col-12 md:col-3">
         <div class="card-info">
-          <div class="card-label"><strong>Valor total de investimento</strong></div>
+          <div class="card-label"><strong>PASSÍVEL DE INVESTIMENTO</strong></div>
           <div class="card-value text-primary">{{ resumo.totalInvestimento | currency:'BRL':'symbol':'1.2-2' }}</div>
+        </div>
+      </div>
+      <div class="col-12 md:col-3">
+        <div class="card-info">
+          <div class="card-label"><strong>DIFERENÇA</strong></div>
+          <div class="card-value"
+               [ngClass]="(resumo.totalMulta - resumo.totalInvestimento) >= 0 ? 'text-green-600' : 'text-red-600'">
+            {{ (resumo.totalMulta - resumo.totalInvestimento) | currency:'BRL':'symbol':'1.2-2' }}
+          </div>
         </div>
       </div>
     </div>

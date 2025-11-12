@@ -146,9 +146,16 @@
       </td>
 
        <td>
-        <p-dropdown  [disabled]="planoConcluido" [options]="statusOptions" optionLabel="descricao" [appendTo]="'body'" optionValue="codigo"
-          [(ngModel)]="row.status"    [ngClass]="{'p-invalid': isFieldInvalid(row,'status')}"
-          placeholder="Selecione" class="w-full"></p-dropdown>
+        <p-dropdown  
+          [disabled]="planoConcluido"
+          [options]="statusOptions"
+          optionLabel="descricao"
+          [appendTo]="'body'"
+          optionValue="codigo"
+          [(ngModel)]="row.status" 
+          [ngClass]="{'p-invalid': isFieldInvalid(row,'status')}"
+          placeholder="Selecione" class="w-full">
+      </p-dropdown>
       </td>
 
     </tr>

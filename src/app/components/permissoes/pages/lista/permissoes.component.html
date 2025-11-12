@@ -1,0 +1,49 @@
+<p-toast></p-toast>
+
+<div class="card">
+  <div class="flex items-center justify-between mb-3">
+    <h3 class="m-0">Permissões</h3>
+    <div class="flex items-center gap-2">
+      <button pButton label="Salvar Tudo" icon="pi pi-save" (click)="salvarTudo()" [disabled]="loading"></button>
+    </div>
+  </div>
+
+  <p-table 
+  [value]="papeis"
+   [loading]="loading"
+  [tableStyle]="{ 'min-width': '40rem' }">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Papel</th>
+        <th *ngFor="let c of colunas" class="text-center">{{ c.label }}</th>
+        <th style="width: 120px;">Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-row>
+      <tr>
+        <td class="font-medium">{{ row.nome }}</td>
+        <td *ngFor="let c of colunas" class="text-center">
+          <p-checkbox
+            [binary]="true"
+            [ngModel]="hasPerm(row, c.key)"
+            (ngModelChange)="togglePerm(row, c.key, $event)"></p-checkbox>
+        </td>
+        <td>
+          <button 
+          pButton icon="pi pi-save"
+           class="p-button-text" 
+           (click)="salvarLinha(row)" 
+          [disabled]="loading"></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td [attr.colspan]="colunas.length + 2">Nenhum papel encontrado.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+

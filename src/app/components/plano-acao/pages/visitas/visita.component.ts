@@ -49,7 +49,7 @@ export class VisitasComponent implements OnInit {
   planos: PlanoAcaoResponseDTO[] = [];
 
   carregando = false;
-  linhasPorPagina = 10;
+  linhasPorPagina = 50;
   totalRegistros = 0;
   campoOrdenacao = 'dthrCriacao';
   ordem: Ordem = -1;

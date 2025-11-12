@@ -33,7 +33,11 @@ export class DashboardComponent implements OnInit {
 
   filtrosSelecionados: any = null;
 
-  resumo!: ResumoDashboardDTO;
+  resumo: ResumoDashboardDTO = {
+    totalMulta: 0,
+    totalInvestimento: 0,
+    totalPerguntasRespondidas: 0,
+  };
 
 
   constructor(

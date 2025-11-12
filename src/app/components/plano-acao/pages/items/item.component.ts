@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
 
@@ -50,7 +50,7 @@ export class ItemComponent implements OnInit {
   };
 
   loading = false;
-  rows = 10;
+  rows = 50;
   totalRecords = 0;
   sortField = 'criadoEm';
   sortOrder: 1 | -1 = -1;
@@ -68,8 +68,8 @@ export class ItemComponent implements OnInit {
 
   private lastLazyEvent: TableLazyLoadEvent = { first: 0, rows: this.rows, sortField: this.sortField, sortOrder: this.sortOrder };
 
-  constructor(
-    private router: Router,
+  constructor(    private route: ActivatedRoute,
+private router: Router,
     private msgService: MessageService,
     private confirmationService: ConfirmationService,
     private fb: FormBuilder,
@@ -247,14 +247,8 @@ export class ItemComponent implements OnInit {
   }
 
   criaForm() {
-    const hoje = new Date();
-    const fim = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
-    const inicio = new Date(fim); inicio.setDate(inicio.getDate() - 31);
-
     this.filterForm = this.fb.group({
-      normaSelecionada: [null],
-      dtInicio: [inicio],
-      dtFim: [fim],
+      normaSelecionada: [null]
     });
   }
 
@@ -297,9 +291,7 @@ export class ItemComponent implements OnInit {
     }
 
     const filtros = {
-      normaId: form.normaId ?? null,
-      dtInicio: form.dtInicio ? this.toStartOfDayIso(form.dtInicio) : null,
-      dtFim: form.dtFim ? this.toEndOfDayIso(form.dtFim) : null
+      normaId: form.normaId ?? null
     };
 
     return {
@@ -329,3 +321,5 @@ export class ItemComponent implements OnInit {
     else this.router.navigate(['/plano-acao', 'visitas']);
   }
 }
+
+

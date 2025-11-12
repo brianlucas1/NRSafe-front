@@ -15,7 +15,7 @@ import { UsuariosClienteService } from '../../../../services/usuarios-cliente.se
 export class ClientesUsuariosTabComponent implements OnInit {
   @Input({ required: true }) clienteId!: number;
 
-  rows = 10;
+  rows = 50;
   total = 0;
   loading = false;
   usuarios: UsuarioClienteResumoDTO[] = [];

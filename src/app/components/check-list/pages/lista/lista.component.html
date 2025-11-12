@@ -22,7 +22,7 @@
    [tableStyle]="{ 'min-width': '75rem' }"
    [loading]="loading()" 
    (onLazyLoad)="onLazyLoad($event)"
-   [rowsPerPageOptions]="[5,10,20,50]"
+   [rowsPerPageOptions]="[50,100]"
    [sortField]="sortField"
    [sortOrder]="sortOrder" 
    [responsiveLayout]="'scroll'">
@@ -69,7 +69,7 @@
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="4">
+        <td colspan="5">
           Nenhum checklist encontrado.
           <button pButton type="button" label="Criar agora" class="p-button-text" (click)="openCreate()"></button>
         </td>

@@ -63,15 +63,13 @@ export class PlanoAcaoService {
   // 2) Normas do plano (já existente) — mantém assinatura
   buscaPlanoAcaoItems(
     idPlanoAcao: number,
-    paramsIn: { page: number; size: number; sort: string; normaId?: number | null; dtInicio?: string | null; dtFim?: string | null; }
+    paramsIn: { page: number; size: number; sort: string; normaId?: number | null;  }
   ) {
     return this.getPage<any>(`${this.URL_API}/item/${idPlanoAcao}`, {
       page: paramsIn.page,
       size: paramsIn.size,
       sort: paramsIn.sort,
-      normaId: paramsIn.normaId,
-      dtInicio: paramsIn.dtInicio,
-      dtFim: paramsIn.dtFim
+      normaId: paramsIn.normaId    
     });
   }
 

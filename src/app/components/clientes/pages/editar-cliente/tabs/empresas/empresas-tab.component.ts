@@ -17,7 +17,7 @@ export class ClientesEmpresasTabComponent implements OnInit {
   @Input({ required: true }) clienteId!: number;
   @Output() atualizado = new EventEmitter<void>();
 
-  rows = 10;
+  rows = 50;
   total = 0;
   loading = false;
   empresas: EmpresaClienteResumoDTO[] = [];

@@ -25,7 +25,7 @@ export class ListaCheckListComponent {
 
 
   pageIndex = 0;
-  pageSize = 10;
+  pageSize = 50;
   sortField = 'descricao';
   sortOrder: 1 | -1 = 1;
 

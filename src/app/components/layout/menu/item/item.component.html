@@ -43,7 +43,7 @@
     </a>
 
     <!-- SUBMENU -->
-    <ul *ngIf="item.items && expanded && item.visible !== false" [@children]="submenuAnimation">
+    <ul class="layout-submenu" *ngIf="item.items && expanded && item.visible !== false" [@children]="submenuAnimation">
         <ng-template ngFor let-child let-i="index" [ngForOf]="item.items">
             <app-menuitem [item]="child" [index]="i" [parentKey]="key" [class]="child['badgeClass']"></app-menuitem>
         </ng-template>

@@ -11,6 +11,7 @@ import { SitesComponent } from './app/components/sites/sites.component';
 import { FuncionarioComponent } from './app/components/funcionario/funcionario.component';
 import { DashboardComponent } from './app/components/dashboard/dashboard.component';
 import { ListaCheckListComponent } from './app/components/check-list/pages/lista/lista.component';
+import { PermissoesComponent } from './app/components/permissoes/pages/lista/permissoes.component';
 import { VisualizarPerfilComponent } from './app/components/perfil/pages/visualizar-perfil/visualizar-perfil.component';
 import { EditarClienteComponent } from './app/components/clientes/pages/editar-cliente/editar-cliente.component';
 
@@ -19,6 +20,11 @@ export const appRoutes: Routes = [
  { 
     path: 'clientes/:id', 
     component: EditarClienteComponent, 
+    canActivate: [AuthGuard] 
+  },
+  { 
+    path: 'permissoes', 
+    component: PermissoesComponent, 
     canActivate: [AuthGuard] 
   },
  { path: 'login', component: LoginComponent },
@@ -87,3 +93,4 @@ export const appRoutes: Routes = [
     redirectTo: 'login' 
   }
 ];
+

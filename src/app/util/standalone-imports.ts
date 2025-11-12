@@ -34,6 +34,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { MessageModule } from 'primeng/message';
 import { TabViewModule } from 'primeng/tabview';
 import { InputSwitchModule } from 'primeng/inputswitch';
+import { CheckboxModule } from 'primeng/checkbox';
 
 import { TooltipModule } from "primeng/tooltip";
 
@@ -47,6 +48,7 @@ export const StandaloneImports = [
     MessageModule,
     TabViewModule,
     InputSwitchModule,
+    CheckboxModule,
     CardModule,
     FormsModule,
     TooltipModule,

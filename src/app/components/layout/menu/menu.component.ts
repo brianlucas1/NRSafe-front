@@ -43,14 +43,14 @@ export class MenuComponent implements OnInit {
                 },
                 {
                     label: 'Gerencial',
-                    icon: 'pi pi-cog',
-                    items: [
-                        { label: 'LISTA DE CLIENTES', icon: 'pi pi-users', routerLink: ['/clientes'] },
-                    ]
+                    icon: 'pi pi-cog'
                 },
                 {
                     label: 'Suporte',
                     icon: 'pi pi-cog',
+                      items: [
+                        { label: 'LISTA DE CLIENTES', icon: 'pi pi-users', routerLink: ['/clientes'] },
+                    ]
                 },
             ];
             return;
@@ -72,6 +72,7 @@ export class MenuComponent implements OnInit {
                 items: [
                     { label: 'Colaboradores', icon: 'pi pi-user', routerLink: ['/funcionarios'] },
                     { label: 'Check-list', icon: 'pi pi-clipboard', routerLink: ['/check-list'] },
+                    { label: 'Permissões', icon: 'pi pi-shield', routerLink: ['/permissoes'] },
                 ]
             },
             {

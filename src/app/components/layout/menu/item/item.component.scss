@@ -1,0 +1,37 @@
+:host {
+  display: block;
+}
+
+// Root group link (e.g., section headers)
+:host > .layout-root-menuitem > a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+
+// Regular (non-root) items
+:host:not(.layout-root-menuitem) > a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+}
+
+.layout-menuitem-icon {
+  font-size: 1rem;
+}
+
+// Submenu indentation and visual guide
+ul.layout-submenu {
+  list-style: none;
+  margin: 0.25rem 0 0.5rem 0;
+  padding-left: 1rem;
+  border-left: 1px solid var(--surface-200, #e5e7eb);
+}
+
+// Hover feedback for non-root items
+:host:not(.layout-root-menuitem) > a:hover {
+  background: var(--surface-100, #f3f4f6);
+}

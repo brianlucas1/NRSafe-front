@@ -44,7 +44,7 @@ export class InspecoesComponent implements OnInit {
   statusOptions = [...PLANO_ACAO_STATUS_OPTIONS];
 
   loading = false;
-  rows = 10;
+  rows = 50;
   totalRecords = 0;
   sortField = 'criadoEm';
   sortOrder: 1 | -1 = -1;

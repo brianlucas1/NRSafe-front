@@ -61,12 +61,12 @@ export class DialogCadastroFilialComponent implements OnChanges {
       email: [this.filialSelecionada?.email, [Validators.email]],
       telefone: [this.filialSelecionada?.telefone],
       empresa: [this.filialSelecionada?.empresaVinculada, [Validators.required]],
-      logradouro: [{ value: this.filialSelecionada?.enderecoDTO?.logradouro, disabled: true }],
-      bairro: [{ value: this.filialSelecionada?.enderecoDTO?.bairro, disabled: true }],
+      logradouro: [this.filialSelecionada?.enderecoDTO?.logradouro],
+      bairro: [this.filialSelecionada?.enderecoDTO?.bairro],
       numero: [this.filialSelecionada?.enderecoDTO?.numero],
       complemento: [this.filialSelecionada?.enderecoDTO?.complemento],
-      localidade: [{ value: this.filialSelecionada?.enderecoDTO?.localidade, disabled: true }],
-      uf: [{ value: this.filialSelecionada?.enderecoDTO?.uf, disabled: true }],
+      localidade: [this.filialSelecionada?.enderecoDTO?.localidade],
+      uf: [this.filialSelecionada?.enderecoDTO?.uf],
       cep: [this.filialSelecionada?.enderecoDTO?.cep, [Validators.required, validaCep]]
     });
   }

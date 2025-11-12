@@ -19,7 +19,7 @@ export class ClientesFuncionariosTabComponent {
   @Input({ required: true }) clienteId!: number;
   @Output() atualizado = new EventEmitter<void>();
 
-  rows = 20;
+  rows = 50;
   total = 0;
   loading = false;
   funcionarios: FuncionarioClienteResumoDTO[] = [];
