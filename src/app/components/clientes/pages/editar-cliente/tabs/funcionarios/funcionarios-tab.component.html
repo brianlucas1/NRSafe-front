@@ -29,7 +29,7 @@
       <td>{{ f.email }}</td>
       <td>{{ f.role }}</td>
       <td>
-        <p-inputSwitch [ngModel]="f.ativo" (onChange)="onToggle(f, $event)"></p-inputSwitch>
+        <p-inputSwitch [(ngModel)]="f.ativo" (onChange)="onToggle(f, $event)"></p-inputSwitch>
       </td>
     </tr>
   </ng-template>

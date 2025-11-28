@@ -1,5 +1,5 @@
 <p-toast></p-toast>
-<form [formGroup]="loginForm">
+<form [formGroup]="loginForm" (ngSubmit)="fazerLogin()">
     <div
         class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
         <div class="flex flex-col items-center justify-center">
@@ -18,24 +18,26 @@
 
                     <div class="w-full max-w-md">
                         <label for="email1" class="form-label">Email</label>
-  <input pInputText id="email1" type="email" placeholder="email"
-         formControlName="email" class="w-full" />
+                        <input pInputText id="email1" type="email" placeholder="email" formControlName="email"
+                            class="w-full" />
 
-  <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-    <small class="text-red-500" *ngIf="loginForm.get('email')?.errors?.['required']">O campo email é obrigatório.</small><br>
-    <small class="text-red-500" *ngIf="loginForm.get('email')?.errors?.['email']">E-mail não está válido.</small>
-  </div>
+                        <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+                            <small class="text-red-500" *ngIf="loginForm.get('email')?.errors?.['required']">O campo
+                                email é obrigatório.</small><br>
+                            <small class="text-red-500" *ngIf="loginForm.get('email')?.errors?.['email']">E-mail não
+                                está válido.</small>
+                        </div>
 
-  <div class="mt-3">
-    <label for="password1" class="form-label">Senha</label>
-    <p-password id="password1" formControlName="senha" placeholder="senha"
-                [toggleMask]="true" [feedback]="false" [fluid]="true" styleClass="mb-4"></p-password>
-  </div>
+                        <div class="mt-3">
+                            <label for="password1" class="form-label">Senha</label>
+                            <p-password id="password1" formControlName="senha" placeholder="senha" [toggleMask]="true"
+                                [feedback]="false" [fluid]="true" styleClass="mb-4"></p-password>
+                        </div>
                         <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                             <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary"
                                 routerLink="/esqueceu-senha">Esqueceu a senha?</span>
                         </div>
-                        <p-button label="Entrar" styleClass="w-full" (click)="fazerLogin()"></p-button>
+                        <p-button label="Entrar" styleClass="w-full" type="submit"></p-button>
                     </div>
                 </div>
             </div>

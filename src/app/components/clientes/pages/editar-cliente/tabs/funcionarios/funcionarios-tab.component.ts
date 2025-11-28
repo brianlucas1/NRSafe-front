@@ -67,6 +67,7 @@ export class ClientesFuncionariosTabComponent {
 
   onToggle(func: FuncionarioClienteResumoDTO, event: any) {
     const novoValor = !!event?.checked;
+    const valorAnterior = !novoValor;
     const acao = novoValor ? 'ativar' : 'inativar';
 
     this.confirm.confirm({
@@ -85,13 +86,15 @@ export class ClientesFuncionariosTabComponent {
             this.emitirAtualizacao('toggle-ativo-funcionario');
           },
           error: () => {
-            func.ativo = !novoValor;
+            func.ativo = valorAnterior;
+            this.cdr.detectChanges();
             this.messages.add({ severity: 'error', summary: 'Erro', detail: `Falha ao ${acao} funcionário.` });
           }
         })
       },
       reject: () => {
-        func.ativo = !novoValor;
+        func.ativo = valorAnterior;
+        this.cdr.detectChanges();
       }
     })
   }
