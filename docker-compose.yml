@@ -1,0 +1,29 @@
+networks:
+  proxy:
+    external: true
+
+services:
+  web-nrsafe:
+    image: nginx:1.27-alpine
+    container_name: web-nrsafe
+    restart: unless-stopped
+    networks: [proxy]
+
+    volumes:
+      - /opt/app/nrsafe/web-app/front/NRSafe/browser:/usr/share/nginx/html:ro
+      - /opt/app/nrsafe/web-app/front/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+    healthcheck:
+      test: ["CMD-SHELL","wget -qO- http://127.0.0.1/healthz | grep -q ok || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: "proxy"
+      traefik.http.routers.web-nrsafe.rule: Host(`web.nrsafe.app.br`)
+      traefik.http.routers.web-nrsafe.entrypoints: websecure
+      traefik.http.routers.web-nrsafe.tls.certresolver: le
+      traefik.http.services.web-nrsafe.loadbalancer.server.port: "80"
