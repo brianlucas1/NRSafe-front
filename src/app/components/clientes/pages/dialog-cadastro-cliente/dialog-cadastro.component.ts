@@ -36,6 +36,8 @@ export class DialogCadastroClienteComponent implements OnInit {
     { label: 'Mensal', value: 'MENSAL' as Ciclo },
     { label: 'Anual (-2 meses)', value: 'ANUAL' as Ciclo }
   ];
+
+  
   ciclo: Ciclo = 'MENSAL';
 
   clienteForm!: FormGroup;
