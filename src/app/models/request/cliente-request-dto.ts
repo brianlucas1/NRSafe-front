@@ -11,6 +11,5 @@ export interface ClienteRequestDTO{
     nome:string
     cpf?: String
     endereco:Endereco
-    planoId:number
-    billingCycle?: 'MENSAL' | 'ANUAL' 
+   
 }

@@ -53,6 +53,29 @@ export class AuthStateService {
     );
   }
 
+  
+  /*
+    observarAutenticado(): Observable<boolean> {
+    // Observa mudanças de token/expiração e emite status de autenticação
+    return combineLatest([
+      this.tokenAcesso$.asObservable(),
+      this.expiraEm$.asObservable(),
+      this.clienteUser$.asObservable(),
+      this.assinaturaAtiva$.asObservable()
+    ]).pipe(
+      map(([token, exp, clienteUser, assinaturaAtiva]) => {
+        const base = !!token && Date.now() < exp;
+        if (clienteUser && !assinaturaAtiva) {
+          return false;
+        }
+        return base;
+      }),
+      distinctUntilChanged()
+    );
+  }
+
+  */
+
   tokenExpirado(): boolean {
      return !this.obterTokenAcesso() || Date.now() > this.obterInstanteExpiracao();
      }

@@ -31,6 +31,18 @@ export class MenuComponent implements OnInit {
 
     model: MenuItem[] = [];
 
+
+     ngOnInit(): void {
+        this.verificarSeAdmin();
+        // Primeiro desenho do menu
+        this.criarModelo(this.authState.obterRotuloUsuario() ?? undefined);
+        // Atualiza quando o rótulo mudar (ex.: após refresh inicial)
+        this.authState
+            .observarRotuloUsuario()
+            .pipe(takeUntilDestroyed())
+            .subscribe(rotulo => this.criarModelo(rotulo ?? undefined));
+    }
+
     private criarModelo(rotuloUsuario?: string): void {
         if (this.isAdmin) {
             this.model = [
@@ -91,16 +103,7 @@ export class MenuComponent implements OnInit {
         this.isAdmin = this.authState.isSuporte();
     }
 
-    ngOnInit(): void {
-        this.verificarSeAdmin();
-        // Primeiro desenho do menu
-        this.criarModelo(this.authState.obterRotuloUsuario() ?? undefined);
-        // Atualiza quando o rótulo mudar (ex.: após refresh inicial)
-        this.authState
-            .observarRotuloUsuario()
-            .pipe(takeUntilDestroyed())
-            .subscribe(rotulo => this.criarModelo(rotulo ?? undefined));
-    }
+   
 
     fazerLogout() {
         this.authService.logout();

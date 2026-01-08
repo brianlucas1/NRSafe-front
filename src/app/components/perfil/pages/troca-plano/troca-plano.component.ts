@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, signal, TrackByFunction } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
 import { StandaloneImports } from "../../../../util/standalone-imports";
-import { Router } from "@angular/router";
-import { AuthService } from "../../../../../services/auth/auth-service";
+
 import { PlanoService } from "../../../../../services/plano-service";
 import { AssinaturaService } from "../../../../../services/assinatura-service";
 import { PlanoResponseDTO } from "../../../../models/response/plano-response-dto";
@@ -39,7 +38,7 @@ export class TrocarPlanoComponent {
   );
 
   trackByPlanoId: TrackByFunction<PlanoResponseDTO> = (_: number, p) => p.id; // ou p.idPlano
-trackByRecursoId: TrackByFunction<PlanoRecursoResponseDTO> = (_: number, r) => r.id ?? r.chave;
+  trackByRecursoId: TrackByFunction<PlanoRecursoResponseDTO> = (_: number, r) => r.id ?? r.chave;
 
   constructor(
     private authState: AuthStateService,
@@ -73,12 +72,17 @@ trackByRecursoId: TrackByFunction<PlanoRecursoResponseDTO> = (_: number, r) => r
     });
 
     this.assinaturaService.buscaAssinaturaAtual().subscribe({
-      next: res => this.assinatura.set(res),
-      error: () => {
-        this.errorMsg.set('Erro ao carregar assinatura atual.');
-        this.msg.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao carregar assinatura atual.' });
+      next: res => {
+        this.assinatura.set(res);
+        this.loading.set(false);
       },
-      complete: () => this.loading.set(false)
+      error: (err: any) => {
+       
+          this.errorMsg.set('Erro ao carregar assinatura atual.');
+          this.msg.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao carregar assinatura atual.' });
+        
+        this.loading.set(false);
+      }
     });
   }
 
