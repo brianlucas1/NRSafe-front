@@ -7,6 +7,7 @@ import { AssinaturaPlanoResumoDTO } from "../app/models/dtos/assinatura-plano-re
 import { TrocaPlanoRequestDTO } from "../app/components/perfil/dtos/troca-plano-request-dto";
 import { PageDTO } from "../app/models/dtos/page-dto";
 import { AssinaturaHistoricoResponseDTO } from "../app/models/dtos/assinatura-historico-response-dto";
+import { CheckoutPagamentoResponseDTO } from "../app/models/dtos/checkout-pagamento-response-dto";
 
 
 @Injectable({
@@ -19,8 +20,8 @@ export class AssinaturaService {
 
     constructor(private http: HttpClient) { }
 
-    trocarPlano(trocaPlanoDTO: TrocaPlanoRequestDTO): Observable<void> {
-        return this.http.post<void>(this.URL_API + '/trocar-plano', trocaPlanoDTO);
+    trocarPlano(trocaPlanoDTO: TrocaPlanoRequestDTO): Observable<CheckoutPagamentoResponseDTO> {
+        return this.http.post<CheckoutPagamentoResponseDTO>(this.URL_API + '/trocar-plano', trocaPlanoDTO);
     }
 
 
