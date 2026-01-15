@@ -4,4 +4,6 @@ export interface JwtResponse {
   roles?: string[];
   permissoes?: string[];
   loggedUserLabel?: string;
+  clienteUser?: boolean;
+  assinaturaAtiva?: boolean;
 }

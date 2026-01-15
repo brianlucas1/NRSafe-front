@@ -31,30 +31,20 @@ export class DialogCadastroClienteComponent implements OnInit {
   @Input() visible = false;
   @Output() fechar = new EventEmitter<void>();  
 
-  // === NOVO: opções de ciclo (para o p-selectButton do template)
-  billingOptions = [
-    { label: 'Mensal', value: 'MENSAL' as Ciclo },
-    { label: 'Anual (-2 meses)', value: 'ANUAL' as Ciclo }
-  ];
-  ciclo: Ciclo = 'MENSAL';
 
   clienteForm!: FormGroup;
   cepConsultado?: Endereco;
 
-  // Planos vindos da API
-  listaPlano: PlanoResponseDTO[] = [];
 
   constructor(
     private fb: FormBuilder,
     private msgService: MessageService,
-    private planoService: PlanoService,
     private clienteService: ClienteService,
     private corporativoService: CorporativoService
   ) {}
 
   ngOnInit(): void {
     this.criaFormCliente();
-    this.buscaPlanosAtivos();
   }
 
   criaFormCliente() {
@@ -74,39 +64,8 @@ export class DialogCadastroClienteComponent implements OnInit {
       localidade: [''],
       uf: [''],
       cep: ['', [Validators.required, validaCep]],
-      planoId: [null as number | null, [Validators.required]],
-      billingCycle: [this.ciclo] // 'MENSAL' por padrão
+    
     });
-  }
-
-  buscaPlanosAtivos() {
-    this.planoService.buscarTodosPlanosAtivos().subscribe({
-      next: (res) => (this.listaPlano = res || []),
-      error: () => this.listaPlano = []
-    });
-  }
-
-  onSelectPlano(id: number | string) {
-  this.clienteForm.get('planoId')?.setValue(Number(id), { emitEvent: true });
-  console.log('Plano selecionado:', id);
-}
-
-  // === HELPERS para manter o template limpo
-  preco(plano: PlanoResponseDTO): number {
-    const ciclo = this.clienteForm?.value?.billingCycle as Ciclo;
-    if (ciclo === 'ANUAL') {
-      // política: anual = 12 * mensal * 0.8333 (~2 meses grátis)
-      return Math.round(plano.precoMensal * 12 * 0.8333);
-    }
-    return plano.precoMensal;
-  }
-
-  resumoRecursos(plano: PlanoResponseDTO): string {
-    if (!plano?.recurso?.length) return '';
-    const count = plano.recurso.length;
-    const top3 = plano.recurso.slice(0, 3).map(r => `${r.chave}: ${r.valor}`).join(' • ');
-    const extra = count > 3 ? ` • +${count - 3}` : '';  // ← só se for >3
-    return top3 + extra;
   }
 
   salvar() {
@@ -115,7 +74,6 @@ export class DialogCadastroClienteComponent implements OnInit {
       this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Preencha todos os campos.' });
       return;
     }
-
     const cliente = this.montaCliente();
     this.clienteService.cadastrarCliente(cliente).subscribe({
       next: () => {
@@ -142,8 +100,6 @@ export class DialogCadastroClienteComponent implements OnInit {
       nome: formValue.nome,
       cpf: sanitizeCpf(formValue.cpf),
       // se seu backend já aceita esses campos, mantenha:
-      planoId: formValue.planoId,             // <-- importante!
-      billingCycle: formValue.billingCycle,   // <-- opcional
       endereco: {
         cep: formValue.cep,
         logradouro: formValue.logradouro,

@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, signal, TrackByFunction } from "@angular/core";
+﻿import { ChangeDetectionStrategy, Component, computed, signal, TrackByFunction } from "@angular/core";
 import { ConfirmationService, MessageService } from "primeng/api";
 import { StandaloneImports } from "../../../../util/standalone-imports";
-import { Router } from "@angular/router";
-import { AuthService } from "../../../../../services/auth/auth-service";
+
 import { PlanoService } from "../../../../../services/plano-service";
 import { AssinaturaService } from "../../../../../services/assinatura-service";
 import { PlanoResponseDTO } from "../../../../models/response/plano-response-dto";
@@ -11,6 +10,8 @@ import { PlanoRecursoResponseDTO } from "../../../../models/response/recurso-res
 import { TrocaPlanoRequestDTO } from "../../dtos/troca-plano-request-dto";
 import { AuthStateService } from "../../../../../services/auth/auth-state.service";
 import { LoggerService } from "../../../../../services/logger.service";
+
+type BillingCycle = 'MENSAL' | 'ANUAL';
 
 @Component({
     selector: 'app-troca-plano',
@@ -27,19 +28,25 @@ export class TrocarPlanoComponent {
 
 
    isAdmin: boolean = false;
-  // Estado “claro” com Signals
+  // Estado claro com Signals
   readonly planos = signal<PlanoResponseDTO[]>([]);
   readonly assinatura = signal<AssinaturaPlanoResumoDTO | null>(null);
   readonly loading = signal<boolean>(true);
   readonly errorMsg = signal<string | null>(null);
+  readonly cicloSelecionado = signal<BillingCycle>('MENSAL');
+  readonly carouselResponsiveOptions = [
+    { breakpoint: '1280px', numVisible: 3, numScroll: 1 },
+    { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
+    { breakpoint: '640px', numVisible: 1, numScroll: 1 }
+  ];
 
-  // Derivados legíveis
+  // Derivados legiveis
   readonly idPlanoAtual = computed<number | null>(() =>
     this.assinatura() ? Number(this.assinatura()!.idPlano) : null
   );
 
   trackByPlanoId: TrackByFunction<PlanoResponseDTO> = (_: number, p) => p.id; // ou p.idPlano
-trackByRecursoId: TrackByFunction<PlanoRecursoResponseDTO> = (_: number, r) => r.id ?? r.chave;
+  trackByRecursoId: TrackByFunction<PlanoRecursoResponseDTO> = (_: number, r) => r.id ?? r.chave;
 
   constructor(
     private authState: AuthStateService,
@@ -73,12 +80,17 @@ trackByRecursoId: TrackByFunction<PlanoRecursoResponseDTO> = (_: number, r) => r
     });
 
     this.assinaturaService.buscaAssinaturaAtual().subscribe({
-      next: res => this.assinatura.set(res),
-      error: () => {
-        this.errorMsg.set('Erro ao carregar assinatura atual.');
-        this.msg.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao carregar assinatura atual.' });
+      next: res => {
+        this.assinatura.set(res);
+        this.loading.set(false);
       },
-      complete: () => this.loading.set(false)
+      error: (err: any) => {
+       
+          this.errorMsg.set('Erro ao carregar assinatura atual.');
+          this.msg.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao carregar assinatura atual.' });
+        
+        this.loading.set(false);
+      }
     });
   }
 
@@ -98,9 +110,10 @@ trackByRecursoId: TrackByFunction<PlanoRecursoResponseDTO> = (_: number, r) => r
   }
 
   confirmarTrocaPlano(plano: PlanoResponseDTO) {
+    const ciclo = this.cicloSelecionado() === 'ANUAL' ? 'anual' : 'mensal';
     this.confirm.confirm({
-      header: 'Confirmar alteração de plano',
-      message: `Você está escolhendo o plano "${plano.nomePlano}". Deseja continuar?`,
+      header: 'Confirmar alteracao de plano',
+      message: `Voce esta escolhendo o plano "${plano.nomePlano}" no ciclo ${ciclo}. Deseja continuar?`,
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sim, alterar',
       rejectLabel: 'Cancelar',
@@ -114,18 +127,55 @@ trackByRecursoId: TrackByFunction<PlanoRecursoResponseDTO> = (_: number, r) => r
 
     trocaPlanoDTO.idPlanoAtual = this.idPlanoAtual() ?? undefined;
     trocaPlanoDTO.idPlanoNovo = plano.id;
+    trocaPlanoDTO.billingCycle = this.cicloSelecionado();
 
     this.assinaturaService.trocarPlano(trocaPlanoDTO).subscribe({
-      next: () => {
-        this.msg.add({ severity: 'success', summary: 'Sucesso', detail: 'Plano alterado com sucesso.' });
-        // Recarrega apenas a assinatura para refletir o plano atual
-        this.assinaturaService.buscaAssinaturaAtual().subscribe({
-          next: res => this.assinatura.set(res)
-        });
+      next: (res) => {
+        const checkoutUrl = res?.checkoutUrl?.trim();
+        if (!checkoutUrl) {
+          this.msg.add({ severity: 'error', summary: 'Erro', detail: 'Nao foi possivel iniciar o checkout.' });
+          return;
+        }
+
+        const opened = window.open(checkoutUrl, '_blank', 'noopener');
+        if (!opened) {
+          this.msg.add({ severity: 'warn', summary: 'Atencao', detail: 'Permita pop-ups para abrir o checkout.' });
+          return;
+        }
+
+        this.msg.add({ severity: 'info', summary: 'Checkout', detail: 'Abrindo pagamento em nova aba.' });
       },
       error: () => {
-        this.msg.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível alterar o plano.' });
+        this.msg.add({ severity: 'error', summary: 'Erro', detail: 'Nao foi possivel alterar o plano.' });
       }
     });
+  }
+
+  selecionarCiclo(ciclo: BillingCycle) {
+    this.cicloSelecionado.set(ciclo);
+  }
+
+  getPrecoExibido(plano: PlanoResponseDTO) {
+    return this.cicloSelecionado() === 'ANUAL' ? this.getPrecoAnual(plano) : plano.precoMensal;
+  }
+
+  getPrecoAnual(plano: PlanoResponseDTO) {
+    return plano.precoMensal * 11;
+  }
+
+  getLimiteUsuarios(plano: PlanoResponseDTO) {
+    const recursos = plano.recurso ?? [];
+    const recursoUsuarios = recursos.find(r => this.isRecursoUsuarios(r));
+    return recursoUsuarios?.valor ?? 'Nao informado';
+  }
+
+  recursosSecundarios(plano: PlanoResponseDTO) {
+    const recursos = plano.recurso ?? [];
+    return recursos.filter(r => !this.isRecursoUsuarios(r));
+  }
+
+  private isRecursoUsuarios(recurso: PlanoRecursoResponseDTO) {
+    const chave = (recurso?.chave ?? '').toUpperCase();
+    return chave.includes('USU') || chave.includes('LICEN');
   }
 }
