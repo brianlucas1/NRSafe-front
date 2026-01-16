@@ -13,12 +13,22 @@ jobs:
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Configurar Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
+
+      - name: Definir versao pela tag
+        run: |
+          set -e
+          VERSION="$(git describe --tags --exact-match)"
+          VERSION="${VERSION#v}"
+          echo "Versao detectada: $VERSION"
+          sed -i "s/version: \".*\"/version: \"${VERSION}\"/" src/environments/environment-prod.ts
 
       - name: Instalar dependências
         run: npm ci

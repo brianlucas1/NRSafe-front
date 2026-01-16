@@ -201,10 +201,27 @@
 // New layout styles for sidebar/menu used by menu.component.html
 .layout-sidebar {
   padding: 0.5rem 0.75rem; // bring content slightly inward
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .layout-menu {
   list-style: none;
   margin: 0;
   padding: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.menu-footer {
+  margin-top: auto;
+}
+
+.menu-version {
+  margin-top: 0.5rem;
+  padding: 0 1rem;
+  font-size: 0.75rem;
+  color: #6b7280;
 }

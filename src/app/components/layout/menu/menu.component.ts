@@ -7,6 +7,7 @@ import { AuthService } from '../../../../services/auth/auth-service';
 import { AuthStateService } from '../../../../services/auth/auth-state.service';
 import { LoggerService } from '../../../../services/logger.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { environment } from '../../../../environments/environment';
 
 
 @Component({
@@ -21,6 +22,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class MenuComponent implements OnInit {
 
     isAdmin: boolean = false;
+    appVersion = environment.version;
 
     constructor(
         private authService: AuthService,
