@@ -22,12 +22,11 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Definir versao pela tag
+      - name: Definir versao pelo run number
         run: |
           set -e
-          VERSION="$(git describe --tags --exact-match)"
-          VERSION="${VERSION#v}"
-          echo "Versao detectada: $VERSION"
+          VERSION="1.0.${GITHUB_RUN_NUMBER}"
+          echo "Versao gerada: $VERSION"
           sed -i "s/version: \".*\"/version: \"${VERSION}\"/" src/environments/environment-prod.ts
 
       - name: Instalar dependências
