@@ -3,7 +3,7 @@ name: Deploy Frontend NRSAFE na VPS
 on:
   push:
     branches:
-      - main
+      - develop
   workflow_dispatch: {}
 
 jobs:
@@ -58,6 +58,6 @@ jobs:
 
             git fetch origin
             git checkout $BRANCH
-            git pull origin $BRANCH
+            git reset --hard origin/$BRANCH
 
             ./deploy.sh
