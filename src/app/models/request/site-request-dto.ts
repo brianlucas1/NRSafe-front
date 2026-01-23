@@ -7,7 +7,6 @@ export class SiteRequestDTO {
     id?: number;
     cnpj?: string
     razaoSocial?: string
-    nomeFantasia?: string
     telefone?: string
     email?: string
     endereco?: Endereco

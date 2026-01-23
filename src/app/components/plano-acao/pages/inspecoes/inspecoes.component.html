@@ -1,4 +1,4 @@
-<p-toast></p-toast>
+﻿<p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>
 
 <div class="w-full">
@@ -95,7 +95,7 @@
         </span>
       </td>
       <td>
-        <input type="text"  [disabled]="planoConcluido"  pInputText [(ngModel)]="row.planoAcao"  [ngClass]="{'p-invalid': isFieldInvalid(row,'planoAcao')}" placeholder="Plano de ação" class="w-full" />
+        <input type="text"  [disabled]="row.statusPlanoAcao === 'CO'"  pInputText [(ngModel)]="row.planoAcao"  [ngClass]="{'p-invalid': isFieldInvalid(row,'planoAcao')}" placeholder="Plano de ação" class="w-full" />
       </td>
       <td *ngIf= "row.descCheckListPergunta == null" class="text-right">R$ {{ row.multa | number: '1.2-2' }}</td>
       <td *ngIf= "row.descCheckListPergunta != null" class="text-right">
@@ -104,7 +104,7 @@
           [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
           mode="currency"
           currency="BRL"
-           [disabled]="planoConcluido"
+           [disabled]="row.statusPlanoAcao === 'CO'"
           locale="pt-BR"
           [minFractionDigits]="2"
           [maxFractionDigits]="2"
@@ -116,7 +116,7 @@
       <td class="text-right">
         <p-inputNumber
           [(ngModel)]="row.investimento"
-           [disabled]="planoConcluido"
+           [disabled]="row.statusPlanoAcao === 'CO'"
           [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
           mode="currency"
           currency="BRL"
@@ -129,7 +129,7 @@
       </td>
 
       <td>
-        <input type="text"  [ngClass]="{'p-invalid': isFieldInvalid(row,'responsavel')}"  [disabled]="planoConcluido" pInputText [(ngModel)]="row.responsavel" placeholder="Digite um responsavel" class="w-full" />
+        <input type="text"  [ngClass]="{'p-invalid': isFieldInvalid(row,'responsavel')}"  [disabled]="row.statusPlanoAcao === 'CO'" pInputText [(ngModel)]="row.responsavel" placeholder="Digite um responsavel" class="w-full" />
       </td>  
 
       <td class="text-right">
@@ -137,7 +137,7 @@
           [(ngModel)]="row.previsao"
           [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
           dateFormat="dd/mm/yy"
-           [disabled]="planoConcluido"
+           [disabled]="row.statusPlanoAcao === 'CO'"
           [ngClass]="{'p-invalid': isFieldInvalid(row,'previsao')}"
           [showButtonBar]="true"
           [appendTo]="'body'"
@@ -147,7 +147,7 @@
 
        <td>
         <p-dropdown  
-          [disabled]="planoConcluido"
+          [disabled]="row.statusPlanoAcao === 'CO'"
           [options]="statusOptions"
           optionLabel="descricao"
           [appendTo]="'body'"
@@ -175,3 +175,4 @@
   <div class="flex justify-end mt-4">
     <button pButton type="button" icon="pi pi-arrow-left" label="Voltar" (click)="voltar()"></button>
   </div>
+

@@ -9,7 +9,6 @@ import { StandaloneImports } from '../../../util/standalone-imports';
 import { EmpresaService } from '../../../../services/empresa-service';
 import { cnpjValido } from '../../../util/cnpj-validator';
 import { cpfValidator } from '../../../util/cpf-validator';
-import { rgValidator } from '../../../util/rg-validator';
 import { validaCep } from '../../../util/cep-validator';
 import { SiteService } from '../../../../services/site-service';
 import { FilialResponseDTO } from '../../../models/response/filial-reponse-dto';
@@ -67,7 +66,6 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
       nome: [this.funcionarioSelecionado?.nome, [Validators.required]],
       telefone: [this.funcionarioSelecionado?.telefone, ],
       celular: [this.funcionarioSelecionado?.celular, ],
-      rg: [this.funcionarioSelecionado?.rg, [Validators.required, rgValidator()]],
       dataNascimento: [this.funcionarioSelecionado?.dtNascimento],
       logradouro: [this.funcionarioSelecionado?.endereco?.logradouro],
       bairro: [this.funcionarioSelecionado?.endereco?.bairro],
@@ -156,7 +154,6 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
           email: formValue.email,
           telefone: formValue.telefone,
           celular: formValue.celular,
-          rg: formValue.rg,
           dtNascimento: formValue.dtNascimento,
           endereco: {
             cep: formValue.cep,
@@ -183,7 +180,6 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
           email: formValue.email,
           telefone: formValue.telefone,
           celular: formValue.celular,
-          rg: formValue.rg,
           dtNascimento: formValue.dtNascimento,
           endereco: {
             cep: formValue.cep,

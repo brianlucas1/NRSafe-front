@@ -55,7 +55,7 @@ jobs:
 
             cd /opt/app/nrsafe/web-app/front/NRSafe-front
 
-            git fetch origin
+            git fetch origin 
             git checkout $BRANCH
             git reset --hard origin/$BRANCH
 

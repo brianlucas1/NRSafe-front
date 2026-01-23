@@ -272,10 +272,10 @@ export class InspecoesComponent implements OnInit {
         this.totaisGerais.totalInvestimento = 0;
         this.totaisGerais.totalMulta = 0;
       }
+      this.planoConcluido = this.listaPlanoAcaoSubItems.length > 0
+        && this.listaPlanoAcaoSubItems.every(plano => plano.statusPlanoAcao === 'CO');
+
       this.listaPlanoAcaoSubItems.forEach(plano => {
-          if(plano.statusPlanoAcao === 'CO'){
-          this.planoConcluido = true;
-        }
         this.totaisGerais!.totalInvestimento += plano.investimento ?? 0;
         this.totaisGerais!.totalMulta += plano.multa ?? 0;
       });

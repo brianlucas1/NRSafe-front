@@ -69,7 +69,6 @@ export class DialogCadastroSitesComponent implements OnChanges {
     id: [this.siteSelecionado?.id ?? null], // <- chave para detectar edição
     cnpj: [this.siteSelecionado?.cnpj, [Validators.required, Validators.minLength(14), cnpjValido]],
     razaoSocial: [this.siteSelecionado?.razaoSocial, Validators.required],
-    nomeFantasia: [this.siteSelecionado?.nomeFantasia],
     email: [this.siteSelecionado?.email, [Validators.email]],
     telefone: [this.siteSelecionado?.telefone],
 
@@ -112,7 +111,6 @@ export class DialogCadastroSitesComponent implements OnChanges {
     id: v.id ?? null,
     cnpj: onlyDigits(v.cnpj),
     razaoSocial: v.razaoSocial,
-    nomeFantasia: v.nomeFantasia || null,
     email: v.email || null,
     telefone: onlyDigits(v.telefone) || null,
 
@@ -226,7 +224,6 @@ export class DialogCadastroSitesComponent implements OnChanges {
   return {
     cnpj: v.cnpj,
     razaoSocial: v.razaoSocial,
-    nomeFantasia: v.nomeFantasia,
     email: v.email,
     telefone: v.telefone,
     endereco: {

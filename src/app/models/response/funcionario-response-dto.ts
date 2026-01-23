@@ -14,7 +14,6 @@ export class FuncionarioResponseDTO{
     perfil?:string
     telefone?:string
     celular?:string
-    rg?:string
     dtNascimento?:Date
     endereco?: Endereco
 

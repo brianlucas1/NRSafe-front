@@ -7,7 +7,6 @@ export class FuncionarioRequestDTO {
     email?: String
     telefone?: String
     celular?: String
-    rg?: String
     dtNascimento?: Date
     endereco?:Endereco
     filiaisId?:  number[]

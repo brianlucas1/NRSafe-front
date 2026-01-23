@@ -10,7 +10,6 @@ export class SiteResponseDTO {
     telefone?: string
     email?: string
     enderecoDTO?: Endereco
-    nomeFantasia?: string
     stAtivo?: string
     filialVinculada?: FilialResponseDTO
     empresaVinculada?: EmpresaResponseDTO

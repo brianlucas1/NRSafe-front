@@ -1,4 +1,4 @@
-<p-dialog [visible]="visible" [style]="{ width: '600px' }" [closable]="false" [modal]="true" (onHide)="onHideDialog()">
+﻿<p-dialog [visible]="visible" [style]="{ width: '600px' }" [closable]="false" [modal]="true" (onHide)="onHideDialog()">
   <p-toast></p-toast>
   <ng-template pTemplate="header">
     <div class="flex items-center gap-2">
@@ -63,19 +63,11 @@
 
       <div class="flex flex-col md:flex-row gap-6">
         <div class="flex-6">
-          <label class="block font-bold mb-1">Razão Social</label>
+          <label class="block font-bold mb-1">Site</label>
           <input pInputText formControlName="razaoSocial" />
           <div *ngIf="siteForm.get('razaoSocial')?.invalid && siteForm.get('razaoSocial')?.touched">
-            <small class="text-red-500" *ngIf="siteForm.get('razaoSocial')?.errors?.['required']">O campo razão social é
-              obrigatório.</small>
+            <small class="text-red-500" *ngIf="siteForm.get('razaoSocial')?.errors?.['required']">O campo site e obrigatorio.</small>
           </div>
-        </div>
-      </div>
-
-      <div class="flex flex-col md:flex-row gap-4">
-        <div class="flex-1">
-          <label class="block font-bold mb-1">Nome Fantasia</label>
-          <input pInputText formControlName="nomeFantasia" />
         </div>
       </div>
 

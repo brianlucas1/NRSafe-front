@@ -1,4 +1,4 @@
-<p-dialog [visible]="visible" [style]="{ width: '600px' }" [closable]="false" [modal]="true" (onHide)="onHideDialog()">
+﻿<p-dialog [visible]="visible" [style]="{ width: '600px' }" [closable]="false" [modal]="true" (onHide)="onHideDialog()">
     <p-toast></p-toast>
     <ng-template pTemplate="header">
         <div class="flex items-center gap-2">
@@ -21,18 +21,6 @@
                         <small class="text-red-500" *ngIf="funcionarioForm.get('cpf')?.errors?.['cpfInvalido']">Cpf não está valido.</small>
                     </div>
                 </div>
-
-                <div class="flex-4">
-                    <label class="block font-bold mb-1">RG</label>
-                    <p-inputmask formControlName="rg" placeholder="99-999-999-9" mask="99-999-999-9"
-                        class="w-full" />
-                    <div *ngIf="funcionarioForm.get('rg')?.invalid && funcionarioForm.get('rg')?.touched">
-                        <small class="text-red-500" *ngIf="funcionarioForm.get('rg')?.errors?.['required']">O campo rg  é obrigatório.</small>
-                        <br>
-                        <small class="text-red-500" *ngIf="funcionarioForm.get('rg')?.errors?.['rgInvalido']">Rg não está valido.</small>
-                    </div>
-                </div>
-
             </div>
 
             <div class="flex flex-col md:flex-row gap-4">

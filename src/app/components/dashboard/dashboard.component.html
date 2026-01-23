@@ -1,4 +1,4 @@
-<div class="w-full" *ngIf="!isAdmin; else adminInfo">
+﻿<div class="w-full" *ngIf="!isAdmin; else adminInfo">
   <form [formGroup]="filterForm">
     <p-toolbar styleClass="mb-6">
       <ng-template #start>
@@ -9,7 +9,8 @@
              formControlName="empresaSelecionada"
              optionLabel="razaoSocial"
              optionValue="id" 
-             placeholder="{{ (listaEmpresas?.length ? 'Selecione a empresa' : 'Sem empresas disponíveis') }}"
+             placeholder="{{ (listaEmpresas?.length ? 'Selecione a empresa' : 'Sem empresas disponiveis') }}"
+             [showClear]="true"
              [emptyMessage]="''"
              [emptyFilterMessage]="''">
             </p-select>
@@ -24,7 +25,7 @@
           </div>
           <div>
             <label class="block font-bold mb-1">Tipo Consulta</label>
-            <p-select [options]="tipoConsultaOptions" formControlName="tipoConsulta"  placeholder="Selecione o tipo da consulta">
+            <p-select [options]="tipoConsultaOptions" formControlName="tipoConsulta"  placeholder="Selecione o tipo da consulta" [showClear]="true">
             </p-select>
           </div>
           <div class="flex-4" style="margin-top: 20px;">
@@ -49,13 +50,13 @@
       </div>
       <div class="col-12 md:col-3">
         <div class="card-info">
-          <div class="card-label"> <strong>PASSÍVEL DE MULTAS</strong></div>
+          <div class="card-label"> <strong>MULTAS</strong></div>
           <div class="card-value text-primary">{{ resumo.totalMulta | currency:'BRL':'symbol':'1.2-2' }}</div>
         </div>
       </div>
       <div class="col-12 md:col-3">
         <div class="card-info">
-          <div class="card-label"><strong>PASSÍVEL DE INVESTIMENTO</strong></div>
+          <div class="card-label"><strong> INVESTIMENTO</strong></div>
           <div class="card-value text-primary">{{ resumo.totalInvestimento | currency:'BRL':'symbol':'1.2-2' }}</div>
         </div>
       </div>
@@ -93,3 +94,10 @@
 
 
 <app-dashboard-table  *ngIf="!isAdmin" [filtros]="filtrosSelecionados"></app-dashboard-table>
+
+
+
+
+
+
+
