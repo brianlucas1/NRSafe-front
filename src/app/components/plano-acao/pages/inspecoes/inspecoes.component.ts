@@ -8,7 +8,7 @@ import { StandaloneImports } from '../../../../util/standalone-imports';
 import { PlanoAcaoSubItemResponseDTO } from '../../dtos/plano-acao-sub-item-norma-dto';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
-import { PLANO_ACAO_STATUS_OPTIONS } from '../../dtos/status-plano-acao-enum-dto';
+import { normalizeStatus, PLANO_ACAO_STATUS_OPTIONS } from '../../dtos/status-plano-acao-enum-dto';
 import { AtualizaSubitemRequestDTO } from '../../dtos/request/atualiza-sub-item-request-dto';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { PlanoAcaoContextService } from '../../services/plano-acao-context';
@@ -28,7 +28,14 @@ import { formataDataDiaMesAno } from '../../../../util/data-java';
 export class InspecoesComponent implements OnInit {
 
 
-  private originalSnapshot = new Map<number, { status: string | null; responsavel: string | null; planoAcao: string | null; previsao: Date | null; investimento: number | null; multa: number | null }>();
+  private originalSnapshot = new Map<number, {
+    status: string | null;
+    responsavel: string | null;
+    planoAcao: string | null;
+    previsaoMs: number | null;
+    investimento: number | null;
+    multa: number | null;
+  }>();
   saving = false;
 
   filterForm!: FormGroup;
@@ -88,7 +95,7 @@ export class InspecoesComponent implements OnInit {
 
     const changes = this.getChanges();
 
-    this.validaCampos(changes);
+    if (!this.validaCampos(changes)) return;
   
     this.saving = true;
 
@@ -113,21 +120,35 @@ export class InspecoesComponent implements OnInit {
     } finally { this.saving = false; }
   }
 
-  private validaCampos(changes: AtualizaSubitemRequestDTO[]) {
+  private validaCampos(changes: AtualizaSubitemRequestDTO[]): boolean {
 
     if(changes.length === 0) {
       this.msgService.add({ severity: 'info', summary: 'Atenção', detail: 'Nenhuma alteração para salvar' });
-      throw new Error('Nenhuma alteração para salvar');
+      return false;
     }
 
     for (const change of changes) {
-      const row = this.listaPlanoAcaoSubItems.map(r => r.id === change.id ? r : null).find(r => r !== null);
+      const row = this.listaPlanoAcaoSubItems.find(r => r?.id === change.id);
       if (!row) continue;
-      if (!this.isRequiredFilled(row)) {
-        this.msgService.add({ severity: 'error', summary: 'Erro', detail: `Para salvar é nececssário preencher todos os campos` });
-        throw new Error('Campos obrigatórios não preenchidos');
+
+      if (!row.status) {
+        this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Para salvar é necessário selecionar um status' });
+        return false;
+      }
+
+      // Regra de negócio: para concluir, exige campos completos
+      if (row.status === 'CO' && !this.isRequiredFilled(row)) {
+        this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Para concluir é necessário preencher Plano de ação, Responsável e Previsão' });
+        return false;
+      }
+
+      // CheckList: só permite salvar mudança de status se Multa > 0
+      if (change.status !== undefined && this.isCheckListRow(row) && !this.isMultaOk(row)) {
+        this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Para alterar o status do CheckList, a Multa deve ser maior que R$ 0,00' });
+        return false;
       }
     }
+    return true;
   }
 
 
@@ -160,6 +181,42 @@ export class InspecoesComponent implements OnInit {
     this.carregarTotaisGerais();
   }
 
+  private parseBackendDate(input: any): Date | null {
+    if (!input) return null;
+    if (input instanceof Date) return isNaN(input.getTime()) ? null : input;
+
+    if (typeof input === 'number') {
+      const d = new Date(input);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    if (typeof input === 'string') {
+      const s = input.trim();
+      if (!s) return null;
+
+      // dd-MM-yyyy ou dd/MM/yyyy
+      const m = /^(\d{2})[-\/](\d{2})[-\/](\d{4})$/.exec(s);
+      if (m) {
+        const dd = Number(m[1]);
+        const mm = Number(m[2]);
+        const yyyy = Number(m[3]);
+        const d = new Date(yyyy, mm - 1, dd);
+        return isNaN(d.getTime()) ? null : d;
+      }
+
+      // ISO / RFC (yyyy-MM-dd, yyyy-MM-ddTHH:mm:ss, etc.)
+      const iso = new Date(s);
+      if (!isNaN(iso.getTime())) return iso;
+    }
+
+    return null;
+  }
+
+  private toDateMs(input: any): number | null {
+    const d = this.parseBackendDate(input);
+    return d ? d.getTime() : null;
+  }
+
   private async carregaPlanoAcaoSubItensNormas(event: TableLazyLoadEvent): Promise<void> {
     this.loading = true;
     const params = this.buildQueryParams(event);
@@ -174,8 +231,8 @@ export class InspecoesComponent implements OnInit {
       this.listaPlanoAcaoSubItems = content.map((r: any) => ({      
         ...r,
         // garanta que os campos editáveis existam (null-safe)
-        status: r.status ?? null,
-        previsao: r.previsao ?? null,
+        status: normalizeStatus(r.status) ?? r.status ?? null,
+        previsao: this.parseBackendDate(r.previsao),
         responsavel: r.responsavel ?? null,
         planoAcao: r.planoAcao ?? null
       })
@@ -190,7 +247,7 @@ export class InspecoesComponent implements OnInit {
           this.originalSnapshot.set(row.id, {
             status: row.status ?? null,
             investimento: row.investimento ?? null,
-            previsao: row.previsao ?? null,
+            previsaoMs: this.toDateMs(row.previsao),
             multa: row.multa ?? null,
             responsavel: row.responsavel ?? null,
             planoAcao: row.planoAcao ?? null
@@ -240,7 +297,7 @@ export class InspecoesComponent implements OnInit {
     return {
       page, size,
       sort: `${this.mapSortField(this.sortField)},${this.sortOrder === 1 ? 'asc' : 'desc'}`,
-      normaId: form.normaSelecionada ?? null,
+      subItemId: form.normaSelecionada ?? null,
       dtInicio: form.dtInicio ? formataDataDiaMesAno(form.dtInicio, false) : null,
       dtFim: form.dtFim ? formataDataDiaMesAno(form.dtFim, true) : null
     };
@@ -272,10 +329,10 @@ export class InspecoesComponent implements OnInit {
         this.totaisGerais.totalInvestimento = 0;
         this.totaisGerais.totalMulta = 0;
       }
+      this.planoConcluido = this.listaPlanoAcaoSubItems.length > 0
+        && this.listaPlanoAcaoSubItems.every(plano => plano.statusPlanoAcao === 'CO');
+
       this.listaPlanoAcaoSubItems.forEach(plano => {
-          if(plano.statusPlanoAcao === 'CO'){
-          this.planoConcluido = true;
-        }
         this.totaisGerais!.totalInvestimento += plano.investimento ?? 0;
         this.totaisGerais!.totalMulta += plano.multa ?? 0;
       });
@@ -303,12 +360,13 @@ export class InspecoesComponent implements OnInit {
     for (const row of this.listaPlanoAcaoSubItems ?? []) {
       if (row?.id == null) continue;
 
-      const orig = this.originalSnapshot.get(row.id) ?? { status: null, responsavel: null, planoAcao: null, previsao: null, investimento: null, multa: null };
+      const orig = this.originalSnapshot.get(row.id) ?? { status: null, responsavel: null, planoAcao: null, previsaoMs: null, investimento: null, multa: null };
+      const curPrevisaoDate = this.parseBackendDate(row.previsao);
       const cur = {
         investimento: row.investimento ?? null,
         status: row.status ?? null,
         multa: row.multa ?? null,
-        previsao: row.previsao ?? null,
+        previsaoMs: curPrevisaoDate ? curPrevisaoDate.getTime() : null,
         responsavel: row.responsavel ?? null,
         planoAcao: row.planoAcao ?? null
       };
@@ -320,7 +378,10 @@ export class InspecoesComponent implements OnInit {
       if ((orig.responsavel || null) !== (cur.responsavel || null)) { diff.responsavel = cur.responsavel; changed = true; }
       if ((orig.planoAcao || null) !== (cur.planoAcao || null)) { diff.planoAcao = cur.planoAcao; changed = true; }
       if (orig.multa !== cur.multa) { diff.multa = cur.multa; changed = true; }
-      if ((orig.previsao || null) !== (cur.previsao || null)) { diff.previsao = cur.previsao; changed = true; }
+      if ((orig.previsaoMs || null) !== (cur.previsaoMs || null)) {
+        diff.previsao = curPrevisaoDate ? formataDataDiaMesAno(curPrevisaoDate, false) : null;
+        changed = true;
+      }
       if (orig.investimento !== cur.investimento) { diff.investimento = cur.investimento; changed = true; }
       if (changed) changes.push(diff);
     }
@@ -338,7 +399,7 @@ export class InspecoesComponent implements OnInit {
   private isRequiredFilled(row: PlanoAcaoSubItemResponseDTO): boolean {
     const hasPlano = !!row.planoAcao?.trim();
     const hasResp = !!row.responsavel?.trim();
-    const hasPrev = row.previsao instanceof Date; // aceite também string ISO se vier do backend
+    const hasPrev = !!this.parseBackendDate(row.previsao);
     return hasPlano && hasResp && hasPrev;
   }
 
@@ -349,25 +410,43 @@ export class InspecoesComponent implements OnInit {
     return (orig.status ?? null) !== (row.status ?? null);
   }
 
+  private isCheckListRow(row: PlanoAcaoSubItemResponseDTO): boolean {
+    return !!row.descCheckListPergunta;
+  }
+
+  private isMultaOk(row: PlanoAcaoSubItemResponseDTO): boolean {
+    return (row.multa ?? 0) > 0;
+  }
+
+  isMultaInvalid(row: PlanoAcaoSubItemResponseDTO): boolean {
+    const changed = this.rowHasAnyChange(row);
+    if (!changed) return false;
+    // só marca quando o usuário mudou o status do CheckList
+    return this.isCheckListRow(row) && this.isStatusChanged(row) && !this.isMultaOk(row);
+  }
+
   // Para pintar o campo como inválido no template
   isFieldInvalid(row: PlanoAcaoSubItemResponseDTO, field: 'planoAcao' | 'responsavel' | 'previsao' | 'status'): boolean {
     const changed = this.rowHasAnyChange(row);
     if (!changed) return false; // só valida o que será salvo
+
+    const requiresAll = (row.status ?? null) === 'CO';
     switch (field) {
-      case 'planoAcao': return !row.planoAcao?.trim();
-      case 'responsavel': return !row.responsavel?.trim();
-      case 'previsao': return !(row.previsao instanceof Date);
-      case 'status': return !this.isStatusChanged(row);
+      case 'planoAcao': return requiresAll && !row.planoAcao?.trim();
+      case 'responsavel': return requiresAll && !row.responsavel?.trim();
+      case 'previsao': return requiresAll && !this.parseBackendDate(row.previsao);
+      case 'status': return !row.status;
     }
   }
 
   private rowHasAnyChange(row: PlanoAcaoSubItemResponseDTO): boolean {
     const o = this.originalSnapshot.get(row.id);
     if (!o) return true;
+    const curPrevisaoMs = this.toDateMs(row.previsao);
     return (o.status ?? null) !== (row.status ?? null)
       || (o.responsavel ?? null) !== (row.responsavel ?? null)
       || (o.planoAcao ?? null) !== (row.planoAcao ?? null)
-      || (o.previsao ?? null) !== (row.previsao ?? null)
+      || (o.previsaoMs ?? null) !== (curPrevisaoMs ?? null)
       || (o.investimento ?? null) !== (row.investimento ?? null)
       || (o.multa ?? null) !== (row.multa ?? null);
   }

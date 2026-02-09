@@ -25,6 +25,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
     this.loadingService.show();
 
+    
     // Se o token está expirado, tenta fazer o refresh
     if (this.authState.tokenExpirado()) {
       return this.authService.refreshToken().pipe(

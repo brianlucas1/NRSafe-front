@@ -1,17 +1,13 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Route, Router, RouterModule } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { RippleModule } from 'primeng/ripple';
+
 
 import { LoginRequest } from './login-request';
+import { JwtResponse } from '../../models/jwt-response';
 import { AuthService } from '../../../services/auth/auth-service';
 import { AuthStateService } from '../../../services/auth/auth-state.service';
 import { LoggerService } from '../../../services/logger.service';
-import { LoginSerivce } from '../../../services/login-service';
 import { StandaloneImports } from '../../util/standalone-imports';
 import { MessageService } from 'primeng/api';
 
@@ -52,9 +48,11 @@ export class LoginComponent  implements OnInit {
     }
 
     const loginRequest: LoginRequest = this.loginForm.value as LoginRequest;
+    
     try {
       await import('rxjs').then(async ({ firstValueFrom }) => {
-        await firstValueFrom(this.authService.login(loginRequest));
+        const res = await firstValueFrom(this.authService.login(loginRequest)) as JwtResponse;
+ 
       });
       this.router.navigate(['/dashboard']);
     } catch (erro: any) {

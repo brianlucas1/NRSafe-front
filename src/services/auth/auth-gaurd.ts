@@ -19,6 +19,8 @@ export class AuthGuard implements CanActivate {
   async canActivate(): Promise<boolean> {
     // Se já está logado em memória, libera
     if (this.authState.estaLogado()) {
+      // Se for usuário cliente com assinatura inativa, bloquear acesso a outras rotas
+    
       return true;
     }
 
@@ -26,6 +28,9 @@ export class AuthGuard implements CanActivate {
     try {
       await firstValueFrom(this.authService.refreshToken());
       if (this.authState.estaLogado()) {
+      //  const cliente = this.authState.obterClienteUser();
+       // const ativa = this.authState.obterAssinaturaAtiva();
+      
         return true;
       }
     } catch (err) {

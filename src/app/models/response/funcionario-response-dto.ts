@@ -12,9 +12,9 @@ export class FuncionarioResponseDTO{
     cpf?:string
     stAtivo?:string
     perfil?:string
+    idPapelCliente?: number
     telefone?:string
     celular?:string
-    rg?:string
     dtNascimento?:Date
     endereco?: Endereco
 

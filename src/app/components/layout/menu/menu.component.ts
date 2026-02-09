@@ -7,6 +7,7 @@ import { AuthService } from '../../../../services/auth/auth-service';
 import { AuthStateService } from '../../../../services/auth/auth-state.service';
 import { LoggerService } from '../../../../services/logger.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { environment } from '../../../../environments/environment';
 
 
 @Component({
@@ -21,6 +22,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class MenuComponent implements OnInit {
 
     isAdmin: boolean = false;
+    appVersion = environment.version;
 
     constructor(
         private authService: AuthService,
@@ -30,6 +32,18 @@ export class MenuComponent implements OnInit {
     ) { }
 
     model: MenuItem[] = [];
+
+
+     ngOnInit(): void {
+        this.verificarSeAdmin();
+        // Primeiro desenho do menu
+        this.criarModelo(this.authState.obterRotuloUsuario() ?? undefined);
+        // Atualiza quando o rótulo mudar (ex.: após refresh inicial)
+        this.authState
+            .observarRotuloUsuario()
+            .pipe(takeUntilDestroyed())
+            .subscribe(rotulo => this.criarModelo(rotulo ?? undefined));
+    }
 
     private criarModelo(rotuloUsuario?: string): void {
         if (this.isAdmin) {
@@ -91,16 +105,7 @@ export class MenuComponent implements OnInit {
         this.isAdmin = this.authState.isSuporte();
     }
 
-    ngOnInit(): void {
-        this.verificarSeAdmin();
-        // Primeiro desenho do menu
-        this.criarModelo(this.authState.obterRotuloUsuario() ?? undefined);
-        // Atualiza quando o rótulo mudar (ex.: após refresh inicial)
-        this.authState
-            .observarRotuloUsuario()
-            .pipe(takeUntilDestroyed())
-            .subscribe(rotulo => this.criarModelo(rotulo ?? undefined));
-    }
+   
 
     fazerLogout() {
         this.authService.logout();

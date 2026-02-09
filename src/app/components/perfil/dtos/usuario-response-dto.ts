@@ -6,7 +6,6 @@ export interface UsuarioResponseDTO{
     idUsuario: number;
     email: string;
     role: string;
-
     funcionario:FuncionarioResponseDTO;
     cliente: ClienteResponseDTO;
 

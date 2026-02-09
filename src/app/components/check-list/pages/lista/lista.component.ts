@@ -81,9 +81,9 @@ export class ListaCheckListComponent {
   }
 
    openCreate() {
-    this.idCheckList = null;
-    this.dialogCadastro.set(true);
-  }
+     this.idCheckList = null;
+     this.dialogCadastro.set(true);
+   }
 
   editarcheckList(row: CheckListReponseListDTO) {
     this.idCheckList = row.id;

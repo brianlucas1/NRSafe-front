@@ -42,9 +42,6 @@
   <ng-template #header>
     <tr>
 
-      <th pSortableColumn="cnpj" style="min-width:16rem">
-        CNPJ
-      </th>
       <th pSortableColumn="razaoSocial" style="min-width:10rem">
         RAZÃO SOCIAL
         <p-sortIcon field="razaoSocial" />
@@ -53,11 +50,7 @@
         E-MAIL
         <p-sortIcon field="email" />
       </th>
-      <th pSortableColumn="nomeFantasia" style="min-width:10rem">
-        NOME FANTASIA
-        <p-sortIcon field="nomeFantasia" />
-      </th>     
-        <th pSortableColumn="ativo" style="min-width:10rem">
+      <th pSortableColumn="ativo" style="min-width:10rem">
         ATIVO
       </th>
       <th style="min-width: 12rem">
@@ -68,10 +61,8 @@
 
   <ng-template #body let-site>
     <tr>
-      <td style="min-width: 16rem">{{ site.cnpj }}</td>
       <td>{{ site.razaoSocial}}</td>
       <td>{{ site.email}}</td>
-      <td>{{ site.nomeFantasia }}</td>
         <td>
         <i class="pi" (click)="inativarSite(site)" [ngClass]="{
                         'text-green-500 pi-check-circle': site.stAtivo =='A',

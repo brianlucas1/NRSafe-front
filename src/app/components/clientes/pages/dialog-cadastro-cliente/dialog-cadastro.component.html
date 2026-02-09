@@ -11,8 +11,7 @@
   <ng-template pTemplate="content">
     <form *ngIf="clienteForm" [formGroup]="clienteForm" class="space-y-4">
 
-      <!-- CAMPOS DO CLIENTE -->
-      <!-- LINHA 1: CNPJ | Razão Social -->
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block font-bold mb-1">CNPJ</label>
@@ -157,53 +156,6 @@
             <small class="text-red-500" *ngIf="clienteForm.get('uf')?.errors?.['required']">O campo UF é
               obrigatório.</small>
           </div>
-        </div>
-      </div>
-
-
-      <!-- SELECIONAR PLANO -->
-      <div class="pt-3 border-t">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-base font-semibold">Selecionar Plano</h3>
-          <p-selectButton [options]="billingOptions" formControlName="billingCycle" optionLabel="label"
-            optionValue="value"></p-selectButton>
-        </div>
-
-        <div class="grid md:grid-cols-1 gap-3">
-          <p-card *ngFor="let plano of listaPlano" class="cursor-pointer border transition-shadow" [ngClass]="{
-              'ring-2 ring-primary-400 border-primary-300 shadow-md': clienteForm.value.planoId === +plano.id,
-              'border-surface-200': clienteForm.value.planoId !== +plano.id
-            }" (click)="onSelectPlano(plano.id)">
-            <div class="flex items-start justify-between">
-              <!-- Radio + texto -->
-              <div class="flex items-start gap-3">
-                <p-radioButton name="planoId" formControlName="planoId" [value]="+plano.id"
-                  [inputId]="'plano-' + plano.id" (onClick)="onSelectPlano(plano.id)"></p-radioButton>
-
-                <label class="cursor-pointer" [for]="'plano-' + plano.id">
-                  <div class="font-semibold">{{ plano.nomePlano }}</div>
-                  <div class="text-xs text-muted-color" *ngIf="plano.descPlano">
-                    {{ plano.descPlano }}
-                  </div>
-                  <div class="text-xs mt-1 text-muted-color" *ngIf="plano.recurso?.length">
-                    {{ resumoRecursos(plano) }}
-                  </div>
-                </label>
-              </div>
-
-              <!-- Preço -->
-              <div class="text-right min-w-[120px]">
-                <div class="text-lg font-semibold">
-                  {{ preco(plano) | currency:'BRL':'symbol-narrow' }}
-                </div>
-
-                <div class="text-xs text-muted-color">
-                  / {{ clienteForm.value.billingCycle === 'ANUAL' ? 'ano' : 'mês' }}
-                </div>
-
-              </div>
-            </div>
-          </p-card>
         </div>
       </div>
 

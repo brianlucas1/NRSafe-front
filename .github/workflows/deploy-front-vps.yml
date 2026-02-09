@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Configurar Node
         uses: actions/setup-node@v4
@@ -20,11 +22,22 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Definir versao pelo run number
+        run: |
+          set -e
+          VERSION="1.0.${GITHUB_RUN_NUMBER}"
+          echo "Versao gerada: $VERSION"
+          sed -i "s/version: \".*\"/version: \"${VERSION}\"/" src/environments/environment-prod.ts
+
       - name: Instalar dependências
         run: npm ci
 
       - name: Build do frontend
         run: npm run build -- --configuration=production
+
+      # Se quiser rodar testes/lint:
+      # - name: Rodar testes
+      #   run: npm test -- --watch=false --browsers=ChromeHeadless
 
       - name: Deploy na VPS via SSH (branch automática)
         uses: appleboy/ssh-action@v1.2.0
@@ -42,8 +55,8 @@ jobs:
 
             cd /opt/app/nrsafe/web-app/front/NRSafe-front
 
-            git fetch origin
+            git fetch origin 
             git checkout $BRANCH
-            git pull origin $BRANCH
+            git reset --hard origin/$BRANCH
 
             ./deploy.sh

@@ -81,6 +81,7 @@ export class FuncionarioComponent implements OnInit {
             summary: 'Sucesso',
             detail: 'Funcionário inativado com sucesso',
           });
+          this.buscaQuantidadeLicencas();
            this.buscaFuncionariosDoCliente()
         });
       },

@@ -54,7 +54,6 @@ export class VisualizarPerfilComponent {
       cpf: [this.userCarregado?.funcionario?.cpf],
       telefone: [this.userCarregado?.funcionario?.telefone],
       celular: [this.userCarregado?.funcionario?.celular],
-      rg: [this.userCarregado?.funcionario?.rg],
       dtNascimento: [this.userCarregado?.funcionario?.dtNascimento],
       cep: [this.userCarregado?.funcionario?.endereco?.cep],
       logradouro: [this.userCarregado?.funcionario?.endereco?.logradouro],
