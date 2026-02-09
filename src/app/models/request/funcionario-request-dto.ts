@@ -2,6 +2,7 @@ import { Endereco } from "../endereco"
 
 export class FuncionarioRequestDTO {
 
+    id?: number
     nome?: String
     cpf?: String
     email?: String
@@ -12,4 +13,5 @@ export class FuncionarioRequestDTO {
     filiaisId?:  number[]
     sitesId?:number[]
     empresasId?:number[]
+    idPapelCliente?: number
 }

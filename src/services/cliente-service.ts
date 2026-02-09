@@ -40,6 +40,10 @@ export class ClienteService{
       return this.http.get<PapelClienteResponseDTO[]>(`${this.URL_API}/papeis`);
      }
 
+     listarPapeisSelecionaveis(): Observable<PapelClienteResponseDTO[]> {
+      return this.http.get<PapelClienteResponseDTO[]>(`${this.URL_API}/papeis/selecionaveis`);
+     }
+
      // Atualiza permissões de um papel do cliente
      atualizarPermissoes(papelId: number, permissoes: AcaoPermissaoEnum[])
        : Observable<PapelClienteResponseDTO> {

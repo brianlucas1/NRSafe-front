@@ -27,10 +27,7 @@
           </div>
           <div class="flex-4" style="margin-top: 20px;">
             <p-button type="button" label="Limpar filtros" (onClick)="limparFiltro()" />
-          </div>
-          <div class="flex-4" style="margin-top: 20px;">
-            <p-button type="button" icon="pi pi-save" [loading]="saving" [disabled]="planoConcluido" label="Salvar alterações" (onClick)="salvarAlteracoes()" />
-          </div>
+          </div>       
 
           <div class="flex-4" style="margin-top: 20px;">
             <p-button type="button" label="Exportar CSV" (onClick)="exportarCsvItensCompleto()" />
@@ -89,19 +86,22 @@
       <td>{{ row.subItem ? row.subItem : 'CheckList'}}</td>
       <!-- Descrição resumida com tooltip -->
       <td>
-        <span class="block max-w-[150px] truncate" tooltipClass="tooltip-wide" pTooltip="{{ row.descSubItem }}"
+        <span class="block max-w-[150px] truncate" tooltipClass="tooltip-wide" pTooltip="{{ row.descSubItem || row.descCheckListPergunta }}"
           tooltipPosition="top">
-          <td >{{ row.descSubItem ? row.descSubItem : row.descCheckListPergunta }}</td>
+          {{ row.descSubItem ? row.descSubItem : row.descCheckListPergunta }}
         </span>
       </td>
       <td>
-        <input type="text"  [disabled]="row.statusPlanoAcao === 'CO'"  pInputText [(ngModel)]="row.planoAcao"  [ngClass]="{'p-invalid': isFieldInvalid(row,'planoAcao')}" placeholder="Plano de ação" class="w-full" />
+        <input type="text" [disabled]="row.statusPlanoAcao === 'CO'" pInputText [(ngModel)]="row.planoAcao"
+          [ngModelOptions]="{ standalone: true }" [ngClass]="{'p-invalid': isFieldInvalid(row,'planoAcao')}"
+          placeholder="Plano de ação" class="w-full" />
       </td>
       <td *ngIf= "row.descCheckListPergunta == null" class="text-right">R$ {{ row.multa | number: '1.2-2' }}</td>
       <td *ngIf= "row.descCheckListPergunta != null" class="text-right">
         <p-inputNumber
           [(ngModel)]="row.multa"
-          [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
+          [ngModelOptions]="{ standalone: true }"
+          [inputStyleClass]="isMultaInvalid(row) ? 'p-invalid' : ''"
           mode="currency"
           currency="BRL"
            [disabled]="row.statusPlanoAcao === 'CO'"
@@ -117,7 +117,7 @@
         <p-inputNumber
           [(ngModel)]="row.investimento"
            [disabled]="row.statusPlanoAcao === 'CO'"
-          [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
+          [ngModelOptions]="{ standalone: true }"
           mode="currency"
           currency="BRL"
           locale="pt-BR"
@@ -129,13 +129,15 @@
       </td>
 
       <td>
-        <input type="text"  [ngClass]="{'p-invalid': isFieldInvalid(row,'responsavel')}"  [disabled]="row.statusPlanoAcao === 'CO'" pInputText [(ngModel)]="row.responsavel" placeholder="Digite um responsavel" class="w-full" />
+        <input type="text" [ngClass]="{'p-invalid': isFieldInvalid(row,'responsavel')}"
+          [disabled]="row.statusPlanoAcao === 'CO'" pInputText [(ngModel)]="row.responsavel"
+          [ngModelOptions]="{ standalone: true }" placeholder="Digite um responsavel" class="w-full" />
       </td>  
 
       <td class="text-right">
         <p-datepicker
           [(ngModel)]="row.previsao"
-          [ngModelOptions]="{ standalone: true, updateOn: 'blur' }"
+          [ngModelOptions]="{ standalone: true }"
           dateFormat="dd/mm/yy"
            [disabled]="row.statusPlanoAcao === 'CO'"
           [ngClass]="{'p-invalid': isFieldInvalid(row,'previsao')}"
@@ -152,7 +154,8 @@
           optionLabel="descricao"
           [appendTo]="'body'"
           optionValue="codigo"
-          [(ngModel)]="row.status" 
+          [(ngModel)]="row.status"
+          [ngModelOptions]="{ standalone: true }"
           [ngClass]="{'p-invalid': isFieldInvalid(row,'status')}"
           placeholder="Selecione" class="w-full">
       </p-dropdown>
@@ -172,7 +175,9 @@
 
 </p-table>
 
-  <div class="flex justify-end mt-4">
+  <div class="flex items-center justify-end mt-4 gap-2">
     <button pButton type="button" icon="pi pi-arrow-left" label="Voltar" (click)="voltar()"></button>
+    <p-button type="button" icon="pi pi-save" [loading]="saving" [disabled]="planoConcluido" label="Salvar"
+      (onClick)="salvarAlteracoes()" />
   </div>
 

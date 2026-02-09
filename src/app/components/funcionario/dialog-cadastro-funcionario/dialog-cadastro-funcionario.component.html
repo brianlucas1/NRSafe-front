@@ -52,6 +52,17 @@
 
             <div class="flex flex-col md:flex-row gap-4">
                 <div class="flex-4">
+                    <label class="block font-bold mb-1">Tipo Permissão</label>
+                    <p-dropdown [options]="listaPapeis" formControlName="idPapelCliente" optionLabel="nome"
+                        optionValue="id" placeholder="Selecione o tipo de permissão" class="w-full" />
+                    <div *ngIf="funcionarioForm.get('idPapelCliente')?.invalid && funcionarioForm.get('idPapelCliente')?.touched">
+                        <small class="text-red-500" *ngIf="funcionarioForm.get('idPapelCliente')?.errors?.['required']">O campo tipo permissão é obrigatório.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-4">
                     <label class="block font-bold mb-1">Nome</label>
                     <input pInputText formControlName="nome" />
                     <div *ngIf="funcionarioForm.get('nome')?.invalid && funcionarioForm.get('nome')?.touched">

@@ -10,20 +10,6 @@
   <ng-template pTemplate="content">
     <form *ngIf="siteForm" [formGroup]="siteForm" class="space-y-4">
 
-      <div class="flex flex-col md:flex-row gap-4">
-        <div class="flex-1">
-          <label class="block font-bold mb-1">CNPJ</label>
-          <p-inputmask formControlName="cnpj" placeholder="99.999.999/9999-99" mask="99.999.999/9999-99"
-            class="w-full" />
-          <div *ngIf="siteForm.get('cnpj')?.invalid && siteForm.get('cnpj')?.touched">
-            <small class="text-red-500" *ngIf="siteForm.get('cnpj')?.errors?.['required']">O campo cnpj é
-              obrigatório.</small>
-            <small class="text-red-500" *ngIf="siteForm.get('cnpj')?.errors?.['invalidCnpj']">Cnpj não está
-              valido.</small>
-          </div>
-        </div>
-      </div>
-
       <div class="flex flex-col md:flex-row md:items-end gap-4">
   <div class="flex-1 min-w-[280px]">
     <label class="block font-bold mb-1 whitespace-nowrap">Selecione uma Filial</label>
@@ -88,51 +74,6 @@
         </div>
       </div>
 
-      <div class="flex flex-col md:flex-row gap-4">
-        <div class="flex-1">
-          <label class="block font-bold mb-1">CEP</label>
-          <p-inputmask formControlName="cep" mask="99999-999" class="w-[150px]" (onBlur)="buscaCep()" />
-          <div *ngIf="siteForm.get('cep')?.invalid && siteForm.get('cep')?.touched">
-            <small class="text-red-500" *ngIf="siteForm.get('cep')?.errors?.['required']">O campo cep é
-              obrigatório.</small>
-            <small class="text-red-500" *ngIf="siteForm.get('cep')?.errors?.['cepInvalido']">Cep inválido.</small>
-          </div>
-
-        </div>
-      </div>
-
-      <div class="flex flex-col md:flex-row gap-4">
-        <div class="w-1/4">
-          <label class="block font-bold mb-1">Logradouro</label>
-          <input pInputText formControlName="logradouro" class="w-full" />
-        </div>
-      </div>
-
-      <div class="flex flex-col md:flex-row gap-4">
-        <div class="w-1/4">
-          <label class="block font-bold mb-1">Complemento</label>
-          <input pInputText formControlName="complemento" class="w-full" />
-        </div>
-        <div class="w-1/4">
-          <label class="block font-bold mb-1">Numero</label>
-          <input pInputText formControlName="numero" class="w-full" />
-        </div>
-      </div>
-
-      <div class="flex flex-col md:flex-row gap-4">
-        <div class="w-1/4">
-          <label class="block font-bold mb-1">Localidade</label>
-          <input pInputText formControlName="localidade" class="w-full" />
-        </div>
-        <div class="w-1/4">
-          <label class="block font-bold mb-1">UF</label>
-          <input pInputText formControlName="uf" class="w-full" />
-        </div>
-        <div class="w-1/4">
-          <label class="block font-bold mb-1">Bairro</label>
-          <input pInputText formControlName="bairro" class="w-full" />
-        </div>
-      </div>
     </form>
   </ng-template>
 

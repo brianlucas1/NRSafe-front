@@ -8,6 +8,7 @@ import { NormaResponseDTO } from "../dtos/norma-response-dto";
 import { SubItensNormaDTO } from "../dtos/itens-norma-dto";
 import { PlanoAcaoSubItemResponseDTO } from "../dtos/plano-acao-sub-item-norma-dto";
 import { AssinaturaPlanoAcaoRequestDTO } from "../dtos/request/assinatura-plnao-acao-request-dto";
+import { AtualizaSubitemRequestDTO } from "../dtos/request/atualiza-sub-item-request-dto";
 
 @Injectable({ providedIn: 'root' })
 
@@ -80,7 +81,6 @@ export class PlanoAcaoService {
     idPlanoAcaoNorma: number,
     params:
       {
-        normaId: any;
         dtInicio: string | null;
         dtFim: string | null;
         page: number;
@@ -113,8 +113,7 @@ export class PlanoAcaoService {
   }
 
 
-  atualizaPlanoAcaoSubItem(idPlanoAcaoItem: number,
-    body: Array<{ id: number; status?: string | null; comentario?: string | null; planoAcao?: string | null; }>) {
+  atualizaPlanoAcaoSubItem(idPlanoAcaoItem: number, body: AtualizaSubitemRequestDTO[]) {
     return this.http.patch(`${this.URL_API}/atualiza-inspecao/${idPlanoAcaoItem}`, body);
   }
 

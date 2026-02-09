@@ -28,6 +28,8 @@
       pInputText
       class="flex-1 w-full"
       [formControl]="fg.controls.pergunta"
+      [readonly]="fg.controls.status.value === 'INATIVO'"
+      [ngClass]="{ 'bg-gray-100 cursor-not-allowed': fg.controls.status.value === 'INATIVO' }"
       placeholder="Digite a pergunta"
     />
      <i class="pi" (click)="inativarPergunta(fg)" [ngClass]="{

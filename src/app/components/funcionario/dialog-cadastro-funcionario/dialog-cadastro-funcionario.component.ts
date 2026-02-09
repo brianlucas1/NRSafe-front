@@ -16,6 +16,8 @@ import { SiteResponseDTO } from '../../../models/response/site-reponse-dto';
 import { FuncionarioRequestDTO } from '../../../models/request/funcionario-request-dto';
 import { FuncionarioService } from '../../../../services/funcionario-service';
 import { FuncionarioResponseDTO } from '../../../models/response/funcionario-response-dto';
+import { ClienteService } from '../../../../services/cliente-service';
+import { PapelClienteResponseDTO } from '../../../models/response/papel-cliente-response-dto';
 
 @Component({
   selector: 'app-dialog-cadastro-funcionario',
@@ -34,6 +36,7 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
   listaEmpresas: EmpresaResponseDTO[] = [];
   listaFiliais: FilialResponseDTO[] = [];
   listaSites: SiteResponseDTO[] = [];
+  listaPapeis: PapelClienteResponseDTO[] = [];
 
   funcionarioForm!: FormGroup;
   cepConsultado?: Endereco
@@ -44,7 +47,8 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
     private funcionarioService: FuncionarioService,
     private msgService: MessageService,
     private siteService: SiteService,
-    private corporativoService: CorporativoService
+    private corporativoService: CorporativoService,
+    private clienteService: ClienteService
   ) { }
 
   ngOnInit(): void {
@@ -64,6 +68,7 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
       cpf: [this.funcionarioSelecionado?.cpf, [Validators.required, Validators.minLength(14), cpfValidator()]],
       email: [this.funcionarioSelecionado?.email, [Validators.required, Validators.email]],
       nome: [this.funcionarioSelecionado?.nome, [Validators.required]],
+      idPapelCliente: [this.getPapelClienteIdInicial(), [Validators.required]],
       telefone: [this.funcionarioSelecionado?.telefone, ],
       celular: [this.funcionarioSelecionado?.celular, ],
       dataNascimento: [this.funcionarioSelecionado?.dtNascimento],
@@ -84,6 +89,7 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
     this.buscaEmpresas();
     this.buscaFiliais();
     this.buscaSites();
+    this.buscaPapeisSelecionaveis();
   }
 
   salvar() {
@@ -152,6 +158,7 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
           cpf: formValue.cpf,
           nome: formValue.nome,
           email: formValue.email,
+          idPapelCliente: formValue.idPapelCliente,
           telefone: formValue.telefone,
           celular: formValue.celular,
           dtNascimento: formValue.dtNascimento,
@@ -175,12 +182,14 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
     montaCadastroFuncionario(){
     const formValue = this.funcionarioForm.getRawValue();
         const funcDTO: FuncionarioRequestDTO = {
+          id: this.funcionarioSelecionado?.id,
           cpf: formValue.cpf,
           nome: formValue.nome,
           email: formValue.email,
           telefone: formValue.telefone,
           celular: formValue.celular,
           dtNascimento: formValue.dtNascimento,
+          idPapelCliente: formValue.idPapelCliente,
           endereco: {
             cep: formValue.cep,
             logradouro: formValue.logradouro,
@@ -195,6 +204,40 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
           filiaisId: formValue.filiaisSelecionadas,
         }
         return funcDTO;
+  }
+
+  private getPapelClienteIdInicial(): number | null {
+    const fromId = this.funcionarioSelecionado?.idPapelCliente;
+    if (typeof fromId === 'number') return fromId;
+
+    const perfil = (this.funcionarioSelecionado?.perfil || '').trim();
+    if (!perfil) return null;
+
+    const papel = (this.listaPapeis || []).find(p => (p.nome || '').trim() === perfil);
+    return papel?.id ?? null;
+  }
+
+  private aplicarPapelInicialSeNecessario() {
+    const ctrl = this.funcionarioForm?.get('idPapelCliente');
+    if (!ctrl) return;
+    if (ctrl.value !== null && ctrl.value !== undefined && ctrl.value !== '') return;
+
+    const id = this.getPapelClienteIdInicial();
+    if (id !== null) ctrl.setValue(id);
+  }
+
+  async buscaPapeisSelecionaveis() {
+    await this.clienteService.listarPapeisSelecionaveis()
+      .subscribe({
+        next: res => {
+          this.listaPapeis = res ?? [];
+          this.aplicarPapelInicialSeNecessario();
+        },
+        error: error => {
+          this.listaPapeis = [];
+          this.msgService.add({ severity: 'error', summary: 'Error Message', detail: error?.error?.message || 'Falha ao carregar tipos de permissão.' });
+        }
+      })
   }
 
   async buscaSites() {

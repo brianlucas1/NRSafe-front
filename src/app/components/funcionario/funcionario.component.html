@@ -161,14 +161,12 @@
 <p-table  class="tabela-zebrada" *ngIf="funcionario.listaSites?.length" [value]="funcionario.listaSites" [style]="{ 'min-width': '100%' }">
   <ng-template pTemplate="header">
     <tr>
-      <th>CNPJ</th>
       <th>Razão Social</th>
       <th>Ação</th>
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-site>
     <tr>
-      <td>{{ site.cnpj }}</td>
       <td>{{ site.razaoSocial }}</td>
        <td>
          <p-button icon="pi pi-trash" class="mr-2" [rounded]="true" [outlined]="true"

@@ -78,6 +78,7 @@ export class CadastroCheckListComponent {
               this.adicionarPergunta(p.pergunta, p.status ?? 'ATIVO', p.id ?? null)
             );
             if (this.perguntasFA.length === 0) this.adicionarPergunta();
+
             this.loadingService.hide();
           },
           error: () => {
@@ -95,6 +96,7 @@ export class CadastroCheckListComponent {
       pergunta: this.fb.nonNullable.control(valor, { validators: [Validators.required, Validators.minLength(3)], updateOn: 'blur' }),
       status: this.fb.nonNullable.control(status)
     });
+
   }
 
   adicionarPergunta(valor = '', status: 'ATIVO' | 'INATIVO' = 'ATIVO', id: number | null = null) {
