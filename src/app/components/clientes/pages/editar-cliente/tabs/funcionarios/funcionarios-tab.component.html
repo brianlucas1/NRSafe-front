@@ -25,7 +25,7 @@
   <ng-template pTemplate="body" let-f>
     <tr>
       <td>{{ f.nome }}</td>
-      <td>{{ f.cpf }}</td>
+      <td>{{ f.cpf | cpfMask }}</td>
       <td>{{ f.email }}</td>
       <td>{{ f.role }}</td>
       <td>

@@ -23,7 +23,7 @@
                 </div>
             </div>
 
-            <div class="flex flex-col md:flex-row gap-4">
+            <div *ngIf="!isClienteMasterSelecionado" class="flex flex-col md:flex-row gap-4">
                 <div class="flex-4">
                     <label class="block font-bold mb-1">Vincular Empresa</label>
                     <p-multiSelect [options]="listaEmpresas" formControlName="empresasSelecionadas"
@@ -33,7 +33,7 @@
                 </div>
             </div>
 
-            <div class="flex flex-col md:flex-row gap-4">
+            <div *ngIf="!isClienteMasterSelecionado" class="flex flex-col md:flex-row gap-4">
                 <div class="flex-4">
                     <label class="block font-bold mb-1">Vincular Filial</label>
                     <p-multiSelect [options]="listaFiliais" formControlName="filiaisSelecionadas"
@@ -50,7 +50,7 @@
                 </div>
             </div>
 
-            <div class="flex flex-col md:flex-row gap-4">
+            <div *ngIf="!isClienteMasterSelecionado" class="flex flex-col md:flex-row gap-4">
                 <div class="flex-4">
                     <label class="block font-bold mb-1">Tipo Permissão</label>
                     <p-dropdown [options]="listaPapeis" formControlName="idPapelCliente" optionLabel="nome"

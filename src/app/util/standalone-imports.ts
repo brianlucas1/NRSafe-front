@@ -35,11 +35,13 @@ import { MessageModule } from 'primeng/message';
 import { TabViewModule } from 'primeng/tabview';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { CheckboxModule } from 'primeng/checkbox';
+import { CpfMaskPipe } from './cpf-mask.pipe';
 
 import { TooltipModule } from "primeng/tooltip";
 
 export const StandaloneImports = [
     CommonModule,
+    CpfMaskPipe,
     ReactiveFormsModule,
     BlockUIModule,
     CarouselModule,
