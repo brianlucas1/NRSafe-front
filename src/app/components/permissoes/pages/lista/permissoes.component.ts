@@ -1,9 +1,9 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { PapelClienteResponseDTO } from '../../../../models/response/papel-cliente-response-dto';
-import { AcaoPermissaoEnum } from '../../../../models/enums/acao-permissao-enum';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
-import { StandaloneImports } from '../../../../util/standalone-imports';
 import { ClienteService } from '../../../../../services/cliente-service';
+import { AcaoPermissaoEnum } from '../../../../models/enums/acao-permissao-enum';
+import { PapelClienteResponseDTO } from '../../../../models/response/papel-cliente-response-dto';
+import { StandaloneImports } from '../../../../util/standalone-imports';
 
 @Component({
   selector: 'app-permissoes',
@@ -15,22 +15,21 @@ import { ClienteService } from '../../../../../services/cliente-service';
   providers: [MessageService]
 })
 export class PermissoesComponent implements OnInit {
-
   loading = false;
   papeis: PapelClienteResponseDTO[] = [];
 
   readonly colunas: { key: AcaoPermissaoEnum; label: string }[] = [
-    { key: AcaoPermissaoEnum.CONSULTAR, label: 'Consultar' },
+    { key: AcaoPermissaoEnum.VISUALIZAR, label: 'Visualizar' },
     { key: AcaoPermissaoEnum.CADASTRAR, label: 'Cadastrar' },
     { key: AcaoPermissaoEnum.EDITAR, label: 'Editar' },
     { key: AcaoPermissaoEnum.EXCLUIR, label: 'Excluir' },
-    { key: AcaoPermissaoEnum.BAIXAR, label: 'Baixar' },
+    { key: AcaoPermissaoEnum.BAIXAR, label: 'Baixar' }
   ];
 
   constructor(
     private readonly clienteService: ClienteService,
     private readonly msg: MessageService,
-    private readonly cdr: ChangeDetectorRef,
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -38,55 +37,86 @@ export class PermissoesComponent implements OnInit {
   }
 
   hasPerm(p: PapelClienteResponseDTO, acao: AcaoPermissaoEnum): boolean {
-    return (p.permissoes || []).includes(acao);
+    return this.normalizarPermissoes(p.permissoes || []).includes(acao);
   }
 
-  togglePerm(papel: PapelClienteResponseDTO, acao: AcaoPermissaoEnum, checked: boolean) {
-    const set = new Set(papel.permissoes || []);
-    if (checked) set.add(acao); else set.delete(acao);
-    papel.permissoes = Array.from(set);
+  togglePerm(papel: PapelClienteResponseDTO, acao: AcaoPermissaoEnum, checked: boolean): void {
+    const set = new Set(this.normalizarPermissoes(papel.permissoes || []));
+    if (checked) {
+      set.add(acao);
+    } else {
+      set.delete(acao);
+    }
+    papel.permissoes = Array.from(set) as AcaoPermissaoEnum[];
   }
 
-  salvarLinha(papel: PapelClienteResponseDTO) {
+  salvarLinha(papel: PapelClienteResponseDTO): void {
+    papel.permissoes = this.normalizarPermissoes(papel.permissoes || []);
     this.loading = true;
-    this.clienteService
-      .atualizarPermissoes(papel.id!, papel.permissoes || [])
-      .subscribe({
-        next: (resp) => {
-          papel.permissoes = resp.permissoes || [];
-          this.msg.add({ severity: 'success', summary: 'Sucesso', detail: `Permissões atualizadas para ${papel.nome}` });
-          this.loading = false;
-          this.cdr.markForCheck();
-        },
-        error: () => {
-          this.msg.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao salvar permissões' });
-          this.loading = false;
-          this.cdr.markForCheck();
-        }
-      });
+    this.clienteService.atualizarPermissoes(papel.id!, papel.permissoes).subscribe({
+      next: (resp) => {
+        papel.permissoes = this.normalizarPermissoes(resp.permissoes || []);
+        this.msg.add({ severity: 'success', summary: 'Sucesso', detail: `Permissoes atualizadas para ${papel.nome}` });
+        this.loading = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.msg.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao salvar permissoes' });
+        this.loading = false;
+        this.cdr.markForCheck();
+      }
+    });
   }
 
-  salvarTudo() {
-    // salva sequencialmente todos os papeis
+  salvarTudo(): void {
     this.loading = true;
     const seq = [...this.papeis];
     const proximo = () => {
       const p = seq.shift();
-      if (!p) { this.loading = false; this.cdr.markForCheck(); this.msg.add({severity:'success', summary:'Sucesso', detail:'Permissões atualizadas'}); return; }
-      this.clienteService.atualizarPermissoes(p.id!, p.permissoes || []).subscribe({
+      if (!p) {
+        this.loading = false;
+        this.cdr.markForCheck();
+        this.msg.add({ severity: 'success', summary: 'Sucesso', detail: 'Permissoes atualizadas' });
+        return;
+      }
+
+      p.permissoes = this.normalizarPermissoes(p.permissoes || []);
+      this.clienteService.atualizarPermissoes(p.id!, p.permissoes).subscribe({
         next: () => proximo(),
-        error: () => { this.msg.add({severity:'error', summary:'Erro', detail:`Falha ao salvar ${p.nome}`}); proximo(); }
+        error: () => {
+          this.msg.add({ severity: 'error', summary: 'Erro', detail: `Falha ao salvar ${p.nome}` });
+          proximo();
+        }
       });
     };
+
     proximo();
   }
 
-  private carregarPapeis() {
+  private carregarPapeis(): void {
     this.loading = true;
     this.clienteService.listarPapeis().subscribe({
-      next: (dados) => { this.papeis = dados ?? []; this.loading = false; this.cdr.markForCheck(); },
-      error: () => { this.papeis = []; this.loading = false; this.msg.add({severity:'error', summary:'Erro', detail:'Falha ao carregar permissões'}); this.cdr.markForCheck(); }
+      next: (dados) => {
+        this.papeis = (dados ?? []).map((papel) => ({
+          ...papel,
+          permissoes: this.normalizarPermissoes(papel.permissoes || [])
+        }));
+        this.loading = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.papeis = [];
+        this.loading = false;
+        this.msg.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar permissoes' });
+        this.cdr.markForCheck();
+      }
     });
   }
-}
 
+  private normalizarPermissoes(permissoes: ReadonlyArray<AcaoPermissaoEnum | string>): AcaoPermissaoEnum[] {
+    const normalizadas = (permissoes || []).map((permissao) =>
+      String(permissao).toUpperCase() === 'CONSULTAR' ? AcaoPermissaoEnum.VISUALIZAR : (permissao as AcaoPermissaoEnum)
+    );
+    return Array.from(new Set(normalizadas));
+  }
+}

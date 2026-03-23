@@ -8,7 +8,7 @@ import { EmpresaResponseDTO } from '../../../models/response/empresa-reponse-dto
 import { StandaloneImports } from '../../../util/standalone-imports';
 import { EmpresaService } from '../../../../services/empresa-service';
 import { cnpjValido } from '../../../util/cnpj-validator';
-import { cpfValidator } from '../../../util/cpf-validator';
+import { cpfValidator, sanitizeCpf } from '../../../util/cpf-validator';
 import { validaCep } from '../../../util/cep-validator';
 import { SiteService } from '../../../../services/site-service';
 import { FilialResponseDTO } from '../../../models/response/filial-reponse-dto';
@@ -37,6 +37,7 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
   listaFiliais: FilialResponseDTO[] = [];
   listaSites: SiteResponseDTO[] = [];
   listaPapeis: PapelClienteResponseDTO[] = [];
+  isClienteMasterSelecionado = false;
 
   funcionarioForm!: FormGroup;
   cepConsultado?: Endereco
@@ -64,11 +65,14 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
 }
 
   montaForm(){
+    this.isClienteMasterSelecionado = this.isEdicaoUsuarioClienteMaster();
+    const papelValidators = this.isClienteMasterSelecionado ? [] : [Validators.required];
+
     this.funcionarioForm = this.fb.group({
-      cpf: [this.funcionarioSelecionado?.cpf, [Validators.required, Validators.minLength(14), cpfValidator()]],
+      cpf: [this.funcionarioSelecionado?.cpf, [Validators.required, cpfValidator()]],
       email: [this.funcionarioSelecionado?.email, [Validators.required, Validators.email]],
       nome: [this.funcionarioSelecionado?.nome, [Validators.required]],
-      idPapelCliente: [this.getPapelClienteIdInicial(), [Validators.required]],
+      idPapelCliente: [this.isClienteMasterSelecionado ? null : this.getPapelClienteIdInicial(), papelValidators],
       telefone: [this.funcionarioSelecionado?.telefone, ],
       celular: [this.funcionarioSelecionado?.celular, ],
       dataNascimento: [this.funcionarioSelecionado?.dtNascimento],
@@ -79,9 +83,9 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
       localidade: [this.funcionarioSelecionado?.endereco?.localidade],
       uf: [this.funcionarioSelecionado?.endereco?.uf],
       cep: [this.funcionarioSelecionado?.endereco?.cep, [Validators.required, validaCep]],
-      empresasSelecionadas: [this.funcionarioSelecionado?.listaEmpresas?.map(e => e.id) || null],
-      filiaisSelecionadas: [this.funcionarioSelecionado?.listaFilial?.map(f => f.id) || null],
-      sitesSelecionados: [this.funcionarioSelecionado?.listaSites?.map(s => s.id) || null],
+      empresasSelecionadas: [this.funcionarioSelecionado?.listaEmpresas?.map(e => e.id) || []],
+      filiaisSelecionadas: [this.funcionarioSelecionado?.listaFilial?.map(f => f.id) || []],
+      sitesSelecionados: [this.funcionarioSelecionado?.listaSites?.map(s => s.id) || []],
     })
   }
 
@@ -136,13 +140,16 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
 
   formularioValido(){
      const formValue = this.funcionarioForm.getRawValue();
+     const empresasSelecionadas = this.normalizarIds(formValue.empresasSelecionadas);
+     const sitesSelecionados = this.normalizarIds(formValue.sitesSelecionados);
+     const filiaisSelecionadas = this.normalizarIds(formValue.filiaisSelecionadas);
 
      if (this.funcionarioForm.invalid) {
       this.funcionarioForm.markAllAsTouched();
       this.msgService.add({ severity: 'error', summary: 'Error Message', detail: 'Preencher todos os campos.' });
       return false;
      }
-     if(formValue.empresasSelecionadas == null && formValue.sitesSelecionados == null && formValue.filiaisSelecionadas == null){
+     if(!this.isClienteMasterSelecionado && empresasSelecionadas.length === 0 && sitesSelecionados.length === 0 && filiaisSelecionadas.length === 0){
        this.msgService.add({ severity: 'error', summary: 'Error Message', detail: 'É necessário pelo menos um vinculo' });
       return false;
      }
@@ -152,13 +159,16 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
 
   montaEditarFuncionario(){
      const formValue = this.funcionarioForm.getRawValue();
+      const empresasSelecionadas = this.normalizarIds(formValue.empresasSelecionadas);
+      const filiaisSelecionadas = this.normalizarIds(formValue.filiaisSelecionadas);
+      const sitesSelecionados = this.normalizarIds(formValue.sitesSelecionados);
 
       const funcDTO: FuncionarioResponseDTO = {
          id: this.funcionarioSelecionado?.id,
-          cpf: formValue.cpf,
+          cpf: sanitizeCpf(formValue.cpf) ?? undefined,
           nome: formValue.nome,
           email: formValue.email,
-          idPapelCliente: formValue.idPapelCliente,
+          idPapelCliente: this.isClienteMasterSelecionado ? undefined : formValue.idPapelCliente,
           telefone: formValue.telefone,
           celular: formValue.celular,
           dtNascimento: formValue.dtNascimento,
@@ -171,25 +181,28 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
             localidade: formValue.localidade,
             uf: formValue.uf
           },
-          listaEmpresas: this.listaEmpresas.filter(emp => formValue.empresasSelecionadas.includes(emp.id)) ,
-          listaFilial: this.listaFiliais.filter(emp => formValue.filiaisSelecionadas.includes(emp.id)) ,
-          listaSites: this.listaSites.filter(emp => formValue.sitesSelecionados.includes(emp.id)) ,
+          listaEmpresas: this.listaEmpresas.filter(emp => emp.id !== undefined && empresasSelecionadas.includes(emp.id)) ,
+          listaFilial: this.listaFiliais.filter(emp => emp.id !== undefined && filiaisSelecionadas.includes(emp.id)) ,
+          listaSites: this.listaSites.filter(emp => emp.id !== undefined && sitesSelecionados.includes(emp.id)) ,
         }
         return funcDTO;
 
   }
 
-    montaCadastroFuncionario(){
+  montaCadastroFuncionario(){
     const formValue = this.funcionarioForm.getRawValue();
+    const empresasSelecionadas = this.normalizarIds(formValue.empresasSelecionadas);
+    const sitesSelecionados = this.normalizarIds(formValue.sitesSelecionados);
+    const filiaisSelecionadas = this.normalizarIds(formValue.filiaisSelecionadas);
         const funcDTO: FuncionarioRequestDTO = {
           id: this.funcionarioSelecionado?.id,
-          cpf: formValue.cpf,
+          cpf: sanitizeCpf(formValue.cpf) ?? undefined,
           nome: formValue.nome,
           email: formValue.email,
           telefone: formValue.telefone,
           celular: formValue.celular,
           dtNascimento: formValue.dtNascimento,
-          idPapelCliente: formValue.idPapelCliente,
+          idPapelCliente: this.isClienteMasterSelecionado ? undefined : formValue.idPapelCliente,
           endereco: {
             cep: formValue.cep,
             logradouro: formValue.logradouro,
@@ -199,11 +212,31 @@ export class DialogCadastroFuncionarioComponent implements OnChanges {
             localidade: formValue.localidade,
             uf: formValue.uf
           },
-          empresasId:  formValue.empresasSelecionadas,
-          sitesId: formValue.sitesSelecionados,
-          filiaisId: formValue.filiaisSelecionadas,
+          empresasId:  empresasSelecionadas,
+          sitesId: sitesSelecionados,
+          filiaisId: filiaisSelecionadas,
         }
         return funcDTO;
+  }
+
+  private normalizarIds(ids: number[] | null | undefined): number[] {
+    return Array.isArray(ids) ? ids : [];
+  }
+
+  private isEdicaoUsuarioClienteMaster(): boolean {
+    if (!this.funcionarioSelecionado?.id) return false;
+    const perfil = this.normalizarPerfil(this.funcionarioSelecionado?.perfil);
+    return perfil === 'CLIENTE' || perfil === 'ROLE CLIENTE' || perfil === 'CLIENTE MASTER' || perfil === 'MASTER CLIENTE';
+  }
+
+  private normalizarPerfil(perfil: string | undefined): string {
+    if (!perfil) return '';
+    return perfil
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[_-]+/g, ' ')
+      .trim()
+      .toUpperCase();
   }
 
   private getPapelClienteIdInicial(): number | null {

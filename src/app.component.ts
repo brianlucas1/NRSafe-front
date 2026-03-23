@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { StandaloneImports } from './app/util/standalone-imports';
 import { CorpoComponent } from './app/components/layout/corpo/corpo.component';
+import { PERMISSAO_TOAST_KEY } from './app/util/permissao-helper.service';
 
 
 
@@ -12,6 +13,7 @@ import { CorpoComponent } from './app/components/layout/corpo/corpo.component';
     imports: [...StandaloneImports, CorpoComponent],
 })
 export class AppComponent {
+   readonly permissaoToastKey = PERMISSAO_TOAST_KEY;
 
     
    constructor() {}
