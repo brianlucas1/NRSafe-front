@@ -1,0 +1,48 @@
+:host {
+  display: block;
+}
+
+.resumo-card {
+  padding: 0.5rem 0.75rem;
+}
+
+.resumo-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.resumo-content {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.85rem;
+  background: #f8f9fb;
+}
+
+.resumo-content p {
+  margin: 0 0 0.65rem 0;
+  color: #374151;
+  font-size: 0.92rem;
+}
+
+.resumo-content p:last-child {
+  margin-bottom: 0;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.35rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: #eaf6ec;
+  color: #2e7d32;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.status-pill.status-atraso {
+  background: #fde8e8;
+  color: #c0392b;
+}

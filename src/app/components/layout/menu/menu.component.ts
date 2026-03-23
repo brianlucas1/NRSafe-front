@@ -22,6 +22,7 @@ import { environment } from '../../../../environments/environment';
 export class MenuComponent implements OnInit {
 
     isAdmin: boolean = false;
+    isClientePerfil: boolean = false;
     appVersion = environment.version;
 
     constructor(
@@ -35,14 +36,17 @@ export class MenuComponent implements OnInit {
 
 
      ngOnInit(): void {
-        this.verificarSeAdmin();
+        this.verificarPerfilUsuario();
         // Primeiro desenho do menu
         this.criarModelo(this.authState.obterRotuloUsuario() ?? undefined);
         // Atualiza quando o rótulo mudar (ex.: após refresh inicial)
         this.authState
             .observarRotuloUsuario()
             .pipe(takeUntilDestroyed())
-            .subscribe(rotulo => this.criarModelo(rotulo ?? undefined));
+            .subscribe(rotulo => {
+                this.verificarPerfilUsuario();
+                this.criarModelo(rotulo ?? undefined);
+            });
     }
 
     private criarModelo(rotuloUsuario?: string): void {
@@ -97,12 +101,20 @@ export class MenuComponent implements OnInit {
                     { label: 'Filiais', icon: 'pi pi-building-columns', routerLink: ['/filiais'] },
                     { label: 'Sites', icon: 'pi pi-hammer', routerLink: ['/sites'] },
                 ]
-            }
+            },
+            ...(this.isClientePerfil ? [{
+                label: 'Pagamento',
+                icon: 'pi pi-credit-card',
+                items: [
+                    { label: 'Historico', icon: 'pi pi-history', routerLink: ['/pagamento/historico'] },
+                ]
+            }] : [])
         ];
     }
 
-    private verificarSeAdmin(): void {
+    private verificarPerfilUsuario(): void {
         this.isAdmin = this.authState.isSuporte();
+        this.isClientePerfil = this.authState.isCliente();
     }
 
    

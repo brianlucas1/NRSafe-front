@@ -14,6 +14,8 @@ import { ListaCheckListComponent } from './app/components/check-list/pages/lista
 import { PermissoesComponent } from './app/components/permissoes/pages/lista/permissoes.component';
 import { VisualizarPerfilComponent } from './app/components/perfil/pages/visualizar-perfil/visualizar-perfil.component';
 import { EditarClienteComponent } from './app/components/clientes/pages/editar-cliente/editar-cliente.component';
+import { HistoricoPagamentoComponent } from './app/components/pagamento/pages/historico/historico-pagamento.component';
+import { ClientePerfilGuard } from './services/auth/cliente-perfil.guard';
 
 
 export const appRoutes: Routes = [
@@ -43,10 +45,15 @@ export const appRoutes: Routes = [
     component: VisualizarPerfilComponent, 
     canActivate: [AuthGuard] 
   },
-   { 
+  { 
     path: 'check-list', 
     component: ListaCheckListComponent, 
     canActivate: [AuthGuard] 
+  },
+  {
+    path: 'pagamento/historico',
+    component: HistoricoPagamentoComponent,
+    canActivate: [AuthGuard, ClientePerfilGuard]
   },
   { 
        path: 'plano-acao',

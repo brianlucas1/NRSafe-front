@@ -1,0 +1,58 @@
+<p-toast></p-toast>
+
+<div class="card section-card">
+  <h5 class="section-title">Faturas</h5>
+  <p-message *ngIf="erro" severity="error" [text]="erro"></p-message>
+
+  <p-table
+    [value]="faturas"
+    [lazy]="true"
+    (onLazyLoad)="onLazyLoad($event)"
+    [paginator]="true"
+    [rows]="rows"
+    [first]="first"
+    [totalRecords]="totalRecords"
+    [loading]="loading"
+    [rowsPerPageOptions]="[3, 5, 10]"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Vencimento</th>
+        <th>Valor</th>
+        <th>Status</th>
+        <th>Acao</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-fatura>
+      <tr>
+        <td>{{ fatura.vencimento }}</td>
+        <td><strong>{{ fatura.valor }}</strong></td>
+        <td>
+          <span class="status-pill" [class.status-vencida]="isStatusVencida(fatura.status)">
+            {{ getStatusLabel(fatura.status) }}
+          </span>
+        </td>
+        <td>
+          <button
+            pButton
+            type="button"
+            [label]="isAcaoPaga(fatura.emAtraso) ? 'Pago' : 'Pagar'"
+            [icon]="isAcaoPaga(fatura.emAtraso) ? 'pi pi-check' : 'pi pi-angle-right'"
+            class="p-button-sm"
+            [disabled]="isAcaoPaga(fatura.emAtraso) || abrindoCheckout"
+            [loading]="!isAcaoPaga(fatura.emAtraso) && abrindoCheckout"
+            (click)="abrirPagamentoFaturaEmAtraso()"
+            [ngClass]="isAcaoPaga(fatura.emAtraso) ? 'p-button-success' : 'p-button-danger'"></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="4">{{ loading ? 'Carregando...' : 'Nenhuma fatura encontrada.' }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

@@ -1,4 +1,6 @@
-﻿import { ChangeDetectionStrategy, Component, computed, signal, TrackByFunction } from "@angular/core";
+import { HttpErrorResponse } from "@angular/common/http";
+import { ChangeDetectionStrategy, Component, computed, signal, TrackByFunction } from "@angular/core";
+import { Router } from "@angular/router";
 import { ConfirmationService, MessageService } from "primeng/api";
 import { StandaloneImports } from "../../../../util/standalone-imports";
 
@@ -53,6 +55,7 @@ export class TrocarPlanoComponent {
     private logger: LoggerService,
     private planoService: PlanoService,
     private assinaturaService: AssinaturaService,
+    private router: Router,
     private msg: MessageService,
     private confirm: ConfirmationService
   ) {}
@@ -145,12 +148,55 @@ export class TrocarPlanoComponent {
 
         this.msg.add({ severity: 'info', summary: 'Checkout', detail: 'Abrindo pagamento em nova aba.' });
       },
-      error: () => {
-        this.msg.add({ severity: 'error', summary: 'Erro', detail: 'Nao foi possivel alterar o plano.' });
+      error: (error: unknown) => {
+        const detail = this.obterMensagemErroTrocaPlano(error);
+        this.abrirDialogErroTrocaPlano(detail);
       }
     });
   }
 
+  private abrirDialogErroTrocaPlano(mensagemErro: string): void {
+    const pergunta = 'Deseja visualizar a lista de colaboradores?';
+    this.confirm.confirm({
+      header: 'Erro ao alterar plano',
+      message: `${mensagemErro} ${pergunta}`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sim',
+      rejectLabel: 'Nao',
+      accept: () => {
+        this.router.navigate(['/funcionarios']);
+      }
+    });
+  }
+
+
+  private obterMensagemErroTrocaPlano(error: unknown): string {
+    const fallback = 'Nao foi possivel alterar o plano.';
+
+    if (!(error instanceof HttpErrorResponse)) {
+      return fallback;
+    }
+
+    const erroBack = error.error;
+
+    if (typeof erroBack === 'string' && erroBack.trim()) {
+      return erroBack;
+    }
+
+    if (erroBack && typeof erroBack === 'object') {
+      const payload = erroBack as { message?: string; mensagem?: string; detail?: string };
+      const mensagem = payload.message ?? payload.mensagem ?? payload.detail;
+      if (typeof mensagem === 'string' && mensagem.trim()) {
+        return mensagem;
+      }
+    }
+
+    if (typeof error.message === 'string' && error.message.trim()) {
+      return error.message;
+    }
+
+    return fallback;
+  }
   selecionarCiclo(ciclo: BillingCycle) {
     this.cicloSelecionado.set(ciclo);
   }

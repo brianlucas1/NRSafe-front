@@ -1,0 +1,26 @@
+<ng-container *ngIf="resumoState$ | async as state">
+  <p-skeleton *ngIf="state.carregando" height="9.5rem"></p-skeleton>
+  <p-message *ngIf="state.erro" severity="error" [text]="state.erro"></p-message>
+
+  <div *ngIf="state.resumo as resumo" class="card resumo-card">
+    <h5 class="resumo-title">Resumo da Assinatura</h5>
+
+    <div class="resumo-content">
+      <p><strong>Plano:</strong> {{ resumo.plano }}</p>
+      <p>
+        <strong>Status da Assinatura:</strong>
+        <span class="status-pill" [class.status-atraso]="isStatusCritico(resumo.statusAssinatura)">
+          {{ resumo.statusAssinatura }}
+        </span>
+      </p>
+      <p>
+        <strong>Status da Cobranca:</strong>
+        <span class="status-pill" [class.status-atraso]="isStatusCritico(resumo.statusCobranca)">
+          {{ resumo.statusCobranca }}
+        </span>
+      </p>
+      <p><strong>Proxima Cobranca:</strong> {{ resumo.proximaCobranca }}</p>
+      <p><strong>Valor:</strong> {{ resumo.valor }}</p>
+    </div>
+  </div>
+</ng-container>

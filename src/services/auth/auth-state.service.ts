@@ -9,6 +9,8 @@ export class AuthStateService {
   private readonly permissoes$ = new BehaviorSubject<string[]>([]);
   private readonly expiraEm$ = new BehaviorSubject<number>(0);
   private readonly rotuloUsuario$ = new BehaviorSubject<string | null>(null);
+  private readonly clienteUser$ = new BehaviorSubject<boolean>(false);
+  private readonly assinaturaAtiva$ = new BehaviorSubject<boolean>(true);
 
   obterTokenAcesso(): string | null {
     return this.tokenAcesso$.value;
@@ -28,6 +30,14 @@ export class AuthStateService {
 
   observarRotuloUsuario() {
     return this.rotuloUsuario$.asObservable();
+  }
+
+  obterClienteUser(): boolean {
+    return this.clienteUser$.value;
+  }
+
+  obterAssinaturaAtiva(): boolean {
+    return this.assinaturaAtiva$.value;
   }
 
   estaLogado(): boolean {
@@ -71,6 +81,13 @@ export class AuthStateService {
     return (rotulo || '').toUpperCase() === 'SUPORTE';
   }
 
+  isCliente(): boolean {
+    if (this.obterClienteUser()) {
+      return true;
+    }
+    return this.temAlgumaPermissao(['ROLE_CLIENTE', 'CLIENTE']);
+  }
+
   podeVisualizar(): boolean {
     return this.possuiPermissao(AcaoPermissaoEnum.VISUALIZAR);
   }
@@ -92,15 +109,25 @@ export class AuthStateService {
     const expiraEm = Date.now() + (resposta.expiresIn ?? 0) * 1000;
     const permissoes = this.normalizarPermissoes(resposta.permissoes ?? resposta.roles ?? []);
     const rotulo = resposta.loggedUserLabel ?? null;
+    const clienteUser = !!resposta.clienteUser;
+    const assinaturaAtiva = resposta.assinaturaAtiva !== false;
 
-    this.definirSessao(token, permissoes, expiraEm);
+    this.definirSessao(token, permissoes, expiraEm, clienteUser, assinaturaAtiva);
     this.rotuloUsuario$.next(rotulo);
   }
 
-  definirSessao(tokenAcesso: string, permissoes: string[], expiraEm: number): void {
+  definirSessao(
+    tokenAcesso: string,
+    permissoes: string[],
+    expiraEm: number,
+    clienteUser = false,
+    assinaturaAtiva = true
+  ): void {
     this.tokenAcesso$.next(tokenAcesso);
     this.permissoes$.next(this.normalizarPermissoes(permissoes || []));
     this.expiraEm$.next(expiraEm || 0);
+    this.clienteUser$.next(!!clienteUser);
+    this.assinaturaAtiva$.next(assinaturaAtiva !== false);
   }
 
   limpar(): void {
@@ -108,6 +135,8 @@ export class AuthStateService {
     this.permissoes$.next([]);
     this.expiraEm$.next(0);
     this.rotuloUsuario$.next(null);
+    this.clienteUser$.next(false);
+    this.assinaturaAtiva$.next(true);
   }
 
   private normalizarPermissoes(permissoes: ReadonlyArray<string | null | undefined>): string[] {

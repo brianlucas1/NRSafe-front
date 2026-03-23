@@ -1,0 +1,50 @@
+<div class="card section-card">
+  <h5 class="section-title">Atividade da Conta</h5>
+  <p-message *ngIf="erro" severity="error" [text]="erro"></p-message>
+
+  <p-table
+    [value]="atividades"
+    [lazy]="true"
+    (onLazyLoad)="onLazyLoad($event)"
+    [paginator]="true"
+    [rows]="rows"
+    [first]="first"
+    [totalRecords]="totalRecords"
+    [loading]="loading"
+    [rowsPerPageOptions]="[4, 8, 12]"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 22%;">Data/Hora</th>
+        <th style="width: 16%;">Evento</th>
+        <th style="width: 32%;">Descricao</th>
+        <th style="width: 30%;">Detalhes</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-atividade>
+      <tr>
+        <td>
+          <div class="linha-principal">{{ atividade.data }}</div>
+          <small class="linha-secundaria">{{ atividade.hora }}</small>
+        </td>
+        <td>{{ atividade.evento }}</td>
+        <td>
+          <div class="linha-principal">{{ atividade.titulo }}</div>
+          <small class="linha-secundaria">{{ atividade.descricao }}</small>
+        </td>
+        <td>
+          <div class="linha-principal">{{ atividade.detalhePrincipal }}</div>
+          <small *ngIf="atividade.detalheSecundario" class="linha-secundaria">{{ atividade.detalheSecundario }}</small>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="4">{{ loading ? 'Carregando...' : 'Nenhuma atividade encontrada.' }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

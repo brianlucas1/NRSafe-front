@@ -66,30 +66,50 @@ export class FuncionarioComponent implements OnInit {
 
 
   inativaFuncionario(func: FuncionarioResponseDTO) {
+    const statusAtual = (func.stAtivo ?? (func as any).ativo ?? '').toString().toUpperCase();
+    const ativandoFuncionario = statusAtual === 'I';
+    if (ativandoFuncionario && this.qtdLicencas <= 0) {
+      this.msgService.add({
+        severity: 'error',
+        summary: 'Error Message',
+        detail: 'Numero de licencas insuficiente para ativar funcionarios'
+      });
+      return;
+    }
+
+    const acao = ativandoFuncionario ? 'ativar' : 'inativar';
     this.confirmationService.confirm({
-      message: `Tem certeza de que deseja inativar/ativar o funcionário <strong>${func.nome}</strong>?`,
-      header: 'Confirmação',
+      message: `Tem certeza de que deseja ${acao} o funcionario <strong>${func.nome}</strong>?`,
+      header: 'Confirmacao',
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sim',
-      rejectLabel: 'Não',
+      rejectLabel: 'Nao',
       acceptButtonStyleClass: 'p-button-success',
       rejectButtonStyleClass: 'p-button-danger',
       accept: () => {
-        this.funcService.inativar(func).subscribe(() => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: 'Funcionário inativado com sucesso',
-          });
-          this.buscaQuantidadeLicencas();
-           this.buscaFuncionariosDoCliente()
+        this.funcService.inativar(func).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Sucesso',
+              detail: ativandoFuncionario ? 'Funcionario ativado com sucesso' : 'Funcionario inativado com sucesso',
+            });
+            this.buscaQuantidadeLicencas();
+            this.buscaFuncionariosDoCliente();
+          },
+          error: (error) => {
+            this.msgService.add({
+              severity: 'error',
+              summary: 'Error Message',
+              detail: error?.error?.message || 'Nao foi possivel atualizar o status do funcionario'
+            });
+          }
         });
       },
       reject: () => {
       }
     });
   }
-
 
   retirarVinculo(vinculo:any, func:FuncionarioResponseDTO, tipoVinculo: 'EMPRESA' | 'FILIAL' | 'SITE'){
     this.confirmationService.confirm({
