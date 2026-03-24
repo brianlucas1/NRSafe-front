@@ -1,0 +1,160 @@
+:host {
+  display: block;
+}
+
+:host ::ng-deep .card {
+  border-radius: 20px;
+}
+
+:host ::ng-deep .card-header {
+  padding-bottom: 1rem;
+}
+
+:host ::ng-deep .planos-carousel .p-carousel-container {
+  align-items: stretch;
+}
+
+:host ::ng-deep .planos-carousel .p-carousel-item {
+  display: flex;
+  padding: 0.35rem;
+}
+
+:host ::ng-deep .planos-carousel .p-card {
+  width: 100%;
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+:host ::ng-deep .planos-carousel .p-card-body {
+  height: 100%;
+}
+
+:host ::ng-deep .planos-carousel .p-card-header,
+:host ::ng-deep .planos-carousel .p-card-content {
+  padding-top: 0;
+}
+
+:host ::ng-deep .planos-carousel .p-card-footer {
+  padding-top: 0.5rem;
+}
+
+:host ::ng-deep .planos-carousel .p-carousel-prev,
+:host ::ng-deep .planos-carousel .p-carousel-next {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  color: #475569;
+}
+
+:host ::ng-deep .planos-carousel .p-carousel-indicator button {
+  width: 1.75rem;
+  height: 0.35rem;
+  border-radius: 999px;
+}
+
+:host ::ng-deep .planos-carousel .p-tag {
+  font-size: 0.7rem;
+}
+
+:host ::ng-deep .planos-carousel .p-button {
+  border-radius: 10px;
+}
+
+.plano-ciclo {
+  flex-shrink: 0;
+}
+
+.plano-ciclo__btn {
+  min-width: 4.5rem;
+}
+
+.plano-atual {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.plano-atual__item,
+.plano-atual__status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.plano-atual__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.plano-atual__item strong,
+.plano-atual__status span {
+  color: #243b53;
+  font-size: 0.98rem;
+}
+
+.plano-atual__status {
+  justify-content: center;
+  align-items: flex-start;
+  color: #16a34a;
+}
+
+.plano-card__title {
+  color: #243b53;
+  text-transform: uppercase;
+}
+
+.plano-card__subtitle {
+  line-height: 1.4;
+}
+
+.plano-card__pricebox {
+  min-height: 5.5rem;
+  border: 1px solid #eef2f7;
+}
+
+.plano-card__price {
+  color: #243b53;
+  line-height: 1;
+}
+
+.plano-card__users {
+  min-width: 5rem;
+}
+
+.plano-card__resources {
+  min-height: 6.5rem;
+}
+
+.plano-card__resource-item i {
+  color: #16a34a;
+}
+
+.plano-card__footer {
+  min-height: 2.5rem;
+}
+
+@media (max-width: 960px) {
+  .plano-atual {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .plano-atual {
+    grid-template-columns: 1fr;
+  }
+
+  .plano-card__footer,
+  .plano-card__header,
+  .plano-card__pricebox {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

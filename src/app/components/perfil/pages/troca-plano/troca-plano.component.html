@@ -3,23 +3,28 @@
 
 <div class="card w-full" *ngIf="planos">
   <div class="card-header">
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div>
         <h2>Planos disponiveis</h2>
-        <p class="text-sm opacity-70">Escolha o ciclo e a quantidade de usuarios</p>
+        <p class="text-sm opacity-70 m-0">Escolha o ciclo e a quantidade de usuarios</p>
+        <div class="mt-2 text-xs opacity-70">
+          No anual, voce paga 11 meses e ganha 1 mes de desconto.
+        </div>
       </div>
-      <div class="flex items-center gap-2 rounded-full bg-gray-100 p-1">
+
+      <div class="flex items-center gap-2 rounded-full bg-gray-100 p-1 w-fit plano-ciclo">
         <button
           type="button"
-          class="px-4 py-2 rounded-full text-sm font-medium transition"
+          class="px-4 py-2 rounded-full text-sm font-medium transition plano-ciclo__btn"
           [ngClass]="cicloSelecionado() === 'MENSAL' ? 'bg-white text-gray-900 shadow' : 'text-gray-600'"
           (click)="selecionarCiclo('MENSAL')"
         >
           Mensal
         </button>
+
         <button
           type="button"
-          class="px-4 py-2 rounded-full text-sm font-medium transition"
+          class="px-4 py-2 rounded-full text-sm font-medium transition plano-ciclo__btn"
           [ngClass]="cicloSelecionado() === 'ANUAL' ? 'bg-white text-gray-900 shadow' : 'text-gray-600'"
           (click)="selecionarCiclo('ANUAL')"
         >
@@ -27,11 +32,31 @@
         </button>
       </div>
     </div>
-    <div class="mt-2 text-xs opacity-70">
-      No anual, voce paga 11 meses e ganha 1 mes de desconto.
+
+    <div *ngIf="assinatura() as assinaturaAtual" class="plano-atual mt-4">
+      <div class="plano-atual__item">
+        <span class="plano-atual__label">Plano atual</span>
+        <strong>{{ assinaturaAtual.planoNome }}</strong>
+      </div>
+
+      <div class="plano-atual__item">
+        <span class="plano-atual__label">Usuarios</span>
+        <strong>{{ assinaturaAtual.licencasContratadas }}</strong>
+      </div>
+
+      <div class="plano-atual__item">
+        <span class="plano-atual__label">Valor</span>
+        <strong>{{ assinaturaAtual.precoMensal | currency:'BRL':'symbol':'1.2-2' }}/mes</strong>
+      </div>
+
+      <div class="plano-atual__status">
+        <i class="pi pi-verified"></i>
+        <span>{{ assinaturaAtual.status }}</span>
+      </div>
     </div>
   </div>
-  <div class="card-body">
+
+  <div class="card-body pt-0">
     <p-carousel
       [value]="planos()"
       [numVisible]="3"
@@ -40,16 +65,20 @@
       [showIndicators]="true"
       [autoplayInterval]="0"
       [responsiveOptions]="carouselResponsiveOptions"
-      styleClass="w-full"
+      styleClass="w-full planos-carousel"
     >
       <ng-template pTemplate="item" let-p>
-        <p-card class="h-full shadow-sm rounded-2xl border border-gray-100" [ngClass]="{ 'ring-2 ring-green-500 bg-green-50': isPlanoAtual(p) }">
+        <p-card
+          class="h-full shadow-sm rounded-2xl border border-gray-100 mx-2 plano-card"
+          [ngClass]="{ 'ring-2 ring-green-500 bg-green-50': isPlanoAtual(p) }"
+        >
           <ng-template pTemplate="header">
-            <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start justify-between gap-3 plano-card__header">
               <div>
-                <div class="text-lg font-semibold">{{ p.nomePlano }}</div>
-                <div class="text-xs opacity-70">{{ p.descPlano }}</div>
+                <div class="text-lg font-semibold plano-card__title">{{ p.nomePlano }}</div>
+                <div class="text-xs opacity-70 plano-card__subtitle">{{ p.descPlano }}</div>
               </div>
+
               <div class="flex flex-col items-end gap-1">
                 <p-tag *ngIf="isPlanoAtual(p)" severity="success" value="Plano atual"></p-tag>
                 <p-tag *ngIf="cicloSelecionado() === 'ANUAL'" severity="info" value="1 mes de desconto"></p-tag>
@@ -58,9 +87,9 @@
           </ng-template>
 
           <div class="mt-3 flex flex-col gap-4">
-            <div class="rounded-xl bg-gray-50 p-4 flex items-center justify-between gap-4">
+            <div class="rounded-xl bg-gray-50 p-4 flex items-center justify-between gap-4 plano-card__pricebox">
               <div>
-                <div class="text-3xl font-bold">
+                <div class="text-3xl font-bold plano-card__price">
                   {{ getPrecoExibido(p) | currency:'BRL':'symbol':'1.2-2' }}
                 </div>
                 <div class="text-xs opacity-70">
@@ -70,16 +99,17 @@
                   equivalente a {{ p.precoMensal | currency:'BRL':'symbol':'1.2-2' }} / mes
                 </div>
               </div>
-              <div class="text-right">
+
+              <div class="text-right plano-card__users">
                 <div class="text-xs uppercase tracking-wide opacity-70">Usuarios</div>
                 <div class="text-2xl font-semibold">{{ getLimiteUsuarios(p) }}</div>
               </div>
             </div>
 
-            <div>
+            <div class="plano-card__resources">
               <div class="text-xs uppercase tracking-wide opacity-70 mb-2">Recursos</div>
-              <ul class="space-y-1">
-                <li *ngFor="let r of recursosSecundarios(p); trackBy: trackByRecursoId" class="flex items-center gap-2">
+              <ul class="space-y-2">
+                <li *ngFor="let r of recursosSecundarios(p); trackBy: trackByRecursoId" class="flex items-center gap-2 plano-card__resource-item">
                   <i class="pi pi-check text-sm"></i>
                   <span class="text-sm">{{ r.chave }}: <b>{{ r.valor }}</b></span>
                 </li>
@@ -88,14 +118,15 @@
           </div>
 
           <ng-template pTemplate="footer">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between gap-3 plano-card__footer">
               <div *ngIf="isPlanoAtual(p)" class="text-xs opacity-70">Plano atual selecionado</div>
+
               <p-button
                 *ngIf="!isPlanoAtual(p)"
                 label="Selecionar"
                 (onClick)="confirmarTrocaPlano(p)"
                 [styleClass]="
-                  (tipoDeMovimento(p) === 'upgrade'
+                  'w-full md:w-auto ' + (tipoDeMovimento(p) === 'upgrade'
                     ? 'p-button-success'
                     : (tipoDeMovimento(p) === 'downgrade'
                         ? 'p-button-warning'

@@ -1,0 +1,19 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+:host ::ng-deep .card {
+  height: 100%;
+}
+
+:host ::ng-deep .p-inputmask,
+:host ::ng-deep .p-password {
+  width: 100%;
+}
+
+@media (max-width: 1280px) {
+  :host ::ng-deep .card {
+    height: auto;
+  }
+}
