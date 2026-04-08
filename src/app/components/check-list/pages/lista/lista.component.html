@@ -3,7 +3,7 @@
 
 <p-toolbar styleClass="mb-6">
   <ng-template #start>
-    <div class="flex items-center gap-2">
+    <div class="app-toolbar-stack">
       <div>
         <button pButton type="button" label="Novo" icon="pi pi-plus" (click)="openCreate()"></button>
       </div>
@@ -22,13 +22,14 @@
    [tableStyle]="{ 'min-width': '75rem' }"
    [loading]="loading()" 
    (onLazyLoad)="onLazyLoad($event)"
-   [rowsPerPageOptions]="[50,100]"
-   [sortField]="sortField"
-   [sortOrder]="sortOrder" 
-   [responsiveLayout]="'scroll'">
+	   [rowsPerPageOptions]="[50,100]"
+	   [sortField]="sortField"
+	   [sortOrder]="sortOrder" 
+	   [responsiveLayout]="'scroll'"
+	   [scrollable]="true">
 
     <ng-template #caption>
-      <div class="flex items-center justify-between">
+	      <div class="app-table-caption">
         <h5 class="m-0">Lista de Check List</h5>
         <p-iconfield>
           <p-inputicon styleClass="pi pi-search" />

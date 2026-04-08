@@ -2,7 +2,7 @@
 <p-confirmDialog></p-confirmDialog>
 <p-toolbar styleClass="mb-6">
   <ng-template #start>
-    <div class="flex items-center gap-2">
+    <div class="app-toolbar-stack">
             <div>              
                <p-button label="Cadastrar novo Site"  (onClick)="abreModalCadastro()" />
             </div>
@@ -23,6 +23,8 @@
   [rows]="50"
   [columns]="cols" 
   [paginator]="true"
+  [responsiveLayout]="'scroll'"
+  [scrollable]="true"
   dataKey="id"
   [tableStyle]="{ 'min-width': '75rem' }"
   [rowsPerPageOptions]="[50,100]"
@@ -30,7 +32,7 @@
   [showCurrentPageReport]="true">
 
   <ng-template #caption>
-    <div class="flex items-center justify-between">
+    <div class="app-table-caption">
       <h5 class="m-0">Lista de sites</h5>
       <p-iconfield>
         <p-inputicon styleClass="pi pi-search" />

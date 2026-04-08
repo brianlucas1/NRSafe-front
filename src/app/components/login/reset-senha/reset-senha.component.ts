@@ -20,6 +20,7 @@ export class ResetSenhaComponent implements OnInit {
 
   token: string = '';
   resetSenhaForm!: FormGroup;
+  tokenAusente = false;
 
   constructor(private route: ActivatedRoute,
         private fb: FormBuilder,
@@ -27,11 +28,24 @@ export class ResetSenhaComponent implements OnInit {
     private msgService: MessageService,
     private authState: AuthStateService,
     private logger: LoggerService,
+    private router: Router,
     ) { }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.token = params['token'];
+      const tokenParam = String(params['token'] ?? '').trim();
+      if (tokenParam) {
+        this.token = tokenParam;
+        this.tokenAusente = false;
+        void this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: {},
+          replaceUrl: true
+        });
+        return;
+      }
+
+      this.tokenAusente = !this.token;
     });
 
     this.authState.limpar();
@@ -50,6 +64,12 @@ export class ResetSenhaComponent implements OnInit {
   }
 
   async cadastraNovaSenha(): Promise<void> {
+    if (!this.token) {
+      this.tokenAusente = true;
+      this.msgService.add({ severity: 'error', summary: 'Erro', detail: 'Link de redefinicao invalido ou expirado.' });
+      return;
+    }
+
     if (this.resetSenhaForm.invalid) {
       this.resetSenhaForm.markAllAsTouched();
       return;

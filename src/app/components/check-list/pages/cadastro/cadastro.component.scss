@@ -15,3 +15,14 @@
   gap: .5rem;
   margin-top: 1rem;
 }
+
+@media (max-width: 767px) {
+  .footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .footer .p-button {
+    width: 100%;
+  }
+}

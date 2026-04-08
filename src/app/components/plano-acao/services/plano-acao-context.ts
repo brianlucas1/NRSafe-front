@@ -22,4 +22,27 @@ export class PlanoAcaoContextService {
   }
   
   clearPanr() { sessionStorage.removeItem(this.K_PANR); }
+
+  captureFromNavigationState(state: { idPlanoAcao?: number; idPlanoAcaoNorma?: number } | null | undefined): void {
+    const planoId = Number(state?.idPlanoAcao);
+    const panrId = Number(state?.idPlanoAcaoNorma);
+
+    if (Number.isFinite(planoId) && planoId > 0) {
+      this.setPlano(planoId);
+    }
+
+    if (Number.isFinite(panrId) && panrId > 0) {
+      this.setPanr(panrId);
+    }
+  }
+
+  get(): { planoId: number | null; visitaId: number | null; panrId: number | null } {
+    const planoId = this.getPlano();
+    const panrId = this.getPanr();
+    return {
+      planoId,
+      visitaId: panrId,
+      panrId
+    };
+  }
 }

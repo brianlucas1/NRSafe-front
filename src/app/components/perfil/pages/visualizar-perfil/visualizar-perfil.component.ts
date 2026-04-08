@@ -124,7 +124,6 @@ export class VisualizarPerfilComponent {
 
       const dto: TrocaSenhaRequestDTO = {
         senhaAtual: form.senhaAtual,
-        idUsuario: this.userCarregado?.idUsuario!,
         novaSenha: form.novaSenha
       };
 
@@ -154,7 +153,6 @@ export class VisualizarPerfilComponent {
       const clienteForm = this.dadosClienteForm.value;
 
       const dto: ClienteUpdateRequestDTO = {
-        id: this.userCarregado?.cliente?.id!,
         telefone: clienteForm.telefone,
         endereco: {
           cep: clienteForm.cep,

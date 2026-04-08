@@ -14,3 +14,9 @@
   font-size: 1.45rem;
   font-weight: 700;
 }
+
+@media (max-width: 767px) {
+  .page-title {
+    font-size: 1.2rem;
+  }
+}

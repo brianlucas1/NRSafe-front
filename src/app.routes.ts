@@ -16,18 +16,20 @@ import { VisualizarPerfilComponent } from './app/components/perfil/pages/visuali
 import { EditarClienteComponent } from './app/components/clientes/pages/editar-cliente/editar-cliente.component';
 import { HistoricoPagamentoComponent } from './app/components/pagamento/pages/historico/historico-pagamento.component';
 import { ClientePerfilGuard } from './services/auth/cliente-perfil.guard';
+import { SuporteGuard } from './services/auth/suporte.guard';
+import { PermissoesGuard } from './services/auth/permissoes.guard';
 
 
 export const appRoutes: Routes = [
  { 
     path: 'clientes/:id', 
     component: EditarClienteComponent, 
-    canActivate: [AuthGuard] 
+    canActivate: [AuthGuard, SuporteGuard] 
   },
   { 
     path: 'permissoes', 
     component: PermissoesComponent, 
-    canActivate: [AuthGuard] 
+    canActivate: [AuthGuard, PermissoesGuard] 
   },
  { path: 'login', component: LoginComponent },
   { 
@@ -35,10 +37,10 @@ export const appRoutes: Routes = [
     component: HomeComponent, 
     canActivate: [AuthGuard] 
   },
-   { 
+  { 
     path: 'clientes', 
     component: ListaClientesComponent, 
-    canActivate: [AuthGuard] 
+    canActivate: [AuthGuard, SuporteGuard] 
   },
   { 
     path: 'perfil', 
@@ -57,6 +59,7 @@ export const appRoutes: Routes = [
   },
   { 
        path: 'plano-acao',
+    canActivate: [AuthGuard],
     loadChildren: () =>
       import('./app/components/plano-acao/plano-acao-routes').then(m => m.PLANO_ACAO_ROUTES)
   },

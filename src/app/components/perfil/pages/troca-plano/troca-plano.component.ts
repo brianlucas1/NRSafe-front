@@ -12,6 +12,7 @@ import { PlanoRecursoResponseDTO } from "../../../../models/response/recurso-res
 import { TrocaPlanoRequestDTO } from "../../dtos/troca-plano-request-dto";
 import { AuthStateService } from "../../../../../services/auth/auth-state.service";
 import { LoggerService } from "../../../../../services/logger.service";
+import { environment } from "../../../../../environments/environment";
 
 type BillingCycle = 'MENSAL' | 'ANUAL';
 
@@ -135,7 +136,7 @@ export class TrocarPlanoComponent {
     this.assinaturaService.trocarPlano(trocaPlanoDTO).subscribe({
       next: (res) => {
         const checkoutUrl = res?.checkoutUrl?.trim();
-        if (!checkoutUrl) {
+        if (!checkoutUrl || !this.isHttpsUrl(checkoutUrl)) {
           this.msg.add({ severity: 'error', summary: 'Erro', detail: 'Nao foi possivel iniciar o checkout.' });
           return;
         }
@@ -172,6 +173,10 @@ export class TrocarPlanoComponent {
 
   private obterMensagemErroTrocaPlano(error: unknown): string {
     const fallback = 'Nao foi possivel alterar o plano.';
+
+    if (environment.production) {
+      return fallback;
+    }
 
     if (!(error instanceof HttpErrorResponse)) {
       return fallback;
@@ -223,5 +228,14 @@ export class TrocarPlanoComponent {
   private isRecursoUsuarios(recurso: PlanoRecursoResponseDTO) {
     const chave = (recurso?.chave ?? '').toUpperCase();
     return chave.includes('USU') || chave.includes('LICEN');
+  }
+
+  private isHttpsUrl(valor: string): boolean {
+    try {
+      const url = new URL(valor);
+      return url.protocol === 'https:';
+    } catch {
+      return false;
+    }
   }
 }

@@ -1,8 +1,8 @@
 // Utilidades para formatar datas para backends Java (LocalDate/LocalDateTime)
 
 /**
- * Retorna 'YYYY-MM-DD' representando o dia local, sem timezone.
- * - Se endOfDay = false, considera início do dia local (00:00:00.000)
+ * Retorna 'yyyy-MM-dd' representando o dia local, sem timezone.
+ * - Se endOfDay = false, considera inicio do dia local (00:00:00.000)
  * - Se endOfDay = true, considera fim do dia local (23:59:59.999)
  */
 export function formataDataDiaMesAno(date: Date, endOfDay: boolean): string {
@@ -12,7 +12,7 @@ export function formataDataDiaMesAno(date: Date, endOfDay: boolean): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
-  return `${day}-${m}-${y}`;
+  return `${y}-${m}-${day}`;
 }
 
 export function startOfDayLocalForJava(date: Date): string {
@@ -22,4 +22,3 @@ export function startOfDayLocalForJava(date: Date): string {
 export function endOfDayLocalForJava(date: Date): string {
   return formataDataDiaMesAno(date, true);
 }
-

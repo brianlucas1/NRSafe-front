@@ -1,9 +1,9 @@
 <p-toast></p-toast>
 
 <div class="card">
-  <div class="flex items-center justify-between mb-3">
+  <div class="app-table-caption mb-3">
     <h3 class="m-0">Permissões</h3>
-    <div class="flex items-center gap-2">
+    <div class="app-toolbar-stack">
       <button pButton label="Salvar Tudo" icon="pi pi-save" (click)="salvarTudo()" [disabled]="loading"></button>
     </div>
   </div>
@@ -11,6 +11,8 @@
   <p-table 
   [value]="papeis"
    [loading]="loading"
+  [responsiveLayout]="'scroll'"
+  [scrollable]="true"
   [tableStyle]="{ 'min-width': '40rem' }">
     <ng-template pTemplate="header">
       <tr>

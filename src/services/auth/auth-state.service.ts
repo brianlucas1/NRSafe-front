@@ -77,8 +77,7 @@ export class AuthStateService {
   }
 
   isSuporte(): boolean {
-    const rotulo = this.obterRotuloUsuario();
-    return (rotulo || '').toUpperCase() === 'SUPORTE';
+    return this.temAlgumaPermissao(['ROLE_SUPORTE', 'SUPORTE', 'ROLE_ADMIN', 'ADMIN']);
   }
 
   isCliente(): boolean {
@@ -104,10 +103,17 @@ export class AuthStateService {
     return this.possuiPermissao(AcaoPermissaoEnum.BAIXAR);
   }
 
+  podeGerenciarPermissoes(): boolean {
+    return this.isSuporte() || (this.isCliente() && this.podeSalvar());
+  }
+
   definirSessaoAPartirDoJwt(resposta: JwtResponse): void {
     const token = resposta.accessToken ?? '';
     const expiraEm = Date.now() + (resposta.expiresIn ?? 0) * 1000;
-    const permissoes = this.normalizarPermissoes(resposta.permissoes ?? resposta.roles ?? []);
+    const permissoes = this.normalizarPermissoes([
+      ...(resposta.permissoes ?? []),
+      ...(resposta.roles ?? [])
+    ]);
     const rotulo = resposta.loggedUserLabel ?? null;
     const clienteUser = !!resposta.clienteUser;
     const assinaturaAtiva = resposta.assinaturaAtiva !== false;

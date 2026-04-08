@@ -1,17 +1,17 @@
 <p-toast></p-toast>
 <form [formGroup]="loginForm" (ngSubmit)="fazerLogin()">
     <div
-        class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
-        <div class="flex flex-col items-center justify-center">
+        class="app-auth-page bg-surface-50 dark:bg-surface-950 flex items-center justify-center">
+        <div class="app-auth-card flex flex-col items-center justify-center">
             <div
                 style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
-                <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
+                <div class="app-auth-surface bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
                     <div class="text-center mb-8">
 
                         <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">
                             <a class="layout-topbar-logo" routerLink="/">
-                                <img style="width: 250px;" src="assets/images/logo/logo-horizontal.png"
-                                    class="w-12 h-auto object-contain" />
+                                <img src="assets/images/logo/logo-horizontal.png" alt="NRSafe"
+                                    class="app-auth-logo" />
                             </a>
                         </div>
                     </div>

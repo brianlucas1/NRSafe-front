@@ -16,6 +16,7 @@ import { MessageService } from 'primeng/api';
 export class EsqueceuSenhaComponent {
 
   emailRequest: EmailRequestDTO = { email: '' }; 
+  enviando = false;
 
   constructor(
     private loginService: LoginSerivce,
@@ -25,18 +26,30 @@ export class EsqueceuSenhaComponent {
   }
 
   resetSenha() {
-    if (this.emailRequest?.email?.trim()) {
-       this.loginService.esqueceuSenha(this.emailRequest)
-      .subscribe({
-        next: res =>{
-          alert('E-mail enviado com sucesso! Verifique sua caixa de entrada.');
-          this.router.navigate(['/login'])
-        },
-        error: error => {
-            this.service.add({ severity: 'error', summary: 'Error Message', detail: error?.error[0] });
-        }
-      })
+    if (this.enviando || !this.emailRequest?.email?.trim()) {
+      return;
     }
+
+    this.enviando = true;
+    this.loginService.esqueceuSenha(this.emailRequest)
+      .subscribe({
+        next: () => {
+          this.exibirMensagemNeutra();
+        },
+        error: () => {
+          this.exibirMensagemNeutra();
+        }
+      });
+  }
+
+  private exibirMensagemNeutra(): void {
+    this.enviando = false;
+    this.service.add({
+      severity: 'info',
+      summary: 'Recuperacao de senha',
+      detail: 'Se o e-mail informado existir, enviaremos as instrucoes para redefinicao.'
+    });
+    setTimeout(() => this.router.navigate(['/login']), 1500);
   }
 
 }

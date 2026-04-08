@@ -9,7 +9,6 @@ import { LoggerService } from '../../../../services/logger.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { environment } from '../../../../environments/environment';
 
-
 @Component({
     selector: 'app-menu',
     standalone: true,
@@ -23,6 +22,7 @@ export class MenuComponent implements OnInit {
 
     isAdmin: boolean = false;
     isClientePerfil: boolean = false;
+    podeGerenciarPermissoes: boolean = false;
     appVersion = environment.version;
 
     constructor(
@@ -34,12 +34,9 @@ export class MenuComponent implements OnInit {
 
     model: MenuItem[] = [];
 
-
-     ngOnInit(): void {
+    ngOnInit(): void {
         this.verificarPerfilUsuario();
-        // Primeiro desenho do menu
         this.criarModelo(this.authState.obterRotuloUsuario() ?? undefined);
-        // Atualiza quando o rótulo mudar (ex.: após refresh inicial)
         this.authState
             .observarRotuloUsuario()
             .pipe(takeUntilDestroyed())
@@ -53,7 +50,7 @@ export class MenuComponent implements OnInit {
         if (this.isAdmin) {
             this.model = [
                 {
-                    label: 'Início',
+                    label: 'Inicio',
                     icon: 'pi pi-fw pi-home',
                     items: [
                         { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },
@@ -66,7 +63,7 @@ export class MenuComponent implements OnInit {
                 {
                     label: 'Suporte',
                     icon: 'pi pi-cog',
-                      items: [
+                    items: [
                         { label: 'LISTA DE CLIENTES', icon: 'pi pi-users', routerLink: ['/clientes'] },
                     ]
                 },
@@ -77,11 +74,11 @@ export class MenuComponent implements OnInit {
         const labelCliente = rotuloUsuario ?? 'Cliente';
         this.model = [
             {
-                label: 'Início',
+                label: 'Inicio',
                 icon: 'pi pi-fw pi-home',
                 items: [
                     { label: 'Dashboard', icon: 'pi pi-chart-bar', routerLink: ['/dashboard'] },
-                    { label: 'Gestão de plano ação', icon: 'pi pi-chart-bar', routerLink: ['/plano-acao'] },
+                    { label: 'Gestao de plano acao', icon: 'pi pi-chart-bar', routerLink: ['/plano-acao'] },
                 ]
             },
             {
@@ -90,7 +87,7 @@ export class MenuComponent implements OnInit {
                 items: [
                     { label: 'Colaboradores', icon: 'pi pi-user', routerLink: ['/funcionarios'] },
                     { label: 'Check-list', icon: 'pi pi-clipboard', routerLink: ['/check-list'] },
-                    { label: 'Permissões', icon: 'pi pi-shield', routerLink: ['/permissoes'] },
+                    ...(this.podeGerenciarPermissoes ? [{ label: 'Permissoes', icon: 'pi pi-shield', routerLink: ['/permissoes'] }] : []),
                 ]
             },
             {
@@ -115,12 +112,11 @@ export class MenuComponent implements OnInit {
     private verificarPerfilUsuario(): void {
         this.isAdmin = this.authState.isSuporte();
         this.isClientePerfil = this.authState.isCliente();
+        this.podeGerenciarPermissoes = this.authState.podeGerenciarPermissoes();
     }
-
-   
 
     fazerLogout() {
         this.authService.logout();
-        this.router.navigate(["/login"])
+        this.router.navigate(['/login']);
     }
 }

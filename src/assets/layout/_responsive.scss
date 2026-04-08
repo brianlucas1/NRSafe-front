@@ -71,7 +71,8 @@
     .layout-wrapper {
         .layout-main-container {
             margin-left: 0;
-            padding-left: 2rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
         }
 
         .layout-sidebar {
@@ -81,6 +82,7 @@
             height: 100vh;
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
+            width: min(20rem, calc(100vw - 1rem));
             transition:
                 transform 0.4s cubic-bezier(0.05, 0.74, 0.2, 0.99),
                 left 0.4s cubic-bezier(0.05, 0.74, 0.2, 0.99);

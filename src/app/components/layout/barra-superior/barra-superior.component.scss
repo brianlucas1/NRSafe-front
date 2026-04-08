@@ -1,6 +1,9 @@
 /* Exibe o rótulo do usuário mesmo em telas grandes */
 .rotulo-usuario {
-  display: inline !important;
+  display: inline-block !important;
+  max-width: min(24rem, 40vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -12,5 +15,18 @@
   padding: 0 0.5rem !important;
   gap: 0.5rem;
   align-items: center;
+  max-width: 100%;
   white-space: nowrap;
+}
+
+@media (max-width: 991px) {
+  .rotulo-usuario {
+    max-width: 100%;
+  }
+
+  .rotulo-usuario-acao {
+    height: auto !important;
+    align-items: flex-start;
+    white-space: normal;
+  }
 }

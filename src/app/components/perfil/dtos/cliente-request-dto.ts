@@ -1,5 +1,4 @@
 export interface ClienteUpdateRequestDTO {
-  id: number; 
   telefone: string;
   endereco: {
     cep: string;

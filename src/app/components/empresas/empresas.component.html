@@ -3,7 +3,7 @@
 
 <p-toolbar styleClass="mb-6">
   <ng-template #start>
-    <div class="flex items-center gap-2">
+    <div class="app-toolbar-stack">
       <div>
         <p-button label="Cadastrar nova empresa" (onClick)="abreModalCadastro()" />
       </div>
@@ -26,6 +26,8 @@
   (onRowCollapse)="onRowCollapse($event)"
   dataKey="id"
   [paginator]="true"
+  [responsiveLayout]="'scroll'"
+  [scrollable]="true"
   [rows]="50"
   [columns]="cols"
   [tableStyle]="{ 'min-width': '75rem' }"
@@ -35,7 +37,7 @@
 >
 
   <ng-template #caption>
-    <div class="flex items-center justify-between">
+    <div class="app-table-caption">
       <h5 class="m-0">Lista de Empresas</h5>
       <p-iconfield>
         <p-inputicon styleClass="pi pi-search" />
@@ -110,6 +112,7 @@
       class="tabela-zebrada"
         [value]="empresa.listaFiliais"
         [responsiveLayout]="'scroll'"
+        [scrollable]="true"
         class="p-datatable-sm"
         styleClass="p-datatable-striped w-full"
       >

@@ -88,7 +88,7 @@ export class FaturasComponent implements OnInit, OnDestroy {
     this.pagamentoSub = this.pagamentoHistoricoService.buscarLinkPagamentoFaturaEmAtraso().subscribe({
       next: (response) => {
         const linkPagamento = response?.linkPagamento?.trim();
-        if (!linkPagamento) {
+        if (!linkPagamento || !this.isHttpsUrl(linkPagamento)) {
           this.messages.add({ severity: 'error', summary: 'Erro', detail: 'Nao foi possivel iniciar o pagamento.' });
           return;
         }
@@ -161,5 +161,14 @@ export class FaturasComponent implements OnInit, OnDestroy {
       .filter(Boolean)
       .map((parte) => parte.charAt(0).toUpperCase() + parte.slice(1))
       .join(' ');
+  }
+
+  private isHttpsUrl(valor: string): boolean {
+    try {
+      const url = new URL(valor);
+      return url.protocol === 'https:';
+    } catch {
+      return false;
+    }
   }
 }
